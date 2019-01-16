@@ -1,0 +1,6 @@
+build/* linguist-vendored
+images/* linguist-vendored
+packages/* linguist-vendored
+release/* linguist-vendored
+source/NETCoreServer/* linguist-vendored
+tools/* linguist-vendored
