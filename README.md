@@ -1,13 +1,13 @@
-# NETCoreServer
+# NetCoreServer
 
-[![Windows build status](https://img.shields.io/appveyor/ci/chronoxor/NETCoreServer/master.svg?label=Windows)](https://ci.appveyor.com/project/chronoxor/NETCoreServer)
+[![Windows build status](https://img.shields.io/appveyor/ci/chronoxor/NetCoreServer/master.svg?label=Windows)](https://ci.appveyor.com/project/chronoxor/NetCoreServer)
 
 Ultra fast and low latency asynchronous socket server & client C# .NET Core
 library with support TCP, SSL, UDP protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)
 solution.
 
-[NETCoreServer documentation](https://chronoxor.github.io/NETCoreServer)<br/>
-[NETCoreServer downloads](https://github.com/chronoxor/NETCoreServer/releases)<br/>
+[NetCoreServer documentation](https://chronoxor.github.io/NetCoreServer)<br/>
+[NetCoreServer downloads](https://github.com/chronoxor/NetCoreServer/releases)<br/>
 
 # Contents
   * [Features](#features)
@@ -55,19 +55,19 @@ solution.
 
 ### Setup repository
 ```shell
-git clone https://github.com/chronoxor/NETCoreServer.git
-cd NETCoreServer
+git clone https://github.com/chronoxor/NetCoreServer.git
+cd NetCoreServer
 ```
 
 ### Windows (Visual Studio)
-Open and build NETCoreServer.sln or run the build script:
+Open and build NetCoreServer.sln or run the build script:
 ```shell
 cd build
 vs.bat
 ```
 
 The build script will create "release" directory with zip files:
-* NETCoreServer.zip - C# Server assembly
+* NetCoreServer.zip - C# Server assembly
 * Benchmarks.zip - C# Server benchmarks
 * Examples.zip - C# Server examples
 
@@ -80,7 +80,7 @@ be used in synchronous or asynchronous modes.
 ```c#
 using System;
 using System.Threading;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace AsioTimer
 {
@@ -163,7 +163,7 @@ is possible to send admin message directly from the server.
 ```c#
 using System;
 using System.Text;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace TcpChatServer
 {
@@ -291,7 +291,7 @@ server and allows to send message to it and receive new messages.
 using System;
 using System.Text;
 using System.Threading;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace TcpChatClient
 {
@@ -417,7 +417,7 @@ context and handshake handler.
 ```c#
 using System;
 using System.Text;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace SslChatServer
 {
@@ -555,7 +555,7 @@ context and handshake handler.
 using System;
 using System.Text;
 using System.Threading;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace SslChatClient
 {
@@ -682,7 +682,7 @@ from any UDP client and resend it back without any changes.
 ```c#
 using System;
 using System.Text;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace UdpEchoServer
 {
@@ -771,7 +771,7 @@ to UDP server and listen for response.
 using System;
 using System.Text;
 using System.Threading;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace UdpEchoClient
 {
@@ -894,7 +894,7 @@ multicast group.
 ```c#
 using System;
 using System.Text;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace UdpMulticastServer
 {
@@ -987,7 +987,7 @@ from UDP server.
 using System;
 using System.Text;
 using System.Threading;
-using NETCoreServer;
+using NetCoreServer;
 
 namespace UdpMulticastClient
 {
@@ -1137,7 +1137,7 @@ Process configuaraion: release
 
 ## Benchmark: Round-Trip
 
-![Round-trip](https://github.com/chronoxor/NETCoreServer/raw/master/images/round-trip.png)
+![Round-trip](https://github.com/chronoxor/NetCoreServer/raw/master/images/round-trip.png)
 
 This scenario sends lots of messages from several clients to a server.
 The server responses to each message and resend the similar response to
@@ -1147,8 +1147,8 @@ of errors.
 
 ### TCP echo server
 
-* [TcpEchoServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
-* [TcpEchoClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/TcpEchoClient/Program.cs) -c 1 -m 1000000 -t 1
+* [TcpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
+* [TcpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoClient/Program.cs) -c 1 -m 1000000 -t 1
 
 ```
 Server address: 127.0.0.1
@@ -1168,8 +1168,8 @@ Message latency: 3.893 mcs
 Message throughput: 256842 msg/s
 ```
 
-* [TcpEchoServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
-* [TcpEchoClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/TcpEchoClient/Program.cs) -c 100 -m 1000000 -t 4
+* [TcpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
+* [TcpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoClient/Program.cs) -c 100 -m 1000000 -t 4
 
 ```
 Server address: 127.0.0.1
@@ -1191,8 +1191,8 @@ Message throughput: 641705 msg/s
 
 ### SSL echo server
 
-* [SslEchoServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/SslEchoServer/Program.cs)
-* [SslEchoClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/SslEchoClient/Program.cs) -c 1 -m 1000000 -t 1
+* [SslEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoServer/Program.cs)
+* [SslEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoClient/Program.cs) -c 1 -m 1000000 -t 1
 
 ```
 Server address: 127.0.0.1
@@ -1212,8 +1212,8 @@ Message latency: 7.201 mcs
 Message throughput: 138858 msg/s
 ```
 
-* [SslEchoServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/SslEchoServer/Program.cs)
-* [SslEchoClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/SslEchoClient/Program.cs) -c 100 -m 1000000 -t 4
+* [SslEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoServer/Program.cs)
+* [SslEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoClient/Program.cs) -c 100 -m 1000000 -t 4
 
 ```
 Server address: 127.0.0.1
@@ -1235,8 +1235,8 @@ Message throughput: 227600 msg/s
 
 ### UDP echo server
 
-* [UdpEchoServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
-* [UdpEchoClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/UdpEchoClient/Program.cs) -c 1 -m 1000000 -t 1
+* [UdpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
+* [UdpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoClient/Program.cs) -c 1 -m 1000000 -t 1
 
 ```
 Server address: 127.0.0.1
@@ -1256,8 +1256,8 @@ Message latency: 22.071 mcs
 Message throughput: 45306 msg/s
 ```
 
-* [UdpEchoServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
-* [UdpEchoClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/UdpEchoClient/Program.cs) -c 100 -m 1000000 -t 4
+* [UdpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
+* [UdpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoClient/Program.cs) -c 100 -m 1000000 -t 4
 
 ```
 Server address: 127.0.0.1
@@ -1279,7 +1279,7 @@ Message throughput: 164201 msg/s
 
 ## Benchmark: Multicast
 
-![Multicast](https://github.com/chronoxor/NETCoreServer/raw/master/images/multicast.png)
+![Multicast](https://github.com/chronoxor/NetCoreServer/raw/master/images/multicast.png)
 
 In this scenario server multicasts messages to all connected clients.
 The benchmark counts total messages received by all clients for all
@@ -1288,8 +1288,8 @@ of errors.
 
 ### TCP multicast server
 
-* [TcpMulticastServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
-* [TcpMulticastClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/TcpMulticastClient/Program.cs) -c 1 -t 1
+* [TcpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
+* [TcpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastClient/Program.cs) -c 1 -t 1
 
 ```
 Server address: 127.0.0.1
@@ -1308,8 +1308,8 @@ Message latency: 314 ns
 Message throughput: 3179388 msg/s
 ```
 
-* [TcpMulticastServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
-* [TcpMulticastClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/TcpMulticastClient/Program.cs) -c 100 -t 4
+* [TcpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
+* [TcpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastClient/Program.cs) -c 100 -t 4
 
 ```
 Server address: 127.0.0.1
@@ -1330,8 +1330,8 @@ Message throughput: 11505891 msg/s
 
 ### SSL multicast server
 
-* [SslMulticastServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/SslMulticastServer/Program.cs)
-* [SslMulticastClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/SslMulticastClient/Program.cs) -c 1 -t 1
+* [SslMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastServer/Program.cs)
+* [SslMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastClient/Program.cs) -c 1 -t 1
 
 ```
 Server address: 127.0.0.1
@@ -1350,8 +1350,8 @@ Message latency: 667 ns
 Message throughput: 1499196 msg/s
 ```
 
-* [SslMulticastServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/SslMulticastServer/Program.cs)
-* [SslMulticastClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/SslMulticastClient/Program.cs) -c 100 -t 4
+* [SslMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastServer/Program.cs)
+* [SslMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastClient/Program.cs) -c 100 -t 4
 
 ```
 Server address: 127.0.0.1
@@ -1372,8 +1372,8 @@ Message throughput: 9984724 msg/s
 
 ### UDP multicast server
 
-* [UdpMulticastServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
-* [UdpMulticastClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/UdpMulticastClient/Program.cs) -c 1 -t 1
+* [UdpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
+* [UdpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastClient/Program.cs) -c 1 -t 1
 
 ```
 Server address: 239.255.0.1
@@ -1392,8 +1392,8 @@ Message latency: 15.553 mcs
 Message throughput: 64292 msg/s
 ```
 
-* [UdpMulticastServer](https://github.com/chronoxor/NETCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
-* [UdpMulticastClient](https://github.com/chronoxor/NETCoreServer/blob/master/performance/UdpMulticastClient/Program.cs) -c 100 -t 4
+* [UdpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
+* [UdpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastClient/Program.cs) -c 100 -t 4
 
 ```
 Server address: 239.255.0.1

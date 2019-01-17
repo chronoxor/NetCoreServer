@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETCoreServer", "source\NETCoreServer\NETCoreServer.csproj", "{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreServer", "source\NetCoreServer\NetCoreServer.csproj", "{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "performance", "performance", "{8965E5CD-E36E-4DC5-A36E-827AFFC642D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpChatServer", "examples\TcpChatServer\TcpChatServer.csproj", "{AC03EE4C-F42A-40B4-83FB-16A5DA368947}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +21,16 @@ Global
 		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC03EE4C-F42A-40B4-83FB-16A5DA368947}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC03EE4C-F42A-40B4-83FB-16A5DA368947}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC03EE4C-F42A-40B4-83FB-16A5DA368947}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC03EE4C-F42A-40B4-83FB-16A5DA368947}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AC03EE4C-F42A-40B4-83FB-16A5DA368947} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {64415837-63D9-474E-A25C-EE91C9CA90C5}
