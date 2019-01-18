@@ -1,0 +1,47 @@
+# Specify version format
+version: "1.0.0.{build}"
+
+# Image to use
+image: Visual Studio 2017
+
+# Branches to build
+branches:
+  only: 
+    - master
+
+# Including commits with 'build' comment
+only_commits:
+  message: build
+
+# Build matrix
+environment:
+  matrix:
+    - type: VisualStudio
+      build: call vs.bat
+      command: cmd /C
+
+# Allow to fail on first error in matrix
+matrix:
+  fast_finish: true
+
+# Scripts that run after cloning repository
+install:
+  # Chocolatey
+  - choco upgrade chocolatey
+  # Visual Studio
+  - if "%type%"=="VisualStudio" set INCLUDE=C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared;%INCLUDE%
+  - if "%type%"=="VisualStudio" set LIB=C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64;%LIB%
+  # CMake
+  - '%command% "cmake --version"'
+  # gil
+  - set PATH=C:\Python37;C:\Python37\Scripts;%PATH%
+  - pip3 install gil
+  - gil update
+
+# Build scripts
+build_script:
+  - cd build
+  - '%build%'
+
+# Test scripts
+test: off
