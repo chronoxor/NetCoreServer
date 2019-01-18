@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 
 namespace NetCoreServer
@@ -12,7 +12,7 @@ namespace NetCoreServer
     /// TCP server is used to connect, disconnect and manage TCP sessions
     /// </summary>
     /// <remarks>Thread-safe</remarks>
-    public class TcpServer
+    public class TcpServer : IDisposable
     {
         /// <summary>
         /// Initialize TCP server with a given IP address and port number
@@ -103,7 +103,7 @@ namespace NetCoreServer
         /// Start the server
         /// </summary>
         /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
-        public bool Start()
+        public virtual bool Start()
         {
             Debug.Assert(!IsStarted, "TCP server is already started!");
             if (IsStarted)
@@ -127,10 +127,12 @@ namespace NetCoreServer
             // Call the server started handler
             OnStarted();
 
-            // Perform the first server accept
-            IsAccepting = true;
+            // Setup acceptor event arg 
             _acceptorEventArg = new SocketAsyncEventArgs();
             _acceptorEventArg.Completed += AcceptorEventArg_Completed;
+
+            // Perform the first server accept
+            IsAccepting = true;
             StartAccept(_acceptorEventArg);
 
             return true;
@@ -140,7 +142,7 @@ namespace NetCoreServer
         /// Stop the server
         /// </summary>
         /// <returns>'true' if the server was successfully stopped, 'false' if the server is already stopped</returns>
-        public bool Stop()
+        public virtual bool Stop()
         {
             Debug.Assert(IsStarted, "TCP server is not started!");
             if (!IsStarted)
@@ -148,6 +150,9 @@ namespace NetCoreServer
 
             // Stop accepting new clients
             IsAccepting = false;
+
+            // Reset acceptor event arg
+            _acceptorEventArg.Completed -= AcceptorEventArg_Completed;
 
             // Close the acceptor socket
             _acceptorSocket.Close();
@@ -157,9 +162,6 @@ namespace NetCoreServer
 
             // Update the started flag
             IsStarted = false;
-
-            // Clear multicast buffer
-            ClearBuffers();
 
             // Call the server stopped handler
             OnStopped();
@@ -171,7 +173,7 @@ namespace NetCoreServer
         /// Restart the server
         /// </summary>
         /// <returns>'true' if the server was successfully restarted, 'false' if the server failed to restart</returns>
-        public bool Restart()
+        public virtual bool Restart()
         {
             if (!Stop())
                 return false;
@@ -215,7 +217,7 @@ namespace NetCoreServer
                 session.Connect(e.AcceptSocket);
             }
             else
-                OnError(e.SocketError);
+                SendError(e.SocketError);
 
             // Accept the next client connection
             if (IsAccepting)
@@ -246,28 +248,19 @@ namespace NetCoreServer
         #region Session management
 
         // Server sessions
-        private readonly object _sessionsLock = new object();
-        private readonly Dictionary<Guid, TcpSession> _sessions = new Dictionary<Guid, TcpSession>();
+        private readonly ConcurrentDictionary<Guid, TcpSession> _sessions = new ConcurrentDictionary<Guid, TcpSession>();
 
         /// <summary>
         /// Disconnect all connected sessions
         /// </summary>
         /// <returns>'true' if all sessions were successfully disconnected, 'false' if the server is not started</returns>
-        public bool DisconnectAll()
+        public virtual bool DisconnectAll()
         {
             if (!IsStarted)
                 return false;
 
-            TcpSession[] disconnect;
-
-            lock (_sessionsLock)
-            {
-                // Copy sessions to disconnect
-                disconnect = _sessions.Values.ToArray();
-            }
-
             // Disconnect all sessions
-            foreach (var session in disconnect)
+            foreach (var session in _sessions.Values)
                 session.Disconnect();
 
             return true;
@@ -280,11 +273,8 @@ namespace NetCoreServer
         /// <returns>Session with a given Id or null if the session it not connected</returns>
         public TcpSession FindSession(Guid id)
         {
-            lock (_sessionsLock)
-            {
-                // Try to find the required session
-                return _sessions.TryGetValue(id, out TcpSession result) ? result : null;
-            }
+            // Try to find the required session
+            return _sessions.TryGetValue(id, out TcpSession result) ? result : null;
         }
 
         /// <summary>
@@ -293,11 +283,8 @@ namespace NetCoreServer
         /// <param name="session">Session to register</param>
         internal void RegisterSession(TcpSession session)
         {
-            lock (_sessionsLock)
-            {
-                // Register a new session
-                _sessions[session.Id] = session;
-            }
+            // Register a new session
+            _sessions.TryAdd(session.Id, session);
         }
 
         /// <summary>
@@ -306,27 +293,20 @@ namespace NetCoreServer
         /// <param name="id">Session Id</param>
         internal void UnregisterSession(Guid id)
         {
-            lock (_sessionsLock)
-            {
-                // Unregister session by Id
-                _sessions.Remove(id);
-            }
+            // Unregister session by Id
+            _sessions.TryRemove(id, out TcpSession temp);
         }
 
         #endregion
 
         #region Multicasting
 
-        // Multicast buffer
-        private readonly object _multicastLock = new object();
-        private readonly List<byte> _multicastBuffer = new List<byte>();
-
         /// <summary>
         /// Multicast data to all connected sessions
         /// </summary>
         /// <param name="buffer">Buffer to multicast</param>
         /// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
-        public bool Multicast(byte[] buffer) { return Multicast(buffer, 0, buffer.Length); }
+        public virtual bool Multicast(byte[] buffer) { return Multicast(buffer, 0, buffer.Length); }
 
         /// <summary>
         /// Multicast data to all connected clients
@@ -335,8 +315,18 @@ namespace NetCoreServer
         /// <param name="offset">Buffer offset</param>
         /// <param name="size">Buffer size</param>
         /// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
-        public bool Multicast(byte[] buffer, long offset, long size)
+        public virtual bool Multicast(byte[] buffer, long offset, long size)
         {
+            if (!IsStarted)
+                return false;
+
+            if (size == 0)
+                return true;
+            
+            // Multicast data to all sessions
+            foreach (var session in _sessions.Values)
+                session.Send(buffer, offset, size);
+
             return true;
         }
 
@@ -345,24 +335,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="text">Text string to multicast</param>
         /// <returns>'true' if the text was successfully multicasted, 'false' if the text was not multicasted</returns>
-        public bool Multicast(string text)
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// Clear multicast buffer
-        /// </summary>
-        private void ClearBuffers()
-        {
-            lock (_multicastLock)
-            {
-                _multicastBuffer.Clear();
-
-                // Update statistic
-                BytesPending = 0;
-            }
-        }
+        public virtual bool Multicast(string text) { return Multicast(Encoding.UTF8.GetBytes(text)); }
 
         #endregion
 
@@ -396,6 +369,78 @@ namespace NetCoreServer
 
         internal void OnConnectedInternal(TcpSession session) { OnConnected(session); }
         internal void OnDisconnectedInternal(TcpSession session) { OnDisconnected(session); }
+
+        #endregion
+
+        #region Error handling
+
+        /// <summary>
+        /// Send error notification
+        /// </summary>
+        /// <param name="error">Socket error code</param>
+        private void SendError(SocketError error)
+        {
+            // Skip disconnect errors
+            if ((error == SocketError.ConnectionAborted) ||
+                (error == SocketError.ConnectionRefused) ||
+                (error == SocketError.ConnectionReset) ||
+                (error == SocketError.OperationAborted))
+                return;
+
+            OnError(error);
+        }
+
+        #endregion
+
+        #region IDisposable implementation
+
+        // Disposed flag.
+        private bool _disposed;
+
+        // Implement IDisposable.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposingManagedResources)
+        {
+            // The idea here is that Dispose(Boolean) knows whether it is 
+            // being called to do explicit cleanup (the Boolean is true) 
+            // versus being called due to a garbage collection (the Boolean 
+            // is false). This distinction is useful because, when being 
+            // disposed explicitly, the Dispose(Boolean) method can safely 
+            // execute code using reference type fields that refer to other 
+            // objects knowing for sure that these other objects have not been 
+            // finalized or disposed of yet. When the Boolean is false, 
+            // the Dispose(Boolean) method should not execute code that 
+            // refer to reference type fields because those objects may 
+            // have already been finalized."
+
+            if (!_disposed)
+            {
+                if (disposingManagedResources)
+                {
+                    // Dispose managed resources here...
+                    Stop();
+                }
+
+                // Dispose unmanaged resources here...
+
+                // Set large fields to null here...
+
+                // Mark as disposed.
+                _disposed = true;
+            }
+        }
+
+        // Use C# destructor syntax for finalization code.
+        ~TcpServer()
+        {
+            // Simply call Dispose(false).
+            Dispose(false);
+        }
 
         #endregion
     }

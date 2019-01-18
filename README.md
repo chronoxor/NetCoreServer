@@ -84,7 +84,7 @@ using NetCoreServer;
 
 namespace AsioTimer
 {
-    class AsioTimer : Timer
+    class AsioTimer : NetCoreServer.Timer
     {
         public AsioTimer(Service service) : base(service) {}
 
