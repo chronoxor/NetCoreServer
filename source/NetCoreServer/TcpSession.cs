@@ -373,7 +373,13 @@ namespace NetCoreServer
 
             // Try to receive again if the session is valid
             if (e.SocketError == SocketError.Success)
-                TryReceive();
+            {
+                // If zero is returned from a read operation, the remote end has closed the connection
+                if (size > 0)
+                    TryReceive();
+                else
+                    Disconnect();
+            }
             else
             {
                 SendError(e.SocketError);
