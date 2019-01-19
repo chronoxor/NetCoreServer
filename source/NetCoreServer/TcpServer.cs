@@ -129,7 +129,7 @@ namespace NetCoreServer
 
             // Setup acceptor event arg 
             _acceptorEventArg = new SocketAsyncEventArgs();
-            _acceptorEventArg.Completed += AcceptorEventArg_Completed;
+            _acceptorEventArg.Completed += OnAsyncCompleted;
 
             // Perform the first server accept
             IsAccepting = true;
@@ -152,7 +152,7 @@ namespace NetCoreServer
             IsAccepting = false;
 
             // Reset acceptor event arg
-            _acceptorEventArg.Completed -= AcceptorEventArg_Completed;
+            _acceptorEventArg.Completed -= OnAsyncCompleted;
 
             // Close the acceptor socket
             _acceptorSocket.Close();
@@ -228,7 +228,7 @@ namespace NetCoreServer
         /// This method is the callback method associated with Socket.AcceptAsync()
         /// operations and is invoked when an accept operation is complete
         /// </summary>
-        private void AcceptorEventArg_Completed(object sender, SocketAsyncEventArgs e)
+        private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
             ProcessAccept(e);
         }

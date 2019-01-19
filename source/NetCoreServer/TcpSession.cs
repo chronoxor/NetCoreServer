@@ -119,8 +119,8 @@ namespace NetCoreServer
             TryReceive();
 
             // Setup event args
-            _receiveEventArg.Completed += Socket_Completed;
-            _sendEventArg.Completed += Socket_Completed;
+            _receiveEventArg.Completed += OnAsyncCompleted;
+            _sendEventArg.Completed += OnAsyncCompleted;
         }
 
         /// <summary>
@@ -133,8 +133,8 @@ namespace NetCoreServer
                 return false;
 
             // Reset event args
-            _receiveEventArg.Completed -= Socket_Completed;
-            _sendEventArg.Completed -= Socket_Completed;
+            _receiveEventArg.Completed -= OnAsyncCompleted;
+            _sendEventArg.Completed -= OnAsyncCompleted;
 
             try
             {
@@ -325,7 +325,7 @@ namespace NetCoreServer
         /// <summary>
         /// This method is called whenever a receive or send operation is completed on a socket
         /// </summary>
-        private void Socket_Completed(object sender, SocketAsyncEventArgs e)
+        private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
             // Determine which type of operation just completed and call the associated handler
             switch (e.LastOperation)
