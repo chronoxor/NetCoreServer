@@ -371,6 +371,10 @@ namespace NetCoreServer
 
             if (e.SocketError == SocketError.Success)
             {
+                // Setup event args
+                _receiveEventArg.Completed += OnAsyncCompleted;
+                _sendEventArg.Completed += OnAsyncCompleted;
+
                 // Apply the option: keep alive
                 if (OptionKeepAlive)
                     Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
@@ -401,10 +405,6 @@ namespace NetCoreServer
 
                 // Try to receive something from the server
                 TryReceive();
-
-                // Setup event args
-                _receiveEventArg.Completed += OnAsyncCompleted;
-                _sendEventArg.Completed += OnAsyncCompleted;
             }
             else
             {
@@ -487,7 +487,7 @@ namespace NetCoreServer
                 }
 
                 // Call the buffer sent handler
-                OnSent(size, BytesPending);
+                OnSent(size, BytesPending + BytesSending);
             }
 
             // Try to send again if the session is valid

@@ -15,9 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpEchoServer", "performanc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpMulticastServer", "performance\TcpMulticastServer\TcpMulticastServer.csproj", "{33550E4B-BF56-4307-BA5E-C815D372010C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpChatClient", "examples\TcpChatClient\TcpChatClient.csproj", "{2535575F-D98F-4398-BB3D-F7FA0CC2F9DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpChatClient", "examples\TcpChatClient\TcpChatClient.csproj", "{2535575F-D98F-4398-BB3D-F7FA0CC2F9DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpEchoClient", "performance\TcpEchoClient\TcpEchoClient.csproj", "{A1EA2EF7-663C-48E0-9AEB-E3AF7F139839}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpEchoClient", "performance\TcpEchoClient\TcpEchoClient.csproj", "{A1EA2EF7-663C-48E0-9AEB-E3AF7F139839}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpMulticastClient", "performance\TcpMulticastClient\TcpMulticastClient.csproj", "{580A09F4-D24A-408B-A75C-A4AF2B15AE02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +51,10 @@ Global
 		{A1EA2EF7-663C-48E0-9AEB-E3AF7F139839}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1EA2EF7-663C-48E0-9AEB-E3AF7F139839}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1EA2EF7-663C-48E0-9AEB-E3AF7F139839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{580A09F4-D24A-408B-A75C-A4AF2B15AE02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{580A09F4-D24A-408B-A75C-A4AF2B15AE02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{580A09F4-D24A-408B-A75C-A4AF2B15AE02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{580A09F4-D24A-408B-A75C-A4AF2B15AE02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 		{33550E4B-BF56-4307-BA5E-C815D372010C} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
 		{2535575F-D98F-4398-BB3D-F7FA0CC2F9DB} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
 		{A1EA2EF7-663C-48E0-9AEB-E3AF7F139839} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
+		{580A09F4-D24A-408B-A75C-A4AF2B15AE02} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {64415837-63D9-474E-A25C-EE91C9CA90C5}

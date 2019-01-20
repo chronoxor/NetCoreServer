@@ -16,7 +16,7 @@ namespace TcpMulticastServer
         {
             // Limit session send buffer to 1 megabyte
             const long limit = 1 * 1024 * 1024;
-            long pending = BytesPending;
+            long pending = BytesPending + BytesSending;
             if ((pending + size) > limit)
                 return false;
             if (size > (limit - pending))

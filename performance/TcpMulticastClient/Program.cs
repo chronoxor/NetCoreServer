@@ -5,40 +5,23 @@ using System.Threading;
 using NetCoreServer;
 using NDesk.Options;
 
-namespace TcpEchoClient
+namespace TcpMulticastClient
 {
-    class EchoClient : NetCoreServer.TcpClient
+    class MulticastClient : NetCoreServer.TcpClient
     {
         public bool Connected { get; set; }
 
-        public EchoClient(string address, int port, int messages) : base(address, port)
+        public MulticastClient(string address, int port) : base(address, port)
         {
-            _messagesOutput = messages;
-            _messagesInput = messages;
-            _timer = new Timer(SendMessage, null, -1, 0);
         }
 
         protected override void OnConnected()
         {
             Connected = true;
-            _timer.Change(0, 0);
-        }
-
-        protected override void OnDisconnected()
-        {
-            _timer.Dispose();
         }
 
         protected override void OnReceived(byte[] buffer, long size)
         {
-            _received += size;
-            while (_received >= Program.MessageToSend.Length)
-            {
-                ReceiveMessage();
-                _received -= Program.MessageToSend.Length;
-            }
-
-            Program.TimestampStop = DateTime.UtcNow;
             Program.TotalBytes += size;
         }
 
@@ -47,26 +30,6 @@ namespace TcpEchoClient
             Console.WriteLine($"Client caught an error with code {error}");
             ++Program.TotalErrors;
         }
-
-        private void SendMessage(object state)
-        {
-            if (_messagesOutput-- > 0)
-            {
-                Send(Program.MessageToSend);
-                _timer.Change(0, 0);
-            }
-        }
-
-        void ReceiveMessage()
-        {
-            if (--_messagesInput == 0)
-                Disconnect();
-        }
-
-        private int _messagesOutput;
-        private int _messagesInput;
-        private long _received;
-        private readonly Timer _timer;
     }
 
     class Program
@@ -84,7 +47,6 @@ namespace TcpEchoClient
             string address = "127.0.0.1";
             int port = 1111;
             int clients = 100;
-            int messages = 1000000;
             int size = 32;
 
             var options = new OptionSet()
@@ -93,7 +55,6 @@ namespace TcpEchoClient
                 { "a|address=", v => address = v },
                 { "p|port=", v => port = int.Parse(v) },
                 { "c|clients=", v => clients = int.Parse(v) },
-                { "m|messages=", v => messages = int.Parse(v) },
                 { "s|size=", v => size = int.Parse(v) }
             };
 
@@ -119,43 +80,50 @@ namespace TcpEchoClient
             Console.WriteLine($"Server address: {address}");
             Console.WriteLine($"Server port: {port}");
             Console.WriteLine($"Working clients: {clients}");
-            Console.WriteLine($"Messages to send: {messages}");
             Console.WriteLine($"Message size: {size}");
 
             // Prepare a message to send
             MessageToSend = new byte[size];
 
-            // Create echo clients
-            var echoClients = new List<EchoClient>();
+            // Create multicast clients
+            var multicastClients = new List<MulticastClient>();
             for (int i = 0; i < clients; ++i)
             {
-                var client = new EchoClient(address, port, messages / clients);
+                var client = new MulticastClient(address, port);
                 // client.SetupNoDelay(true);
-                echoClients.Add(client);
+                multicastClients.Add(client);
             }
 
             TimestampStart = DateTime.UtcNow;
 
             // Connect clients
             Console.Write("Clients connecting...");
-            foreach (var client in echoClients)
+            foreach (var client in multicastClients)
                 client.Connect();
             Console.WriteLine("Done!");
-            foreach (var client in echoClients)
+            foreach (var client in multicastClients)
             {
                 while (!client.Connected)
                     Thread.Yield();
             }
             Console.WriteLine("All clients connected!");
 
-            // Wait for processing all messages
+            // Sleep for 10 seconds...
             Console.Write("Processing...");
-            foreach (var client in echoClients)
-            {
-                while (client.IsConnected)
-                    Thread.Sleep(100);
-            }
+            Thread.Sleep(10000);
             Console.WriteLine("Done!");
+
+            // Disconnect clients
+            Console.Write("Clients disconnecting...");
+            foreach (var client in multicastClients)
+                client.Disconnect();
+            Console.WriteLine("Done!");
+            foreach (var client in multicastClients)
+                while (client.IsConnected)
+                    Thread.Yield();
+            Console.WriteLine("All clients disconnected!");
+
+            TimestampStop = DateTime.UtcNow;
 
             Console.WriteLine();
 
@@ -165,7 +133,7 @@ namespace TcpEchoClient
 
             TotalMessages = TotalBytes / size;
 
-            Console.WriteLine($"Round-trip time: {Utilities.GenerateTimePeriod((TimestampStop - TimestampStart).TotalMilliseconds)}");
+            Console.WriteLine($"Multicast time: {Utilities.GenerateTimePeriod((TimestampStop - TimestampStart).TotalMilliseconds)}");
             Console.WriteLine($"Total data: {Utilities.GenerateDataSize(TotalBytes)}");
             Console.WriteLine($"Total messages: {TotalMessages}");
             Console.WriteLine($"Data throughput: {Utilities.GenerateDataSize((long)(TotalBytes / (TimestampStop - TimestampStart).TotalSeconds))}/s");
