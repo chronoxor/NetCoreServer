@@ -210,9 +210,6 @@ namespace tests
             Assert.True(client1.BytesReceived == 12);
             Assert.True(client2.BytesReceived == 12);
             Assert.True(client3.BytesReceived == 12);
-            Assert.True(!client1.Errors);
-            Assert.True(!client2.Errors);
-            Assert.True(!client3.Errors);
         }
 
         [Fact(DisplayName = "TCP server random test")]
@@ -308,7 +305,7 @@ namespace tests
                             client.Send("test");
                     }
                 }
-                
+
                 // Sleep for a while...
                 Thread.Sleep(1);
             }
