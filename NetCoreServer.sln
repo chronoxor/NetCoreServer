@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpEchoClient", "performanc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpMulticastClient", "performance\TcpMulticastClient\TcpMulticastClient.csproj", "{580A09F4-D24A-408B-A75C-A4AF2B15AE02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{9C37C898-6C8C-49D6-B06F-0A9B26F3FF7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{580A09F4-D24A-408B-A75C-A4AF2B15AE02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{580A09F4-D24A-408B-A75C-A4AF2B15AE02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{580A09F4-D24A-408B-A75C-A4AF2B15AE02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C37C898-6C8C-49D6-B06F-0A9B26F3FF7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C37C898-6C8C-49D6-B06F-0A9B26F3FF7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C37C898-6C8C-49D6-B06F-0A9B26F3FF7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C37C898-6C8C-49D6-B06F-0A9B26F3FF7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
