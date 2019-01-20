@@ -33,10 +33,6 @@ install:
   - if "%type%"=="VisualStudio" set LIB=C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64;%LIB%
   # CMake
   - '%command% "cmake --version"'
-  # gil
-  - set PATH=C:\Python37;C:\Python37\Scripts;%PATH%
-  - pip3 install gil
-  - gil update
 
 # Build scripts
 build_script:
