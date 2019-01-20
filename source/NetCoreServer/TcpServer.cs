@@ -196,6 +196,7 @@ namespace NetCoreServer
             // Socket must be cleared since the context object is being reused
             e.AcceptSocket = null;
 
+            // Async accept a new client connection
             if (!_acceptorSocket.AcceptAsync(e))
                 ProcessAccept(e);
         }
