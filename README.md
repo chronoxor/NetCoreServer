@@ -781,12 +781,12 @@ Message size: 32
 
 Errors: 0
 
-Round-trip time: 3.743 s
+Round-trip time: 3.285 s
 Total data: 30.530 MiB
 Total messages: 1000000
-Data throughput: 8.154 MiB/s
-Message latency: 3.743 mcs
-Message throughput: 267099 msg/s
+Data throughput: 9.296 MiB/s
+Message latency: 3.285 mcs
+Message throughput: 304392 msg/s
 ```
 
 * [TcpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
@@ -865,12 +865,12 @@ Message size: 32
 
 Errors: 0
 
-Round-trip time: 29.258 s
+Round-trip time: 26.167 s
 Total data: 30.530 MiB
 Total messages: 1000000
-Data throughput: 1.044 MiB/s
-Message latency: 29.258 mcs
-Message throughput: 34177 msg/s
+Data throughput: 1.170 MiB/s
+Message latency: 26.167 mcs
+Message throughput: 38214 msg/s
 ```
 
 * [UdpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
@@ -885,12 +885,12 @@ Message size: 32
 
 Errors: 0
 
-Round-trip time: 8.449 s
-Total data: 30.471 MiB
-Total messages: 998398
-Data throughput: 3.619 MiB/s
-Message latency: 8.463 mcs
-Message throughput: 118155 msg/s
+Round-trip time: 7.834 s
+Total data: 30.530 MiB
+Total messages: 1000000
+Data throughput: 3.916 MiB/s
+Message latency: 7.834 mcs
+Message throughput: 127642 msg/s
 ```
 
 ## Benchmark: Multicast
