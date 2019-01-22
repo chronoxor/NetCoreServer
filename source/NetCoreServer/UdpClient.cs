@@ -230,6 +230,16 @@ namespace NetCoreServer
         #region Multicast group
 
         /// <summary>
+        /// Setup multicast: bind the socket to the multicast UDP server
+        /// </summary>
+        /// <param name="enable">Enable/disable multicast</param>
+        public virtual void SetupMulticast(bool enable)
+        {
+            OptionReuseAddress = enable;
+            OptionMulticast = enable;
+        }
+
+        /// <summary>
         /// Join multicast group with a given IP address
         /// </summary>
         /// <param name="address">IP address</param>
