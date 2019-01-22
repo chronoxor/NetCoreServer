@@ -87,6 +87,7 @@ namespace NetCoreServer
         /// This option will enable/disable SO_REUSEPORT if the OS support this feature
         /// </remarks>
         public bool OptionReusePort { get; set; }
+        /// <summary>
         /// Option: bind the socket to the multicast UDP server
         /// </summary>
         public bool OptionMulticast { get; set; }
@@ -144,7 +145,7 @@ namespace NetCoreServer
                 Socket.Bind(Endpoint);
             else
             {
-                var endpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any: IPAddress.Any, 0);
+                var endpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any, 0);
                 Socket.Bind(endpoint);
             }
 
@@ -248,8 +249,10 @@ namespace NetCoreServer
         /// <param name="address">IP address</param>
         public virtual void JoinMulticastGroup(IPAddress address)
         {
-            var join = new MulticastOption(address, Endpoint.Address);
-            Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, join);
+            if (Endpoint.AddressFamily == AddressFamily.InterNetworkV6)
+                Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(address));
+            else
+                Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(address));
 
             // Call the client joined multicast group notification
             OnJoinedMulticastGroup(address);
@@ -266,8 +269,10 @@ namespace NetCoreServer
         /// <param name="address">IP address</param>
         public virtual void LeaveMulticastGroup(IPAddress address)
         {
-            var leave = new MulticastOption(address, Endpoint.Address);
-            Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, leave);
+            if (Endpoint.AddressFamily == AddressFamily.InterNetworkV6)
+                Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(address));
+            else
+                Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(address));
 
             // Call the client left multicast group notification
             OnLeftMulticastGroup(address);
