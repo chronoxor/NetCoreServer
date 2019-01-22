@@ -58,7 +58,6 @@ namespace UdpMulticastClient
             bool help = false;
             string address = "239.255.0.1";
             int port = 3333;
-            int threads = Environment.ProcessorCount;
             int clients = 100;
             int size = 32;
 
@@ -67,7 +66,6 @@ namespace UdpMulticastClient
                 { "h|?|help",   v => help = v != null },
                 { "a|address=", v => address = v },
                 { "p|port=", v => port = int.Parse(v) },
-                { "t|threads=", v => threads = int.Parse(v) },
                 { "c|clients=", v => clients = int.Parse(v) },
                 { "s|size=", v => size = int.Parse(v) }
             };
@@ -93,7 +91,6 @@ namespace UdpMulticastClient
 
             Console.WriteLine($"Server address: {address}");
             Console.WriteLine($"Server port: {port}");
-            Console.WriteLine($"Working threads: {threads}");
             Console.WriteLine($"Working clients: {clients}");
             Console.WriteLine($"Message size: {size}");
 

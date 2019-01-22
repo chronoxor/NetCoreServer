@@ -102,7 +102,7 @@ namespace NetCoreServer
         private readonly SocketAsyncEventArgs _connectEventArg = new SocketAsyncEventArgs();
 
         /// <summary>
-        /// Is the session connected?
+        /// Is the client connected?
         /// </summary>
         public bool IsConnected { get; private set; }
 

@@ -70,7 +70,6 @@ namespace UdpEchoClient
             bool help = false;
             string address = "127.0.0.1";
             int port = 3333;
-            int threads = Environment.ProcessorCount;
             int clients = 100;
             int messages = 1000000;
             int size = 32;
@@ -80,7 +79,6 @@ namespace UdpEchoClient
                 { "h|?|help",   v => help = v != null },
                 { "a|address=", v => address = v },
                 { "p|port=", v => port = int.Parse(v) },
-                { "t|threads=", v => threads = int.Parse(v) },
                 { "c|clients=", v => clients = int.Parse(v) },
                 { "m|messages=", v => messages = int.Parse(v) },
                 { "s|size=", v => size = int.Parse(v) }
@@ -107,7 +105,6 @@ namespace UdpEchoClient
 
             Console.WriteLine($"Server address: {address}");
             Console.WriteLine($"Server port: {port}");
-            Console.WriteLine($"Working threads: {threads}");
             Console.WriteLine($"Working clients: {clients}");
             Console.WriteLine($"Messages to send: {messages}");
             Console.WriteLine($"Message size: {size}");

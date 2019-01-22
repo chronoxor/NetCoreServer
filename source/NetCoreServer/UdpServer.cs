@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -7,69 +8,64 @@ using System.Threading;
 namespace NetCoreServer
 {
     /// <summary>
-    /// UDP client is used to read/write data from/into the connected UDP server
+    /// UDP server is used to send or multicast datagrams to UDP endpoints
     /// </summary>
     /// <remarks>Thread-safe</remarks>
-    public class UdpClient : IDisposable
+    public class UdpServer : IDisposable
     {
         /// <summary>
-        /// Initialize UDP client with a given server IP address and port number
+        /// Initialize UDP server with a given IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public UdpClient(IPAddress address, int port) : this(new IPEndPoint(address, port)) {}
+        public UdpServer(IPAddress address, int port) : this(new IPEndPoint(address, port)) {}
         /// <summary>
-        /// Initialize UDP client with a given server IP address and port number
+        /// Initialize UDP server with a given IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public UdpClient(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
+        public UdpServer(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
         /// <summary>
-        /// Initialize UDP client with a given IP endpoint
+        /// Initialize UDP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public UdpClient(IPEndPoint endpoint)
-        {
-            Id = Guid.NewGuid();
-            Endpoint = endpoint;
-        }
-
-        /// <summary>
-        /// TCP client Id
-        /// </summary>
-        public Guid Id { get; }
+        public UdpServer(IPEndPoint endpoint) { Endpoint = endpoint; }
 
         /// <summary>
         /// IP endpoint
         /// </summary>
         public IPEndPoint Endpoint { get; private set; }
         /// <summary>
+        /// Multicast IP endpoint
+        /// </summary>
+        public IPEndPoint MulticastEndpoint { get; private set; }
+        /// <summary>
         /// Socket
         /// </summary>
         public Socket Socket { get; private set; }
 
         /// <summary>
-        /// Number of bytes pending sent by the client
+        /// Number of bytes pending sent by the server
         /// </summary>
         public long BytesPending { get; private set; }
         /// <summary>
-        /// Number of bytes sending by the client
+        /// Number of bytes sending by the server
         /// </summary>
         public long BytesSending { get; private set; }
         /// <summary>
-        /// Number of bytes sent by the client
+        /// Number of bytes sent by the server
         /// </summary>
         public long BytesSent { get; private set; }
         /// <summary>
-        /// Number of bytes received by the client
+        /// Number of bytes received by the server
         /// </summary>
         public long BytesReceived { get; private set; }
         /// <summary>
-        /// Number of datagrams sent by the client
+        /// Number of datagrams sent by the server
         /// </summary>
         public long DatagramsSent { get; private set; }
         /// <summary>
-        /// Number of datagrams received by the client
+        /// Number of datagrams received by the server
         /// </summary>
         public long DatagramsReceived { get; private set; }
 
@@ -87,9 +83,6 @@ namespace NetCoreServer
         /// This option will enable/disable SO_REUSEPORT if the OS support this feature
         /// </remarks>
         public bool OptionReusePort { get; set; }
-        /// Option: bind the socket to the multicast UDP server
-        /// </summary>
-        public bool OptionMulticast { get; set; }
         /// <summary>
         /// Option: receive buffer size
         /// </summary>
@@ -110,24 +103,25 @@ namespace NetCoreServer
         #region Connect/Disconnect client
 
         /// <summary>
-        /// Is the client connected?
+        /// Is the server started?
         /// </summary>
-        public bool IsConnected { get; private set; }
+        public bool IsStarted { get; private set; }
 
         /// <summary>
-        /// Connect the client
+        /// Start the server
         /// </summary>
-        /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
-        public virtual bool Connect()
+        /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
+        public virtual bool Start()
         {
-            if (IsConnected)
+            Debug.Assert(!IsStarted, "UDP server is already started!");
+            if (IsStarted)
                 return false;
 
             // Setup event args
             _receiveEventArg.Completed += OnAsyncCompleted;
             _sendEventArg.Completed += OnAsyncCompleted;
 
-            // Create a new client socket
+            // Create a new server socket
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
             // Apply the option: reuse address
@@ -139,14 +133,8 @@ namespace NetCoreServer
                 Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReusePort, true);
             */
 
-            // Bind the acceptor socket to the IP endpoint
-            if (OptionMulticast)
-                Socket.Bind(Endpoint);
-            else
-            {
-                var endpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any: IPAddress.Any, 0);
-                Socket.Bind(endpoint);
-            }
+            // Bind the server socket to the IP endpoint
+            Socket.Bind(Endpoint);
 
             // Prepare receive endpoint
             _receiveEndpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any, 0);
@@ -162,22 +150,50 @@ namespace NetCoreServer
             DatagramsSent = 0;
             DatagramsReceived = 0;
 
-            // Update the connected flag
-            IsConnected = true;
+            // Update the started flag
+            IsStarted = true;
 
-            // Call the client connected handler
-            OnConnected();
+            // Call the server started handler
+            OnStarted();
 
             return true;
         }
 
         /// <summary>
-        /// Disconnect the client
+        /// Start the server with a given multicast IP address and port number
         /// </summary>
-        /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
-        public virtual bool Disconnect()
+        /// <param name="multicastAddress">Multicast IP address</param>
+        /// <param name="multicastPort">Multicast port number</param>
+        /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
+        public virtual bool Start(IPAddress multicastAddress, int multicastPort) { return Start(new IPEndPoint(multicastAddress, multicastPort)); }
+
+        /// <summary>
+        /// Start the server with a given multicast IP address and port number
+        /// </summary>
+        /// <param name="multicastAddress">Multicast IP address</param>
+        /// <param name="multicastPort">Multicast port number</param>
+        /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
+        public virtual bool Start(string multicastAddress, int multicastPort) { return Start(new IPEndPoint(IPAddress.Parse(multicastAddress), multicastPort)); }
+
+        /// <summary>
+        /// Start the server with a given multicast endpoint
+        /// </summary>
+        /// <param name="multicastEndpoint">Multicast IP endpoint</param>
+        /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
+        public virtual bool Start(IPEndPoint multicastEndpoint)
         {
-            if (!IsConnected)
+            MulticastEndpoint = multicastEndpoint;
+            return Start();
+        }
+
+        /// <summary>
+        /// Stop the server
+        /// </summary>
+        /// <returns>'true' if the server was successfully stopped, 'false' if the server is already stopped</returns>
+        public virtual bool Stop()
+        {
+            Debug.Assert(IsStarted, "UDP server is not started!");
+            if (!IsStarted)
                 return false;
 
             // Reset event args
@@ -194,8 +210,8 @@ namespace NetCoreServer
             }
             catch (ObjectDisposedException) { }
 
-            // Update the connected flag
-            IsConnected = false;
+            // Update the started flag
+            IsStarted = false;
 
             // Update sending/receiving flags
             _receiving = false;
@@ -204,81 +220,31 @@ namespace NetCoreServer
             // Clear send/receive buffers
             ClearBuffers();
 
-            // Call the session disconnected handler
-            OnDisconnected();
+            // Call the server stopped handler
+            OnStopped();
 
             return true;
         }
 
         /// <summary>
-        /// Reconnect the client
+        /// Restart the server
         /// </summary>
-        /// <returns>'true' if the client was successfully reconnected, 'false' if the client is already reconnected</returns>
-        public virtual bool Reconnect()
+        /// <returns>'true' if the server was successfully restarted, 'false' if the server failed to restart</returns>
+        public virtual bool Restart()
         {
-            if (!Disconnect())
+            if (!Stop())
                 return false;
 
-            while (IsConnected)
+            while (IsStarted)
                 Thread.Yield();
 
-            return Connect();
+            return Start();
         }
-
-        #endregion
-
-        #region Multicast group
-
-        /// <summary>
-        /// Setup multicast: bind the socket to the multicast UDP server
-        /// </summary>
-        /// <param name="enable">Enable/disable multicast</param>
-        public virtual void SetupMulticast(bool enable)
-        {
-            OptionReuseAddress = enable;
-            OptionMulticast = enable;
-        }
-
-        /// <summary>
-        /// Join multicast group with a given IP address
-        /// </summary>
-        /// <param name="address">IP address</param>
-        public virtual void JoinMulticastGroup(IPAddress address)
-        {
-            var join = new MulticastOption(address, Endpoint.Address);
-            Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, join);
-
-            // Call the client joined multicast group notification
-            OnJoinedMulticastGroup(address);
-        }
-        /// <summary>
-        /// Join multicast group with a given IP address
-        /// </summary>
-        /// <param name="address">IP address</param>
-        public virtual void JoinMulticastGroup(string address) { JoinMulticastGroup(IPAddress.Parse(address)); }
-
-        /// <summary>
-        /// Leave multicast group with a given IP address
-        /// </summary>
-        /// <param name="address">IP address</param>
-        public virtual void LeaveMulticastGroup(IPAddress address)
-        {
-            var leave = new MulticastOption(address, Endpoint.Address);
-            Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, leave);
-
-            // Call the client left multicast group notification
-            OnLeftMulticastGroup(address);
-        }
-        /// <summary>
-        /// Leave multicast group with a given IP address
-        /// </summary>
-        /// <param name="address">IP address</param>
-        public virtual void LeaveMulticastGroup(string address) { LeaveMulticastGroup(IPAddress.Parse(address)); }
 
         #endregion
 
         #region Send/Recieve data
-        
+
         // Receive and send endpoints
         IPEndPoint _receiveEndpoint;
         IPEndPoint _sendEndpoint;
@@ -297,27 +263,50 @@ namespace NetCoreServer
         public virtual void Receive() { TryReceive(); }
 
         /// <summary>
-        /// Send datagram to the connected server (asynchronous)
+        /// Multicast datagram to the prepared mulicast endpoint (asynchronous)
         /// </summary>
-        /// <param name="buffer">Datagram buffer to send</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool SendAsync(byte[] buffer) { return SendAsync(buffer, 0, buffer.Length); }
+        /// <param name="buffer">Datagram buffer to multicast</param>
+        /// <returns>'true' if the datagram was successfully multicasted, 'false' if the datagram was not multicasted</returns>
+        public virtual bool MulticastAsync(byte[] buffer) { return MulticastAsync(buffer, 0, buffer.Length); }
 
         /// <summary>
-        /// Send datagram to the connected server (asynchronous)
+        /// Multicast datagram to the prepared mulicast endpoint (asynchronous)
         /// </summary>
-        /// <param name="buffer">Datagram buffer to send</param>
+        /// <param name="buffer">Datagram buffer to multicast</param>
         /// <param name="offset">Datagram buffer offset</param>
         /// <param name="size">Datagram buffer size</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool SendAsync(byte[] buffer, long offset, long size) { return SendAsync(Endpoint, buffer, offset, size); }
+        /// <returns>'true' if the datagram was successfully multicasted, 'false' if the datagram was not multicasted</returns>
+        public virtual bool MulticastAsync(byte[] buffer, long offset, long size) { return SendAsync(MulticastEndpoint, buffer, offset, size); }
 
         /// <summary>
-        /// Send text to the connected server (asynchronous)
+        /// Multicast text to the prepared mulicast endpoint (asynchronous)
         /// </summary>
-        /// <param name="text">Text string to send</param>
-        /// <returns>'true' if the text was successfully sent, 'false' if the text was not sent</returns>
-        public virtual bool SendAsync(string text) { return SendAsync(Encoding.UTF8.GetBytes(text)); }
+        /// <param name="text">Text string to multicast</param>
+        /// <returns>'true' if the text was successfully multicasted, 'false' if the text was not multicasted</returns>
+        public virtual bool MulticastAsync(string text) { return MulticastAsync(Encoding.UTF8.GetBytes(text)); }
+
+        /// <summary>
+        /// Multicast datagram to the prepared mulicast endpoint (synchronous)
+        /// </summary>
+        /// <param name="buffer">Datagram buffer to multicast</param>
+        /// <returns>'true' if the datagram was successfully multicasted, 'false' if the datagram was not multicasted</returns>
+        public virtual bool MulticastSync(byte[] buffer) { return MulticastSync(buffer, 0, buffer.Length); }
+
+        /// <summary>
+        /// Multicast datagram to the prepared mulicast endpoint (synchronous)
+        /// </summary>
+        /// <param name="buffer">Datagram buffer to multicast</param>
+        /// <param name="offset">Datagram buffer offset</param>
+        /// <param name="size">Datagram buffer size</param>
+        /// <returns>'true' if the datagram was successfully multicasted, 'false' if the datagram was not multicasted</returns>
+        public virtual bool MulticastSync(byte[] buffer, long offset, long size) { return SendSync(MulticastEndpoint, buffer, offset, size); }
+
+        /// <summary>
+        /// Multicast text to the prepared mulicast endpoint (synchronous)
+        /// </summary>
+        /// <param name="text">Text string to multicast</param>
+        /// <returns>'true' if the text was successfully multicasted, 'false' if the text was not multicasted</returns>
+        public virtual bool MulticastSync(string text) { return MulticastSync(Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
         /// Send datagram to the given endpoint (asynchronous)
@@ -340,7 +329,7 @@ namespace NetCoreServer
             if (_sending)
                 return false;
 
-            if (!IsConnected)
+            if (!IsStarted)
                 return false;
 
             if (size == 0)
@@ -410,7 +399,7 @@ namespace NetCoreServer
         /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
         public virtual bool SendSync(IPEndPoint endpoint, byte[] buffer, long offset, long size)
         {
-            if (!IsConnected)
+            if (!IsStarted)
                 return false;
 
             if (size == 0)
@@ -436,7 +425,6 @@ namespace NetCoreServer
             catch (SocketException ex)
             {
                 SendError(ex.SocketErrorCode);
-                Disconnect();
                 return false;
             }
         }
@@ -457,7 +445,7 @@ namespace NetCoreServer
             if (_receiving)
                 return;
 
-            if (!IsConnected)
+            if (!IsStarted)
                 return;
 
             try
@@ -480,7 +468,7 @@ namespace NetCoreServer
             if (_sending)
                 return;
 
-            if (!IsConnected)
+            if (!IsStarted)
                 return;
 
             try
@@ -539,14 +527,13 @@ namespace NetCoreServer
         {
             _receiving = false;
 
-            if (!IsConnected)
+            if (!IsStarted)
                 return;
 
-            // Disconnect on error
+            // Check for error
             if (e.SocketError != SocketError.Success)
             {
                 SendError(e.SocketError);
-                Disconnect();
                 return;
             }
 
@@ -575,14 +562,13 @@ namespace NetCoreServer
         {
             _sending = false;
 
-            if (!IsConnected)
+            if (!IsStarted)
                 return;
 
-            // Disconnect on error
+            // Check for error
             if (e.SocketError != SocketError.Success)
             {
                 SendError(e.SocketError);
-                Disconnect();
                 return;
             }
 
@@ -608,24 +594,13 @@ namespace NetCoreServer
         #region Session handlers
 
         /// <summary>
-        /// Handle client connected notification
+        /// Handle server started notification
         /// </summary>
-        protected virtual void OnConnected() { }
+        protected virtual void OnStarted() { }
         /// <summary>
-        /// Handle client disconnected notification
+        /// Handle server stopped notification
         /// </summary>
-        protected virtual void OnDisconnected() { }
-
-        /// <summary>
-        /// Handle client joined multicast group notification
-        /// </summary>
-        /// <param name="address">IP address</param>
-        protected virtual void OnJoinedMulticastGroup(IPAddress address) { }
-        /// <summary>
-        /// Handle client left multicast group notification
-        /// </summary>
-        /// <param name="address">IP address</param>
-        protected virtual void OnLeftMulticastGroup(IPAddress address) { }
+        protected virtual void OnStopped() { }
 
         /// <summary>
         /// Handle datagram received notification
@@ -643,8 +618,8 @@ namespace NetCoreServer
         /// <param name="endpoint">Endpoint of sent datagram</param>
         /// <param name="sent">Size of sent datagram buffer</param>
         /// <remarks>
-        /// Notification is called when a datagram was sent to the server.
-        /// This handler could be used to send another datagram to the server for instance when the pending size is zero.
+        /// Notification is called when a datagram was sent to the client.
+        /// This handler could be used to send another datagram to the client for instance when the pending size is zero.
         /// </remarks>
         protected virtual void OnSent(IPEndPoint endpoint, long sent) { }
 
@@ -707,7 +682,7 @@ namespace NetCoreServer
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    Disconnect();
+                    Stop();
                 }
 
                 // Dispose unmanaged resources here...
@@ -720,7 +695,7 @@ namespace NetCoreServer
         }
 
         // Use C# destructor syntax for finalization code.
-        ~UdpClient()
+        ~UdpServer()
         {
             // Simply call Dispose(false).
             Dispose(false);
