@@ -30,7 +30,7 @@ namespace NetCoreServer
         /// <param name="endpoint">IP endpoint</param>
         public TcpClient(IPEndPoint endpoint)
         {
-            Id = Guid.NewGuid(); 
+            Id = Guid.NewGuid();
             Endpoint = endpoint;
         }
 
@@ -99,7 +99,7 @@ namespace NetCoreServer
         #region Connect/Disconnect client
 
         private bool _connecting;
-        private SocketAsyncEventArgs _connectEventArg;
+        private readonly SocketAsyncEventArgs _connectEventArg = new SocketAsyncEventArgs();
 
         /// <summary>
         /// Is the session connected?
@@ -115,13 +115,14 @@ namespace NetCoreServer
             if (IsConnected || _connecting)
                 return false;
 
-            // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            // Setup client event arg 
-            _connectEventArg = new SocketAsyncEventArgs();
+            // Setup event args
             _connectEventArg.RemoteEndPoint = Endpoint;
             _connectEventArg.Completed += OnAsyncCompleted;
+            _receiveEventArg.Completed += OnAsyncCompleted;
+            _sendEventArg.Completed += OnAsyncCompleted;
+
+            // Create a new client socket
+            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             // Async connect to the server
             _connecting = true;
@@ -141,6 +142,7 @@ namespace NetCoreServer
                 return false;
 
             // Reset event args
+            _connectEventArg.Completed -= OnAsyncCompleted;
             _receiveEventArg.Completed -= OnAsyncCompleted;
             _sendEventArg.Completed -= OnAsyncCompleted;
 
@@ -156,6 +158,10 @@ namespace NetCoreServer
 
             // Update the connected flag
             IsConnected = false;
+
+            // Update sending/receiving flags
+            _receiving = false;
+            _sending = false;
 
             // Clear send/receive buffers
             ClearBuffers();
@@ -185,11 +191,11 @@ namespace NetCoreServer
 
         #region Send/Recieve data
 
-        // Receive buffer & cache
+        // Receive buffer
         private bool _receiving;
         private readonly Buffer _receiveBuffer = new Buffer();
         private readonly SocketAsyncEventArgs _receiveEventArg = new SocketAsyncEventArgs();
-        // Send buffer & cache
+        // Send buffer
         private readonly object _sendLock = new object();
         private bool _sending;
         private Buffer _sendBufferMain = new Buffer();
@@ -222,7 +228,7 @@ namespace NetCoreServer
             lock (_sendLock)
             {
                 // Detect multiple send handlers
-                bool sendRequired = _sendBufferMain.IsEmpty || _sendBufferFlush.IsEmpty;                
+                bool sendRequired = _sendBufferMain.IsEmpty || _sendBufferFlush.IsEmpty;
 
                 // Fill the main send buffer
                 _sendBufferMain.Append(buffer, offset, size);
@@ -292,7 +298,7 @@ namespace NetCoreServer
 
                     // Update statistic
                     BytesPending = 0;
-                    BytesSending += _sendBufferFlush.Size;                    
+                    BytesSending += _sendBufferFlush.Size;
                 }
             }
             else
@@ -371,10 +377,6 @@ namespace NetCoreServer
 
             if (e.SocketError == SocketError.Success)
             {
-                // Setup event args
-                _receiveEventArg.Completed += OnAsyncCompleted;
-                _sendEventArg.Completed += OnAsyncCompleted;
-
                 // Apply the option: keep alive
                 if (OptionKeepAlive)
                     Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
@@ -410,7 +412,7 @@ namespace NetCoreServer
             {
                 // Call the client disconnected handler
                 SendError(e.SocketError);
-                OnDisconnected();                
+                OnDisconnected();
             }
         }
 
@@ -584,16 +586,16 @@ namespace NetCoreServer
 
         protected virtual void Dispose(bool disposingManagedResources)
         {
-            // The idea here is that Dispose(Boolean) knows whether it is 
-            // being called to do explicit cleanup (the Boolean is true) 
-            // versus being called due to a garbage collection (the Boolean 
-            // is false). This distinction is useful because, when being 
-            // disposed explicitly, the Dispose(Boolean) method can safely 
-            // execute code using reference type fields that refer to other 
-            // objects knowing for sure that these other objects have not been 
-            // finalized or disposed of yet. When the Boolean is false, 
-            // the Dispose(Boolean) method should not execute code that 
-            // refer to reference type fields because those objects may 
+            // The idea here is that Dispose(Boolean) knows whether it is
+            // being called to do explicit cleanup (the Boolean is true)
+            // versus being called due to a garbage collection (the Boolean
+            // is false). This distinction is useful because, when being
+            // disposed explicitly, the Dispose(Boolean) method can safely
+            // execute code using reference type fields that refer to other
+            // objects knowing for sure that these other objects have not been
+            // finalized or disposed of yet. When the Boolean is false,
+            // the Dispose(Boolean) method should not execute code that
+            // refer to reference type fields because those objects may
             // have already been finalized."
 
             if (!_disposed)

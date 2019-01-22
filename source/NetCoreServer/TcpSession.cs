@@ -149,6 +149,10 @@ namespace NetCoreServer
             // Update the connected flag
             IsConnected = false;
 
+            // Update sending/receiving flags
+            _receiving = false;
+            _sending = false;
+
             // Clear send/receive buffers
             ClearBuffers();
 
@@ -168,11 +172,11 @@ namespace NetCoreServer
 
         #region Send/Recieve data
 
-        // Receive buffer & cache
+        // Receive buffer
         private bool _receiving;
         private readonly Buffer _receiveBuffer = new Buffer();
         private readonly SocketAsyncEventArgs _receiveEventArg = new SocketAsyncEventArgs();
-        // Send buffer & cache
+        // Send buffer
         private readonly object _sendLock = new object();
         private bool _sending;
         private Buffer _sendBufferMain = new Buffer();
@@ -205,7 +209,7 @@ namespace NetCoreServer
             lock (_sendLock)
             {
                 // Detect multiple send handlers
-                bool sendRequired = _sendBufferMain.IsEmpty || _sendBufferFlush.IsEmpty;                
+                bool sendRequired = _sendBufferMain.IsEmpty || _sendBufferFlush.IsEmpty;
 
                 // Fill the main send buffer
                 _sendBufferMain.Append(buffer, offset, size);
@@ -275,7 +279,7 @@ namespace NetCoreServer
 
                     // Update statistic
                     BytesPending = 0;
-                    BytesSending += _sendBufferFlush.Size;                    
+                    BytesSending += _sendBufferFlush.Size;
                 }
             }
             else
@@ -386,7 +390,7 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// This method is invoked when an asynchronous send operation completes 
+        /// This method is invoked when an asynchronous send operation completes
         /// </summary>
         private void ProcessSend(SocketAsyncEventArgs e)
         {

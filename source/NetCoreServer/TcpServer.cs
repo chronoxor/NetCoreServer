@@ -88,7 +88,7 @@ namespace NetCoreServer
         // Server acceptor
         private int _acceptorBacklog = 1024;
         private Socket _acceptorSocket;
-        private SocketAsyncEventArgs _acceptorEventArg;
+        private readonly SocketAsyncEventArgs _acceptorEventArg = new SocketAsyncEventArgs();
 
         /// <summary>
         /// Is the server started?
@@ -109,8 +109,21 @@ namespace NetCoreServer
             if (IsStarted)
                 return false;
 
+            // Setup acceptor event arg 
+            _acceptorEventArg.Completed += OnAsyncCompleted;
+
             // Create a new acceptor socket
             _acceptorSocket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            // Apply the option: reuse address
+            if (OptionReuseAddress)
+                _acceptorSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            // Apply the option: reuse port
+            /*
+            if (OptionReusePort)
+                _acceptorSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReusePort, true);
+            */
+
             // Bind the acceptor socket to the IP endpoint
             _acceptorSocket.Bind(Endpoint);
             // Start listen to the acceptor socket with the given accepting backlog size
@@ -126,10 +139,6 @@ namespace NetCoreServer
 
             // Call the server started handler
             OnStarted();
-
-            // Setup acceptor event arg 
-            _acceptorEventArg = new SocketAsyncEventArgs();
-            _acceptorEventArg.Completed += OnAsyncCompleted;
 
             // Perform the first server accept
             IsAccepting = true;
