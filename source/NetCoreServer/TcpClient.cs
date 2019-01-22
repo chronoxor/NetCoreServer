@@ -151,8 +151,11 @@ namespace NetCoreServer
                 // Shutdown the socket associated with the client
                 Socket.Shutdown(SocketShutdown.Both);
 
-                // Close the session socket
+                // Close the client socket
                 Socket.Close();
+
+                // Dispose the client socket
+                Socket.Dispose();
             }
             catch (ObjectDisposedException) {}
 
@@ -166,7 +169,7 @@ namespace NetCoreServer
             // Clear send/receive buffers
             ClearBuffers();
 
-            // Call the session disconnected handler
+            // Call the client disconnected handler
             OnDisconnected();
 
             return true;
@@ -398,7 +401,7 @@ namespace NetCoreServer
                 // Update the connected flag
                 IsConnected = true;
 
-                // Call the session connected handler
+                // Call the client connected handler
                 OnConnected();
 
                 // Call the empty send buffer handler
@@ -442,7 +445,7 @@ namespace NetCoreServer
                 OnReceived(_receiveBuffer.Data, size);
             }
 
-            // Try to receive again if the session is valid
+            // Try to receive again if the client is valid
             if (e.SocketError == SocketError.Success)
             {
                 // If zero is returned from a read operation, the remote end has closed the connection
@@ -492,7 +495,7 @@ namespace NetCoreServer
                 OnSent(size, BytesPending + BytesSending);
             }
 
-            // Try to send again if the session is valid
+            // Try to send again if the client is valid
             if (e.SocketError == SocketError.Success)
                 TrySend();
             else

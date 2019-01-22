@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using NetCoreServer;
 using NDesk.Options;
 
@@ -15,18 +16,22 @@ namespace TcpEchoClient
         {
             _messagesOutput = messages;
             _messagesInput = messages;
-            _timer = new Timer(SendMessage, null, -1, 0);
         }
 
         protected override void OnConnected()
         {
             Connected = true;
-            _timer.Change(0, 0);
+            SendMessage();
         }
 
-        protected override void OnDisconnected()
+        protected override void OnSent(long sent, long pending)
         {
-            _timer.Dispose();
+            _sent += sent;
+            if (_sent >= Program.MessageToSend.Length)
+            {
+                SendMessage();
+                _sent -= Program.MessageToSend.Length;
+            }
         }
 
         protected override void OnReceived(byte[] buffer, long size)
@@ -48,12 +53,12 @@ namespace TcpEchoClient
             ++Program.TotalErrors;
         }
 
-        private void SendMessage(object state)
+        private void SendMessage()
         {
             if (_messagesOutput-- > 0)
             {
-                Send(Program.MessageToSend);
-                _timer.Change(0, 0);
+                // Important: Use task chaining is neccessary here to avoid stack overflow with Socket.SendAsync() method! 
+                _sender = _sender.ContinueWith(t => { Send(Program.MessageToSend); });
             }
         }
 
@@ -65,8 +70,9 @@ namespace TcpEchoClient
 
         private int _messagesOutput;
         private int _messagesInput;
+        private Task _sender = Task.CompletedTask;
+        private long _sent;
         private long _received;
-        private readonly Timer _timer;
     }
 
     class Program

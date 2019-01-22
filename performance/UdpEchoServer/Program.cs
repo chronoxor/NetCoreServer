@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using NetCoreServer;
 using NDesk.Options;
+using System.Threading.Tasks;
 
 namespace UdpEchoServer
 {
@@ -26,7 +27,7 @@ namespace UdpEchoServer
         protected override void OnSent(IPEndPoint endpoint, long sent)
         {
             // Continue receive datagrams. 
-            // Important: Use thread pool here is required to avoid stack overflow with Socket.ReceiveFromAsync() method! 
+            // Important: Receive using thread pool is neccessary here to avoid stack overflow with Socket.ReceiveFromAsync() method!
             ThreadPool.QueueUserWorkItem(o => { Receive(); } );
         }
 

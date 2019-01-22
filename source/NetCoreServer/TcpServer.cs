@@ -166,6 +166,9 @@ namespace NetCoreServer
             // Close the acceptor socket
             _acceptorSocket.Close();
 
+            // Dispose the acceptor socket
+            _acceptorSocket.Dispose();
+
             // Disconnect all sessions
             DisconnectAll();
 

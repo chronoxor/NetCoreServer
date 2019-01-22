@@ -207,6 +207,9 @@ namespace NetCoreServer
 
                 // Close the session socket
                 Socket.Close();
+
+                // Dispose the session socket
+                Socket.Dispose();
             }
             catch (ObjectDisposedException) { }
 
