@@ -124,8 +124,14 @@ namespace NetCoreServer
             if (IsConnected)
                 return false;
 
+            // Setup buffers
+            _receiveBuffer = new Buffer();
+            _sendBuffer = new Buffer();
+
             // Setup event args
+            _receiveEventArg = new SocketAsyncEventArgs();
             _receiveEventArg.Completed += OnAsyncCompleted;
+            _sendEventArg = new SocketAsyncEventArgs();
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
@@ -292,12 +298,12 @@ namespace NetCoreServer
         IPEndPoint _sendEndpoint;
         // Receive buffer
         private bool _receiving;
-        private readonly Buffer _receiveBuffer = new Buffer();
-        private readonly SocketAsyncEventArgs _receiveEventArg = new SocketAsyncEventArgs();
+        private Buffer _receiveBuffer;
+        private SocketAsyncEventArgs _receiveEventArg;
         // Send buffer
         private bool _sending;
-        private Buffer _sendBuffer = new Buffer();
-        private readonly SocketAsyncEventArgs _sendEventArg = new SocketAsyncEventArgs();
+        private Buffer _sendBuffer;
+        private SocketAsyncEventArgs _sendEventArg;
 
         /// <summary>
         /// Receive a new datagram

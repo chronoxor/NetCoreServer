@@ -88,7 +88,7 @@ namespace NetCoreServer
         // Server acceptor
         private int _acceptorBacklog = 1024;
         private Socket _acceptorSocket;
-        private readonly SocketAsyncEventArgs _acceptorEventArg = new SocketAsyncEventArgs();
+        private SocketAsyncEventArgs _acceptorEventArg;
 
         /// <summary>
         /// Is the server started?
@@ -110,6 +110,7 @@ namespace NetCoreServer
                 return false;
 
             // Setup acceptor event arg 
+            _acceptorEventArg = new SocketAsyncEventArgs();
             _acceptorEventArg.Completed += OnAsyncCompleted;
 
             // Create a new acceptor socket

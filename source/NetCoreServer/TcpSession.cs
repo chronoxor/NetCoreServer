@@ -84,8 +84,15 @@ namespace NetCoreServer
         {
             Socket = socket;
 
+            // Setup buffers
+            _receiveBuffer = new Buffer();
+            _sendBufferMain = new Buffer();
+            _sendBufferFlush = new Buffer();
+
             // Setup event args
+            _receiveEventArg = new SocketAsyncEventArgs();
             _receiveEventArg.Completed += OnAsyncCompleted;
+            _sendEventArg = new SocketAsyncEventArgs();
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Apply the option: keep alive
@@ -177,14 +184,14 @@ namespace NetCoreServer
 
         // Receive buffer
         private bool _receiving;
-        private readonly Buffer _receiveBuffer = new Buffer();
-        private readonly SocketAsyncEventArgs _receiveEventArg = new SocketAsyncEventArgs();
+        private Buffer _receiveBuffer;
+        private SocketAsyncEventArgs _receiveEventArg;
         // Send buffer
         private readonly object _sendLock = new object();
         private bool _sending;
-        private Buffer _sendBufferMain = new Buffer();
-        private Buffer _sendBufferFlush = new Buffer();
-        private readonly SocketAsyncEventArgs _sendEventArg = new SocketAsyncEventArgs();
+        private Buffer _sendBufferMain;
+        private Buffer _sendBufferFlush;
+        private SocketAsyncEventArgs _sendEventArg;
         private long _sendBufferFlushOffset;
 
         /// <summary>
