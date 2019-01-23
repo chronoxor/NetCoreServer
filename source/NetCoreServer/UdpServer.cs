@@ -217,7 +217,7 @@ namespace NetCoreServer
                 // Dispose the session socket
                 Socket.Dispose();
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
 
             // Update the started flag
             IsStarted = false;
@@ -466,7 +466,7 @@ namespace NetCoreServer
                 if (!Socket.ReceiveFromAsync(_receiveEventArg))
                     ProcessReceiveFrom(_receiveEventArg);
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
         }
 
         /// <summary>
@@ -489,7 +489,7 @@ namespace NetCoreServer
                 if (!Socket.SendToAsync(_sendEventArg))
                     ProcessSendTo(_sendEventArg);
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
         }
 
         /// <summary>
@@ -605,11 +605,11 @@ namespace NetCoreServer
         /// <summary>
         /// Handle server started notification
         /// </summary>
-        protected virtual void OnStarted() { }
+        protected virtual void OnStarted() {}
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
-        protected virtual void OnStopped() { }
+        protected virtual void OnStopped() {}
 
         /// <summary>
         /// Handle datagram received notification
@@ -620,7 +620,7 @@ namespace NetCoreServer
         /// <remarks>
         /// Notification is called when another datagram was received from some endpoint
         /// </remarks>
-        protected virtual void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) { }
+        protected virtual void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) {}
         /// <summary>
         /// Handle datagram sent notification
         /// </summary>
@@ -630,13 +630,13 @@ namespace NetCoreServer
         /// Notification is called when a datagram was sent to the client.
         /// This handler could be used to send another datagram to the client for instance when the pending size is zero.
         /// </remarks>
-        protected virtual void OnSent(IPEndPoint endpoint, long sent) { }
+        protected virtual void OnSent(IPEndPoint endpoint, long sent) {}
 
         /// <summary>
         /// Handle error notification
         /// </summary>
         /// <param name="error">Socket error code</param>
-        protected virtual void OnError(SocketError error) { }
+        protected virtual void OnError(SocketError error) {}
 
         #endregion
 
@@ -674,16 +674,16 @@ namespace NetCoreServer
 
         protected virtual void Dispose(bool disposingManagedResources)
         {
-            // The idea here is that Dispose(Boolean) knows whether it is 
-            // being called to do explicit cleanup (the Boolean is true) 
-            // versus being called due to a garbage collection (the Boolean 
-            // is false). This distinction is useful because, when being 
-            // disposed explicitly, the Dispose(Boolean) method can safely 
-            // execute code using reference type fields that refer to other 
-            // objects knowing for sure that these other objects have not been 
-            // finalized or disposed of yet. When the Boolean is false, 
-            // the Dispose(Boolean) method should not execute code that 
-            // refer to reference type fields because those objects may 
+            // The idea here is that Dispose(Boolean) knows whether it is
+            // being called to do explicit cleanup (the Boolean is true)
+            // versus being called due to a garbage collection (the Boolean
+            // is false). This distinction is useful because, when being
+            // disposed explicitly, the Dispose(Boolean) method can safely
+            // execute code using reference type fields that refer to other
+            // objects knowing for sure that these other objects have not been
+            // finalized or disposed of yet. When the Boolean is false,
+            // the Dispose(Boolean) method should not execute code that
+            // refer to reference type fields because those objects may
             // have already been finalized."
 
             if (!_disposed)

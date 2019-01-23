@@ -202,7 +202,7 @@ namespace NetCoreServer
                 // Dispose the client socket
                 Socket.Dispose();
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
 
             // Update the connected flag
             IsConnected = false;
@@ -483,7 +483,7 @@ namespace NetCoreServer
                 if (!Socket.ReceiveFromAsync(_receiveEventArg))
                     ProcessReceiveFrom(_receiveEventArg);
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
         }
 
         /// <summary>
@@ -506,7 +506,7 @@ namespace NetCoreServer
                 if (!Socket.SendToAsync(_sendEventArg))
                     ProcessSendTo(_sendEventArg);
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
         }
 
         /// <summary>
@@ -624,22 +624,22 @@ namespace NetCoreServer
         /// <summary>
         /// Handle client connected notification
         /// </summary>
-        protected virtual void OnConnected() { }
+        protected virtual void OnConnected() {}
         /// <summary>
         /// Handle client disconnected notification
         /// </summary>
-        protected virtual void OnDisconnected() { }
+        protected virtual void OnDisconnected() {}
 
         /// <summary>
         /// Handle client joined multicast group notification
         /// </summary>
         /// <param name="address">IP address</param>
-        protected virtual void OnJoinedMulticastGroup(IPAddress address) { }
+        protected virtual void OnJoinedMulticastGroup(IPAddress address) {}
         /// <summary>
         /// Handle client left multicast group notification
         /// </summary>
         /// <param name="address">IP address</param>
-        protected virtual void OnLeftMulticastGroup(IPAddress address) { }
+        protected virtual void OnLeftMulticastGroup(IPAddress address) {}
 
         /// <summary>
         /// Handle datagram received notification
@@ -650,7 +650,7 @@ namespace NetCoreServer
         /// <remarks>
         /// Notification is called when another datagram was received from some endpoint
         /// </remarks>
-        protected virtual void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) { }
+        protected virtual void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) {}
         /// <summary>
         /// Handle datagram sent notification
         /// </summary>
@@ -660,13 +660,13 @@ namespace NetCoreServer
         /// Notification is called when a datagram was sent to the server.
         /// This handler could be used to send another datagram to the server for instance when the pending size is zero.
         /// </remarks>
-        protected virtual void OnSent(IPEndPoint endpoint, long sent) { }
+        protected virtual void OnSent(IPEndPoint endpoint, long sent) {}
 
         /// <summary>
         /// Handle error notification
         /// </summary>
         /// <param name="error">Socket error code</param>
-        protected virtual void OnError(SocketError error) { }
+        protected virtual void OnError(SocketError error) {}
 
         #endregion
 

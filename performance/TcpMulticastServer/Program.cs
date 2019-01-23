@@ -10,7 +10,7 @@ namespace TcpMulticastServer
 {
     class MulticastSession : TcpSession
     {
-        public MulticastSession(TcpServer server) : base(server) { }
+        public MulticastSession(TcpServer server) : base(server) {}
 
         public override bool Send(byte[] buffer, long offset, long size)
         {

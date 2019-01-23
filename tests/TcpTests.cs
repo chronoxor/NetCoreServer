@@ -27,7 +27,7 @@ namespace tests
         public bool Disconnected { get; set; }
         public bool Errors { get; set; }
 
-        public EchoTcpSession(TcpServer server) : base(server) { }
+        public EchoTcpSession(TcpServer server) : base(server) {}
 
         protected override void OnConnected() { Connected = true; }
         protected override void OnDisconnected() { Disconnected = true; }

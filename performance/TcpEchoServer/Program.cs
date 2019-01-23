@@ -8,7 +8,7 @@ namespace TcpEchoServer
 {
     class EchoSession : TcpSession
     {
-        public EchoSession(TcpServer server) : base(server) { }
+        public EchoSession(TcpServer server) : base(server) {}
 
         protected override void OnReceived(byte[] buffer, long size)
         {

@@ -8,7 +8,7 @@ namespace TcpChatServer
 {
     class ChatSession : TcpSession
     {
-        public ChatSession(TcpServer server) : base(server) { }
+        public ChatSession(TcpServer server) : base(server) {}
 
         protected override void OnConnected()
         {
