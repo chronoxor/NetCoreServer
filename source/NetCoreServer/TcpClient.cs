@@ -146,8 +146,12 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
         public virtual bool Disconnect()
         {
-            if (!IsConnected)
+            if (!IsConnected && !_connecting)
                 return false;
+
+            // Cancel connecting operation
+            if (_connecting)
+                Socket.CancelConnectAsync(_connectEventArg);
 
             // Reset event args
             _connectEventArg.Completed -= OnAsyncCompleted;
