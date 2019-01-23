@@ -193,9 +193,6 @@ namespace NetCoreServer
 
             try
             {
-                // Shutdown the socket associated with the client
-                Socket.Shutdown(SocketShutdown.Both);
-
                 // Close the client socket
                 Socket.Close();
 
