@@ -137,7 +137,46 @@ namespace NetCoreServer
             _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(_sslBuffer, false, Server.Context.CertificateValidationCallback) : new SslStream(_sslBuffer, false);
 
             // Begin the SSL handshake
-            _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
+            _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, Handshake, this);
+        }
+
+        private void Handshake(IAsyncResult result)
+        {
+            try
+            {
+                // Get the active session
+                SslSession session = (SslSession)result.AsyncState;
+
+                // End the SSL handshake
+                session._sslStream.EndAuthenticateAsServer(result);
+
+                // Switch to the inner SSL buffer
+                session._sslBuffer.IsNetworkStream = false;
+
+                if (IsHandshaked)
+                    return;
+
+                // Update the handshaked flag
+                IsHandshaked = true;
+
+                // Call the session handshaked handler
+                OnHandshaked();
+
+                // Call the session handshaked handler in the server
+                Server.OnHandshakedInternal(this);
+
+                // Call the empty send buffer handler
+                if (_sendBufferMain.IsEmpty)
+                    OnEmpty();
+
+                // Try to receive something from the client
+                TryReceive();
+            }
+            catch (Exception)
+            {
+                SendError(SocketError.NotConnected);
+                Disconnect();
+            }
         }
 
         /// <summary>
@@ -155,6 +194,9 @@ namespace NetCoreServer
 
             try
             {
+                // Switch to the network SSL stream
+                _sslBuffer.IsNetworkStream = false;
+
                 // Dispose the SSL stream & buffer
                 _sslStream.Dispose();
                 _sslBuffer.Dispose();
@@ -190,42 +232,6 @@ namespace NetCoreServer
             Server.UnregisterSession(Id);
 
             return true;
-        }
-
-        private void ProcessHandshake(IAsyncResult result)
-        {
-            try
-            {
-                // Get the active session
-                SslSession session = (SslSession)result.AsyncState;
-
-                // End the SSL handshake
-                session._sslStream.EndAuthenticateAsServer(result);
-
-                if (IsHandshaked)
-                    return;
-
-                // Update the handshaked flag
-                IsHandshaked = true;
-
-                // Call the session handshaked handler
-                OnHandshaked();
-
-                // Call the session handshaked handler in the server
-                Server.OnHandshakedInternal(this);
-
-                // Call the empty send buffer handler
-                if (_sendBufferMain.IsEmpty)
-                    OnEmpty();
-
-                // Try to receive something from the client
-                TryReceive();
-            }
-            catch (Exception)
-            {
-                SendError(SocketError.NotConnected);
-                Disconnect();
-            }
         }
 
         #endregion

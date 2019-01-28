@@ -29,12 +29,17 @@ namespace NetCoreServer
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
         public SslServer(SslContext context, string address, int port) : this(context, new IPEndPoint(IPAddress.Parse(address), port)) {}
+
         /// <summary>
         /// Initialize SSL server with a given IP endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">IP endpoint</param>
-        public SslServer(SslContext context, IPEndPoint endpoint) { Context = context; Endpoint = endpoint; }
+        public SslServer(SslContext context, IPEndPoint endpoint)
+        {
+            Context = context; 
+            Endpoint = endpoint;
+        }
 
         /// <summary>
         /// SSL context

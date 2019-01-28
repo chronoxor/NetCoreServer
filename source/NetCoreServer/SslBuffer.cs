@@ -10,15 +10,24 @@ namespace NetCoreServer
     public class SslBuffer : Stream
     {
         /// <summary>
-        /// Initialize SSL inner stream with a given inner network stream
+        /// Initialize SSL inner stream with a given network stream
         /// </summary>
-        /// <param name="inner">Inner network stream</param>
-        public SslBuffer(NetworkStream inner) { Inner = inner; }
+        /// <param name="networkStream">Network stream</param>
+        public SslBuffer(NetworkStream networkStream)
+        {
+            IsNetworkStream = true; 
+            NetworkStream = networkStream;
+        }
 
         /// <summary>
-        /// Inner network stream
+        /// Is using network stream?
         /// </summary>
-        public NetworkStream Inner { get; set; }
+        public bool IsNetworkStream { get; internal set; }
+
+        /// <summary>
+        /// Network stream
+        /// </summary>
+        public NetworkStream NetworkStream { get; set; }
 
         #region Stream implementation
 
@@ -45,7 +54,10 @@ namespace NetCoreServer
         /// <returns>The total number of bytes read into the buffer</returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            return Inner.Read(buffer, offset, count);
+            if (IsNetworkStream)
+                return NetworkStream.Read(buffer, offset, count);
+
+            return 0;
         }
 
         /// <summary>
@@ -56,7 +68,8 @@ namespace NetCoreServer
         /// <param name="count">The number of bytes to be written to the current stream</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            Inner.Write(buffer, offset, count);
+            if (IsNetworkStream)
+                NetworkStream.Write(buffer, offset, count);
         }
 
         #endregion
@@ -85,7 +98,7 @@ namespace NetCoreServer
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    Inner.Dispose();
+                    NetworkStream.Dispose();
                 }
 
                 // Dispose unmanaged resources here...
