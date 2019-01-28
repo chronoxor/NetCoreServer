@@ -14,6 +14,7 @@ openssl req -new -subj '/C=BY/ST=Belarus/L=Minsk/O=Example server/OU=Example ser
 openssl x509 -req -days 3650 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
 openssl pkcs12 -clcerts -export -passout pass:qwerty -in server.crt -inkey server.key -out server.p12
 openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in server.p12 -out server.pem
+openssl pkcs12 -export -out server.pfx -inkey server.key -in server.crt
 
 # SSL Client certificate
 openssl genrsa -des3 -passout pass:qwerty -out client-secret.key 4096
@@ -22,6 +23,7 @@ openssl req -new -subj '/C=BY/ST=Belarus/L=Minsk/O=Example client/OU=Example cli
 openssl x509 -req -days 3650 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt
 openssl pkcs12 -clcerts -export -passout pass:qwerty -in client.crt -inkey client.key -out client.p12
 openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in client.p12 -out client.pem
+openssl pkcs12 -export -out client.pfx -inkey client.key -in client.crt
 
 # Diffie–Hellman (D-H) key exchange
 openssl dhparam -out dh4096.pem 4096

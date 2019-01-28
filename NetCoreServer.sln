@@ -41,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpMulticastServer", "perfo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslChatServer", "examples\SslChatServer\SslChatServer.csproj", "{A091E592-950E-438B-87B2-ABBD0F7812F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SslEchoClient", "examples\SslEchoClient\SslEchoClient.csproj", "{E9668313-F7DD-48AD-9BC2-1E015DB238E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslChatClient", "examples\SslEchoClient\SslChatClient.csproj", "{E9668313-F7DD-48AD-9BC2-1E015DB238E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

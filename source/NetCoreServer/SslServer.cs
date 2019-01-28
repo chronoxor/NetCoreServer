@@ -395,6 +395,7 @@ namespace NetCoreServer
         protected virtual void OnError(SocketError error) {}
 
         internal void OnConnectedInternal(SslSession session) { OnConnected(session); }
+        internal void OnHandshakedInternal(SslSession session) { OnHandshaked(session); }
         internal void OnDisconnectedInternal(SslSession session) { OnDisconnected(session); }
 
         #endregion

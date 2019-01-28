@@ -1086,6 +1086,11 @@ openssl pkcs12 -clcerts -export -passout pass:qwerty -in server.crt -inkey serve
 openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in server.p12 -out server.pem
 ```
 
+* Convert the server certificate to PFX
+```shell
+openssl pkcs12 -export -out server.pfx -inkey server.key -in server.crt
+```
+
 ## SSL Client certificate
 
 * Create private key for the client
@@ -1116,6 +1121,11 @@ openssl pkcs12 -clcerts -export -passout pass:qwerty -in client.crt -inkey clien
 * Convert the client certificate to PEM
 ```shell
 openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in client.p12 -out client.pem
+```
+
+* Convert the client certificate to PFX
+```shell
+openssl pkcs12 -export -out client.pfx -inkey client.key -in client.crt
 ```
 
 ## Diffie-Hellman key exchange

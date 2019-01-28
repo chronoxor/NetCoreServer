@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -71,10 +72,17 @@ namespace NetCoreServer
 
         #region Connect/Disconnect session
 
+        private SslBuffer _sslBuffer;
+        private SslStream _sslStream;
+
         /// <summary>
         /// Is the session connected?
         /// </summary>
         public bool IsConnected { get; private set; }
+        /// <summary>
+        /// Is the session handshaked?
+        /// </summary>
+        public bool IsHandshaked { get; private set; }
 
         /// <summary>
         /// Connect the session
@@ -122,12 +130,14 @@ namespace NetCoreServer
             // Call the session connected handler in the server
             Server.OnConnectedInternal(this);
 
-            // Call the empty send buffer handler
-            if (_sendBufferMain.IsEmpty)
-                OnEmpty();
+            // Create SSL inner stream buffer
+            _sslBuffer = new SslBuffer(new NetworkStream(socket, false));
 
-            // Try to receive something from the client
-            TryReceive();
+            // Create SSL stream
+            _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(_sslBuffer, false, Server.Context.CertificateValidationCallback) : new SslStream(_sslBuffer, false);
+
+            // Begin the SSL handshake
+            _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
         }
 
         /// <summary>
@@ -145,6 +155,10 @@ namespace NetCoreServer
 
             try
             {
+                // Dispose the SSL stream & buffer
+                _sslStream.Dispose();
+                _sslBuffer.Dispose();
+
                 // Shutdown the socket associated with the client
                 Socket.Shutdown(SocketShutdown.Both);
 
@@ -176,6 +190,42 @@ namespace NetCoreServer
             Server.UnregisterSession(Id);
 
             return true;
+        }
+
+        private void ProcessHandshake(IAsyncResult result)
+        {
+            try
+            {
+                // Get the active session
+                SslSession session = (SslSession)result.AsyncState;
+
+                // End the SSL handshake
+                session._sslStream.EndAuthenticateAsServer(result);
+
+                if (IsHandshaked)
+                    return;
+
+                // Update the handshaked flag
+                IsHandshaked = true;
+
+                // Call the session handshaked handler
+                OnHandshaked();
+
+                // Call the session handshaked handler in the server
+                Server.OnHandshakedInternal(this);
+
+                // Call the empty send buffer handler
+                if (_sendBufferMain.IsEmpty)
+                    OnEmpty();
+
+                // Try to receive something from the client
+                TryReceive();
+            }
+            catch (Exception)
+            {
+                SendError(SocketError.NotConnected);
+                Disconnect();
+            }
         }
 
         #endregion
