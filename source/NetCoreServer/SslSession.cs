@@ -195,7 +195,7 @@ namespace NetCoreServer
             try
             {
                 // Switch to the network SSL stream
-                _sslBuffer.IsNetworkStream = false;
+                _sslBuffer.IsNetworkStream = true;
 
                 // Dispose the SSL stream & buffer
                 _sslStream.Dispose();
