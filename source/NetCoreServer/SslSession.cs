@@ -449,6 +449,9 @@ namespace NetCoreServer
                 // Read SSL stream as data chunks...
                 do
                 {
+                    if (!IsHandshaked)
+                        break;
+
                     // Read the next chunk from the SSL stream
                     int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
                     if (length <= 0)
