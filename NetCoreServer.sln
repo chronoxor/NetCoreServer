@@ -43,7 +43,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslChatServer", "examples\S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslChatClient", "examples\SslChatClient\SslChatClient.csproj", "{E9668313-F7DD-48AD-9BC2-1E015DB238E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SslEchoClient", "performance\SslEchoClient\SslEchoClient.csproj", "{0B131BC0-87D0-4CAC-93F8-D4921AFE5F45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslEchoClient", "performance\SslEchoClient\SslEchoClient.csproj", "{0B131BC0-87D0-4CAC-93F8-D4921AFE5F45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SslEchoServer", "performance\SslEchoServer\SslEchoServer.csproj", "{9A61D386-B52E-41EF-B73A-F60AC185954A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -283,6 +285,18 @@ Global
 		{0B131BC0-87D0-4CAC-93F8-D4921AFE5F45}.Release|x64.Build.0 = Release|Any CPU
 		{0B131BC0-87D0-4CAC-93F8-D4921AFE5F45}.Release|x86.ActiveCfg = Release|Any CPU
 		{0B131BC0-87D0-4CAC-93F8-D4921AFE5F45}.Release|x86.Build.0 = Release|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Debug|x64.Build.0 = Debug|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Debug|x86.Build.0 = Debug|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Release|x64.ActiveCfg = Release|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Release|x64.Build.0 = Release|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A61D386-B52E-41EF-B73A-F60AC185954A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -305,6 +319,7 @@ Global
 		{A091E592-950E-438B-87B2-ABBD0F7812F0} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
 		{E9668313-F7DD-48AD-9BC2-1E015DB238E1} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
 		{0B131BC0-87D0-4CAC-93F8-D4921AFE5F45} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
+		{9A61D386-B52E-41EF-B73A-F60AC185954A} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {64415837-63D9-474E-A25C-EE91C9CA90C5}

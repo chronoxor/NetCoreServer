@@ -90,7 +90,7 @@ namespace TcpMulticastClient
             for (int i = 0; i < clients; ++i)
             {
                 var client = new MulticastClient(address, port);
-                // client.SetupNoDelay(true);
+                // client.OptionNoDelay = true;
                 multicastClients.Add(client);
             }
 

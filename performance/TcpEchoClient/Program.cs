@@ -136,7 +136,7 @@ namespace TcpEchoClient
             for (int i = 0; i < clients; ++i)
             {
                 var client = new EchoClient(address, port, messages / clients);
-                // client.SetupNoDelay(true);
+                // client.OptionNoDelay = true;
                 echoClients.Add(client);
             }
 

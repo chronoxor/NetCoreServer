@@ -142,7 +142,7 @@ namespace SslEchoClient
             for (int i = 0; i < clients; ++i)
             {
                 var client = new EchoClient(context, address, port, messages / clients);
-                // client.SetupNoDelay(true);
+                // client.OptionNoDelay = true;
                 echoClients.Add(client);
             }
 
