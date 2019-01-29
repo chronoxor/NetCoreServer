@@ -53,7 +53,6 @@ namespace NetCoreServer
             set => throw new NotImplementedException();
         }
 
-        public override void Flush() { throw new NotImplementedException(); }
         public override long Seek(long offset, SeekOrigin origin) { throw new NotImplementedException(); }
         public override void SetLength(long value) { throw new NotImplementedException(); }
 
@@ -70,8 +69,8 @@ namespace NetCoreServer
                 return NetworkStream.Read(buffer, offset, count);
 
             long size = Math.Min(ReceiveBuffer.Size, count);
-            Array.Copy(ReceiveBuffer.Data, 0, buffer, offset, size);
-            ReceiveBuffer.Remove(0, size);
+            Array.Copy(ReceiveBuffer.Data, ReceiveBuffer.Offset, buffer, offset, size);
+            ReceiveBuffer.Shift(size);
             return (int)size;
         }
 
@@ -87,6 +86,15 @@ namespace NetCoreServer
                 NetworkStream.Write(buffer, offset, count);
 
             SendBuffer.Append(buffer, offset, count);
+        }
+
+        /// <summary>
+        /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device
+        /// </summary>
+        public override void Flush()
+        {
+            if (IsNetworkStream)
+                NetworkStream.Flush();
         }
 
         #endregion

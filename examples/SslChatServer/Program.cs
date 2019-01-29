@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -22,8 +23,8 @@ namespace SslChatServer
             Console.WriteLine($"Chat SSL session with Id {Id} handshaked!");
 
             // Send invite message
-            string message = "Hello from SSL chat! Please send a message or '!' to disconnect the client!";
-            Send(message);
+            //string message = "Hello from SSL chat! Please send a message or '!' to disconnect the client!";
+            //Send(message);
         }
 
         protected override void OnDisconnected()
@@ -77,6 +78,7 @@ namespace SslChatServer
             Console.WriteLine($"SSL server port: {port}");
 
             // Create and prepare a new SSL server context
+            //var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"), (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => true);
             var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
 
             // Create a new SSL chat server

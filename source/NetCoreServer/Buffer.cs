@@ -11,6 +11,7 @@ namespace NetCoreServer
     {
         private byte[] _data;
         private long _size;
+        private long _offset;
 
         /// <summary>
         /// Is the buffer empty?
@@ -28,24 +29,27 @@ namespace NetCoreServer
         /// Bytes memory buffer size
         /// </summary>
         public long Size => _size;
+        /// <summary>
+        /// Bytes memory buffer offset
+        /// </summary>
+        public long Offset => _offset;
 
         /// <summary>
         /// Initialize a new expandable buffer with zero capacity
         /// </summary>
-        public Buffer() { _data = new byte[0]; _size = 0; }
+        public Buffer() { _data = new byte[0]; _size = 0; _offset = 0; }
         /// <summary>
         /// Initialize a new expandable buffer with the given capacity
         /// </summary>
-        public Buffer(long capacity) { _data = new byte[capacity]; _size = 0; }
+        public Buffer(long capacity) { _data = new byte[capacity]; _size = 0; _offset = 0; }
 
         #region Memory buffer methods
 
-        /// <summary>
-        /// Clear the buffer
-        /// </summary>
+        // Clear the current buffer and its offset
         public void Clear()
         {
             _size = 0;
+            _offset = 0;
         }
 
         /// <summary>
@@ -59,6 +63,14 @@ namespace NetCoreServer
 
             Array.Copy(_data, offset + size, _data, offset, _size - size - offset);
             _size -= size;
+            if (_offset >= (offset + size))
+                _offset -= size;
+            else if (_offset >= offset)
+            {
+                _offset -= _offset - offset;
+                if (_offset > Size)
+                    _offset = Size;
+            }
         }
 
         /// <summary>
@@ -77,6 +89,20 @@ namespace NetCoreServer
                 _data = data;
             }
         }
+
+        // Resize the current buffer
+        public void Resize(long size)
+        {
+            Reserve(size);
+            _size = size;
+            if (_offset > _size)
+                _offset = _size;
+        }
+
+        // Shift the current buffer offset
+        public void Shift(long offset) { _offset += offset; }
+        // Unshift the current buffer offset
+        public void Unshift(long offset) { _offset -= offset; }
 
         #endregion
 

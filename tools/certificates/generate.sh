@@ -6,6 +6,7 @@ openssl rsa -passin pass:qwerty -in ca-secret.key -out ca.key
 openssl req -new -x509 -days 3650 -subj '/C=BY/ST=Belarus/L=Minsk/O=Example root CA/OU=Example CA unit/CN=example.com' -key ca.key -out ca.crt
 openssl pkcs12 -clcerts -export -passout pass:qwerty -in ca.crt -inkey ca.key -out ca.p12
 openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in ca.p12 -out ca.pem
+openssl pkcs12 -export -out ca.pfx -inkey ca.key -in ca.crt
 
 # SSL Server certificate
 openssl genrsa -des3 -passout pass:qwerty -out server-secret.key 4096

@@ -1054,6 +1054,11 @@ openssl pkcs12 -clcerts -export -passout pass:qwerty -in ca.crt -inkey ca.key -o
 openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in ca.p12 -out ca.pem
 ```
 
+* Convert CA self-signed certificate to PFX
+```shell
+openssl pkcs12 -export -out ca.pfx -inkey ca.key -in ca.crt
+```
+
 ## SSL Server certificate
 
 * Create private key for the server

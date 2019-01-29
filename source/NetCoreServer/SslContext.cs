@@ -12,12 +12,12 @@ namespace NetCoreServer
         /// <summary>
         /// Initialize SSL context with default protocols
         /// </summary>
-        public SslContext() : this(SslProtocols.Default, null) {}
+        public SslContext() : this(SslProtocols.Default) {}
         /// <summary>
         /// Initialize SSL context with given protocols
         /// </summary>
         /// <param name="protocols">SSL protocols</param>
-        public SslContext(SslProtocols protocols) : this(protocols, null) {}
+        public SslContext(SslProtocols protocols) { Protocols = protocols; }
         /// <summary>
         /// Initialize SSL context with given protocols and certificate
         /// </summary>
@@ -36,6 +36,24 @@ namespace NetCoreServer
             Certificate = certificate;
             CertificateValidationCallback = certificateValidationCallback;
         }
+        /// <summary>
+        /// Initialize SSL context with given protocols and certificates collection
+        /// </summary>
+        /// <param name="protocols">SSL protocols</param>
+        /// <param name="certificates">SSL certificates collection</param>
+        public SslContext(SslProtocols protocols, X509Certificate2Collection certificates) : this(protocols, certificates, null) { }
+        /// <summary>
+        /// Initialize SSL context with given protocols, certificates collection and validation callback
+        /// </summary>
+        /// <param name="protocols">SSL protocols</param>
+        /// <param name="certificates">SSL certificates collection</param>
+        /// <param name="certificateValidationCallback">SSL certificate</param>
+        public SslContext(SslProtocols protocols, X509Certificate2Collection certificates, RemoteCertificateValidationCallback certificateValidationCallback)
+        {
+            Protocols = protocols;
+            Certificates = certificates;
+            CertificateValidationCallback = certificateValidationCallback;
+        }
 
         /// <summary>
         /// SSL protocols
@@ -45,6 +63,10 @@ namespace NetCoreServer
         /// SSL certificate
         /// </summary>
         public X509Certificate Certificate { get; set; }
+        /// <summary>
+        /// SSL certificates collection
+        /// </summary>
+        public X509Certificate2Collection Certificates { get; set; }
         /// <summary>
         /// SSL certificate validation callback
         /// </summary>

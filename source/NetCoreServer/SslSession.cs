@@ -124,9 +124,6 @@ namespace NetCoreServer
             // Update the connected flag
             IsConnected = true;
 
-            // Update the handshaked flag
-            IsHandshaked = true;
-
             // Call the session connected handler
             OnConnected();
 
@@ -134,52 +131,13 @@ namespace NetCoreServer
             Server.OnConnectedInternal(this);
 
             // Create SSL inner stream buffer
-            _sslBuffer = new SslBuffer(new NetworkStream(socket, false), Socket.ReceiveBufferSize, Socket.SendBufferSize);
+            _sslBuffer = new SslBuffer(new NetworkStream(Socket, false), Socket.ReceiveBufferSize, Socket.SendBufferSize);
 
             // Create SSL stream
             _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(_sslBuffer, false, Server.Context.CertificateValidationCallback) : new SslStream(_sslBuffer, false);
 
             // Begin the SSL handshake
-            _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, true, Handshake, this);
-        }
-
-        private void Handshake(IAsyncResult result)
-        {
-            try
-            {
-                // Get the active session
-                SslSession session = (SslSession)result.AsyncState;
-
-                // End the SSL handshake
-                session._sslStream.EndAuthenticateAsServer(result);
-
-                // Switch to the inner SSL buffer
-                session._sslBuffer.IsNetworkStream = false;
-
-                if (IsHandshaked)
-                    return;
-
-                // Update the handshaked flag
-                IsHandshaked = true;
-
-                // Call the session handshaked handler
-                OnHandshaked();
-
-                // Call the session handshaked handler in the server
-                Server.OnHandshakedInternal(this);
-
-                // Call the empty send buffer handler
-                if (_sendBufferMain.IsEmpty)
-                    OnEmpty();
-
-                // Try to receive something from the client
-                TryReceive();
-            }
-            catch (Exception)
-            {
-                SendError(SocketError.NotConnected);
-                Disconnect();
-            }
+            _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
         }
 
         /// <summary>
@@ -428,6 +386,45 @@ namespace NetCoreServer
         }
 
         /// <summary>
+        /// This method is invoked when an asynchronous handshake operation completes
+        /// </summary>
+        private void ProcessHandshake(IAsyncResult result)
+        {
+            try
+            {
+                // End the SSL handshake
+                _sslStream.EndAuthenticateAsServer(result);
+
+                // Switch to the inner SSL buffer
+                //_sslBuffer.IsNetworkStream = false;
+
+                if (IsHandshaked)
+                    return;
+
+                // Update the handshaked flag
+                IsHandshaked = true;
+
+                // Call the session handshaked handler
+                OnHandshaked();
+
+                // Call the session handshaked handler in the server
+                Server.OnHandshakedInternal(this);
+
+                // Call the empty send buffer handler
+                if (_sendBufferMain.IsEmpty)
+                    OnEmpty();
+
+                // Try to receive something from the client
+                TryReceive();
+            }
+            catch (Exception)
+            {
+                SendError(SocketError.NotConnected);
+                Disconnect();
+            }
+        }
+
+        /// <summary>
         /// This method is invoked when an asynchronous receive operation completes
         /// </summary>
         private void ProcessReceive(SocketAsyncEventArgs e)
@@ -456,13 +453,13 @@ namespace NetCoreServer
                 // Read SSL stream as data chunks...
                 do
                 {
-                    // Read next chunk from SSL stream
+                    // Read the next chunk from the SSL stream
                     int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
                     if (length <= 0)
                         break;
                     
                     // Call the buffer received handler
-                    OnReceived(_receiveBuffer.Data, size);
+                    OnReceived(_receiveChunk, length);
                 } while (true);
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -73,7 +74,7 @@ namespace SslChatClient
             Console.WriteLine($"SSL server port: {port}");
 
             // Create and prepare a new SSL client context
-            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"));
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => true);
 
             // Create a new SSL chat client
             var client = new ChatClient(context, address, port);
