@@ -27,7 +27,7 @@ namespace NetCoreServer
         /// <param name="context">SSL context</param>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public SslClient(SslContext context, string address, int port) : this(context, new IPEndPoint(IPAddress.Parse(address), port)) {}
+        public SslClient(SslContext context, string address, int port) : this(context, new IPEndPoint(IPAddress.Parse(address), port)) { Address = address; }
         /// <summary>
         /// Initialize SSL client with a given IP endpoint
         /// </summary>
@@ -36,6 +36,7 @@ namespace NetCoreServer
         public SslClient(SslContext context, IPEndPoint endpoint)
         {
             Id = Guid.NewGuid();
+            Address = endpoint.Address.ToString();
             Context = context;
             Endpoint = endpoint;
         }
@@ -45,6 +46,10 @@ namespace NetCoreServer
         /// </summary>
         public Guid Id { get; }
 
+        /// <summary>
+        /// SSL server DNS address
+        /// </summary>
+        public string Address { get; set; }
         /// <summary>
         /// SSL context
         /// </summary>
@@ -459,7 +464,7 @@ namespace NetCoreServer
                 _sslStream = (Context.CertificateValidationCallback != null) ? new SslStream(_sslBuffer, false, Context.CertificateValidationCallback) : new SslStream(_sslBuffer, false);
 
                 // Begin the SSL handshake
-                _sslStream.BeginAuthenticateAsClient(Endpoint.ToString(), (Context.Certificates != null) ? Context.Certificates : new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, this);
+                _sslStream.BeginAuthenticateAsClient(Address, (Context.Certificates != null) ? Context.Certificates : new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, this);
             }
             else
             {
