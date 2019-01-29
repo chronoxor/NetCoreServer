@@ -13,10 +13,14 @@ namespace NetCoreServer
         /// Initialize SSL inner stream with a given network stream
         /// </summary>
         /// <param name="networkStream">Network stream</param>
-        public SslBuffer(NetworkStream networkStream)
+        /// <param name="receiveBufferCapacity">Initial receive buffer capacity</param>
+        /// <param name="sendBufferCapacity">Initial send buffer capacity</param>
+        public SslBuffer(NetworkStream networkStream, int receiveBufferCapacity, int sendBufferCapacity)
         {
             IsNetworkStream = true; 
             NetworkStream = networkStream;
+            ReceiveBuffer = new Buffer(receiveBufferCapacity);
+            SendBuffer = new Buffer(sendBufferCapacity);
         }
 
         /// <summary>
@@ -27,7 +31,15 @@ namespace NetCoreServer
         /// <summary>
         /// Network stream
         /// </summary>
-        public NetworkStream NetworkStream { get; set; }
+        public NetworkStream NetworkStream { get; }
+        /// <summary>
+        /// Receive buffer
+        /// </summary>
+        public Buffer ReceiveBuffer { get; }
+        /// <summary>
+        /// Send buffer
+        /// </summary>
+        public Buffer SendBuffer { get; }
 
         #region Stream implementation
 
@@ -57,7 +69,10 @@ namespace NetCoreServer
             if (IsNetworkStream)
                 return NetworkStream.Read(buffer, offset, count);
 
-            return 0;
+            long size = Math.Min(ReceiveBuffer.Size, count);
+            Array.Copy(ReceiveBuffer.Data, 0, buffer, offset, size);
+            ReceiveBuffer.Remove(0, size);
+            return (int)size;
         }
 
         /// <summary>
@@ -70,6 +85,8 @@ namespace NetCoreServer
         {
             if (IsNetworkStream)
                 NetworkStream.Write(buffer, offset, count);
+
+            SendBuffer.Append(buffer, offset, count);
         }
 
         #endregion

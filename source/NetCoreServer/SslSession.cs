@@ -124,6 +124,9 @@ namespace NetCoreServer
             // Update the connected flag
             IsConnected = true;
 
+            // Update the handshaked flag
+            IsHandshaked = true;
+
             // Call the session connected handler
             OnConnected();
 
@@ -131,13 +134,13 @@ namespace NetCoreServer
             Server.OnConnectedInternal(this);
 
             // Create SSL inner stream buffer
-            _sslBuffer = new SslBuffer(new NetworkStream(socket, false));
+            _sslBuffer = new SslBuffer(new NetworkStream(socket, false), Socket.ReceiveBufferSize, Socket.SendBufferSize);
 
             // Create SSL stream
             _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(_sslBuffer, false, Server.Context.CertificateValidationCallback) : new SslStream(_sslBuffer, false);
 
             // Begin the SSL handshake
-            _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, Handshake, this);
+            _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, true, Handshake, this);
         }
 
         private void Handshake(IAsyncResult result)
@@ -212,6 +215,9 @@ namespace NetCoreServer
             }
             catch (ObjectDisposedException) {}
 
+            // Update the handshaked flag
+            IsHandshaked = false;
+
             // Update the connected flag
             IsConnected = false;
 
@@ -266,7 +272,7 @@ namespace NetCoreServer
         /// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
         public virtual bool Send(byte[] buffer, long offset, long size)
         {
-            if (!IsConnected)
+            if (!IsHandshaked)
                 return false;
 
             if (size == 0)
@@ -309,7 +315,7 @@ namespace NetCoreServer
             if (_receiving)
                 return;
 
-            if (!IsConnected)
+            if (!IsHandshaked)
                 return;
 
             try
@@ -331,7 +337,7 @@ namespace NetCoreServer
             if (_sending)
                 return;
 
-            if (!IsConnected)
+            if (!IsHandshaked)
                 return;
 
             // Swap send buffers
@@ -346,6 +352,10 @@ namespace NetCoreServer
                     // Update statistic
                     BytesPending = 0;
                     BytesSending += _sendBufferFlush.Size;
+
+                    // Write SSL stream
+                    _sslStream.Write(_sendBufferFlush.Data, 0, (int)_sendBufferFlush.Size);
+                    _sslStream.Flush();
                 }
             }
             else
@@ -363,7 +373,7 @@ namespace NetCoreServer
             {
                 // Async write with the write handler
                 _sending = true;
-                _sendEventArg.SetBuffer(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset));
+                _sendEventArg.SetBuffer(_sslBuffer.SendBuffer.Data, (int)_sendBufferFlushOffset, (int)(_sslBuffer.SendBuffer.Size - _sendBufferFlushOffset));
                 if (!Socket.SendAsync(_sendEventArg))
                     ProcessSend(_sendEventArg);
             }
@@ -377,6 +387,9 @@ namespace NetCoreServer
         {
             lock (_sendLock)
             {
+                // Clear SSL buffer
+                _sslBuffer.SendBuffer.Clear();
+
                 // Clear send buffers
                 _sendBufferMain.Clear();
                 _sendBufferFlush.Clear();
@@ -391,6 +404,8 @@ namespace NetCoreServer
         #endregion
 
         #region IO processing
+
+        private readonly byte[] _receiveChunk = new byte[4096];
 
         /// <summary>
         /// This method is called whenever a receive or send operation is completed on a socket
@@ -419,7 +434,7 @@ namespace NetCoreServer
         {
             _receiving = false;
 
-            if (!IsConnected)
+            if (!IsHandshaked)
                 return;
 
             long size = e.BytesTransferred;
@@ -435,8 +450,20 @@ namespace NetCoreServer
                 if (_receiveBuffer.Capacity == size)
                     _receiveBuffer.Reserve(2 * size);
 
-                // Call the buffer received handler
-                OnReceived(_receiveBuffer.Data, size);
+                // Append SSL receive buffer
+                _sslBuffer.ReceiveBuffer.Append(_receiveBuffer.Data, 0, size);
+
+                // Read SSL stream as data chunks...
+                do
+                {
+                    // Read next chunk from SSL stream
+                    int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
+                    if (length <= 0)
+                        break;
+                    
+                    // Call the buffer received handler
+                    OnReceived(_receiveBuffer.Data, size);
+                } while (true);
             }
 
             // Try to receive again if the session is valid
@@ -462,7 +489,7 @@ namespace NetCoreServer
         {
             _sending = false;
 
-            if (!IsConnected)
+            if (!IsHandshaked)
                 return;
 
             long size = e.BytesTransferred;
@@ -479,9 +506,10 @@ namespace NetCoreServer
                 _sendBufferFlushOffset += size;
 
                 // Successfully send the whole flush buffer
-                if (_sendBufferFlushOffset == _sendBufferFlush.Size)
+                if (_sendBufferFlushOffset == _sslBuffer.SendBuffer.Size)
                 {
                     // Clear the flush buffer
+                    _sslBuffer.SendBuffer.Clear();
                     _sendBufferFlush.Clear();
                     _sendBufferFlushOffset = 0;
                 }

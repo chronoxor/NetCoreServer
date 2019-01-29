@@ -49,6 +49,19 @@ namespace NetCoreServer
         }
 
         /// <summary>
+        /// Remove the buffer of the given offset and size
+        /// </summary>
+        public void Remove(long offset, long size)
+        {
+            Debug.Assert(((offset + size) <= Size), "Invalid offset & size!");
+            if ((offset + size) > Size)
+                throw new ArgumentException("Invalid offset & size!", nameof(offset));
+
+            Array.Copy(_data, offset + size, _data, offset, _size - size - offset);
+            _size -= size;
+        }
+
+        /// <summary>
         /// Reserve the buffer of the given capacity
         /// </summary>
         public void Reserve(long capacity)
