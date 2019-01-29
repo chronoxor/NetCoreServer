@@ -570,12 +570,15 @@ namespace NetCoreServer
                 DatagramsReceived++;
                 BytesReceived += size;
 
+                // Call the datagram received handler
+                OnReceived(e.RemoteEndPoint as IPEndPoint, _receiveBuffer.Data, size);
+
+                // Clear the receive buffer
+                _receiveBuffer.Clear();
+
                 // If the receive buffer is full increase its size
                 if (_receiveBuffer.Capacity == size)
                     _receiveBuffer.Reserve(2 * size);
-
-                // Call the datagram received handler
-                OnReceived(e.RemoteEndPoint as IPEndPoint, _receiveBuffer.Data, size);
             }
         }
 

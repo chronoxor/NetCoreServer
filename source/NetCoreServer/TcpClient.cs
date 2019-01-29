@@ -449,12 +449,15 @@ namespace NetCoreServer
                 // Update statistic
                 BytesReceived += size;
 
+                // Call the buffer received handler
+                OnReceived(_receiveBuffer.Data, size);
+
+                // Clear the receive buffer
+                _receiveBuffer.Clear();
+
                 // If the receive buffer is full increase its size
                 if (_receiveBuffer.Capacity == size)
                     _receiveBuffer.Reserve(2 * size);
-
-                // Call the buffer received handler
-                OnReceived(_receiveBuffer.Data, size);
             }
 
             // Try to receive again if the client is valid

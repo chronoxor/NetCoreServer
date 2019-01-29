@@ -443,12 +443,15 @@ namespace NetCoreServer
                 BytesReceived += size;
                 Server.BytesReceived += size;
 
+                // Append the SSL receive buffer
+                _sslBuffer.ReceiveBuffer.Append(_receiveBuffer.Data, 0, size);
+
+                // Clear the receive buffer
+                _receiveBuffer.Clear();
+
                 // If the receive buffer is full increase its size
                 if (_receiveBuffer.Capacity == size)
                     _receiveBuffer.Reserve(2 * size);
-
-                // Append SSL receive buffer
-                _sslBuffer.ReceiveBuffer.Append(_receiveBuffer.Data, 0, size);
 
                 // Read SSL stream as data chunks...
                 do
