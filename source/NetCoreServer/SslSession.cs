@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
@@ -447,26 +448,30 @@ namespace NetCoreServer
                     _receiveBuffer.Reserve(2 * size);
 
                 // Read SSL stream as data chunks...
-                do
+                try
                 {
-                    if (!IsHandshaked)
-                        break;
+                    do
+                    {
+                        if (!IsHandshaked)
+                            break;
 
-                    // Read the next chunk from the SSL stream
-                    int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
-                    if (length <= 0)
-                        break;
+                        // Read the next chunk from the SSL stream
+                        int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
+                        if (length <= 0)
+                            break;
 
-                    // Update statistic
-                    BytesReceived += length;
-                    Server.BytesReceived += length;
+                        // Update statistic
+                        BytesReceived += length;
+                        Server.BytesReceived += length;
 
-                    // Call the buffer received handler
-                    OnReceived(_receiveChunk, length);
-                } while (true);
+                        // Call the buffer received handler
+                        OnReceived(_receiveChunk, length);
+                    } while (true);
 
-                // Clear SSL receive buffer
-                _sslBuffer.ReceiveBuffer.Clear();
+                    // Clear SSL receive buffer
+                    _sslBuffer.ReceiveBuffer.Clear();
+                }
+                catch (IOException) {}
             }
 
             // Try to receive again if the session is valid

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -540,37 +541,41 @@ namespace NetCoreServer
                     _receiveBuffer.Reserve(2 * size);
 
                 // Read SSL stream as data chunks...
-                do
+                try
                 {
-                    if (!IsHandshaked)
-                        break;
-
-                    // Read the next chunk from the SSL stream
-                    int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
-                    if (length <= 0)
+                    do
                     {
-                        // Special check for SSL server shutdown message...
-                        if (_sslBuffer.ReceiveBuffer.Size >= 31)
+                        if (!IsHandshaked)
+                            break;
+
+                        // Read the next chunk from the SSL stream
+                        int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
+                        if (length <= 0)
                         {
-                            if ((_sslBuffer.ReceiveBuffer.Data[0] == 0x15) && 
-                                (_sslBuffer.ReceiveBuffer.Data[1] == 0x03) && 
-                                (_sslBuffer.ReceiveBuffer.Data[2] == 0x03) && 
-                                (_sslBuffer.ReceiveBuffer.Data[3] == 0x00) && 
-                                (_sslBuffer.ReceiveBuffer.Data[4] == 0x1A))
-                            size = 0;
+                            // Special check for SSL server shutdown message...
+                            if (_sslBuffer.ReceiveBuffer.Size >= 31)
+                            {
+                                if ((_sslBuffer.ReceiveBuffer.Data[0] == 0x15) &&
+                                    (_sslBuffer.ReceiveBuffer.Data[1] == 0x03) &&
+                                    (_sslBuffer.ReceiveBuffer.Data[2] == 0x03) &&
+                                    (_sslBuffer.ReceiveBuffer.Data[3] == 0x00) &&
+                                    (_sslBuffer.ReceiveBuffer.Data[4] == 0x1A))
+                                    size = 0;
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    // Update statistic
-                    BytesReceived += length;
+                        // Update statistic
+                        BytesReceived += length;
 
-                    // Call the buffer received handler
-                    OnReceived(_receiveChunk, length);
-                } while (true);
+                        // Call the buffer received handler
+                        OnReceived(_receiveChunk, length);
+                    } while (true);
 
-                // Clear SSL receive buffer
-                _sslBuffer.ReceiveBuffer.Clear();
+                    // Clear SSL receive buffer
+                    _sslBuffer.ReceiveBuffer.Clear();
+                }
+                catch (IOException) {}
             }
 
             // Try to receive again if the client is valid

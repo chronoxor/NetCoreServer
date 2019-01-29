@@ -41,7 +41,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="protocols">SSL protocols</param>
         /// <param name="certificates">SSL certificates collection</param>
-        public SslContext(SslProtocols protocols, X509Certificate2Collection certificates) : this(protocols, certificates, null) { }
+        public SslContext(SslProtocols protocols, X509Certificate2Collection certificates) : this(protocols, certificates, null) {}
         /// <summary>
         /// Initialize SSL context with given protocols, certificates collection and validation callback
         /// </summary>
