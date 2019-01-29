@@ -781,12 +781,12 @@ Message size: 32
 
 Errors: 0
 
-Round-trip time: 3.285 s
+Round-trip time: 3.623 s
 Total data: 30.530 MiB
 Total messages: 1000000
-Data throughput: 9.296 MiB/s
-Message latency: 3.285 mcs
-Message throughput: 304392 msg/s
+Data throughput: 8.432 MiB/s
+Message latency: 3.623 mcs
+Message throughput: 275980 msg/s
 ```
 
 * [TcpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
@@ -801,12 +801,12 @@ Message size: 32
 
 Errors: 0
 
-Round-trip time: 1.307 s
-Total data: 30.483 MiB
-Total messages: 998524
-Data throughput: 23.308 MiB/s
-Message latency: 1.309 mcs
-Message throughput: 763537 msg/s
+Round-trip time: 942.486 ms
+Total data: 30.451 MiB
+Total messages: 997476
+Data throughput: 32.305 MiB/s
+Message latency: 944 ns
+Message throughput: 1058345 msg/s
 ```
 
 ### SSL echo server
@@ -915,12 +915,12 @@ Message size: 32
 
 Errors: 0
 
-Multicast time: 10.019 s
-Total data: 34.898 MiB
-Total messages: 1142855
-Data throughput: 3.492 MiB/s
-Message latency: 8.767 mcs
-Message throughput: 114059 msg/s
+Multicast time: 10.021 s
+Total data: 35.822 MiB
+Total messages: 1173191
+Data throughput: 3.586 MiB/s
+Message latency: 8.541 mcs
+Message throughput: 117072 msg/s
 ```
 
 * [TcpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
@@ -935,11 +935,11 @@ Message size: 32
 Errors: 0
 
 Multicast time: 10.040 s
-Total data: 300.953 MiB
-Total messages: 9860913
-Data throughput: 29.995 MiB/s
-Message latency: 1.018 mcs
-Message throughput: 982115 msg/s
+Total data: 313.425 MiB
+Total messages: 10270004
+Data throughput: 31.220 MiB/s
+Message latency: 977 ns
+Message throughput: 1022868 msg/s
 ```
 
 ### SSL multicast server
@@ -995,12 +995,12 @@ Message size: 32
 
 Errors: 0
 
-Multicast time: 10.018 s
-Total data: 20.213 MiB
-Total messages: 662188
-Data throughput: 2.017 MiB/s
-Message latency: 15.130 mcs
-Message throughput: 66093 msg/s
+Multicast time: 10.020 s
+Total data: 20.435 MiB
+Total messages: 669308
+Data throughput: 2.039 MiB/s
+Message latency: 14.971 mcs
+Message throughput: 66793 msg/s
 ```
 
 * [UdpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
@@ -1014,12 +1014,12 @@ Message size: 32
 
 Errors: 0
 
-Multicast time: 10.036 s
-Total data: 35.923 MiB
-Total messages: 1176426
-Data throughput: 3.591 MiB/s
-Message latency: 8.531 mcs
-Message throughput: 117216 msg/s
+Multicast time: 10.037 s
+Total data: 35.982 MiB
+Total messages: 1178311
+Data throughput: 3.596 MiB/s
+Message latency: 8.518 mcs
+Message throughput: 117393 msg/s
 ```
 
 # OpenSSL certificates
