@@ -26,10 +26,7 @@ namespace TcpEchoServer
     {
         public EchoServer(IPAddress address, int port) : base(address, port) {}
 
-        protected override TcpSession CreateSession()
-        {
-            return new EchoSession(this);
-        }
+        protected override TcpSession CreateSession() { return new EchoSession(this); }
 
         protected override void OnError(SocketError error)
         {

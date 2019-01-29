@@ -439,10 +439,6 @@ namespace NetCoreServer
             // Received some data from the client
             if (size > 0)
             {
-                // Update statistic
-                BytesReceived += size;
-                Server.BytesReceived += size;
-
                 // Append the SSL receive buffer
                 _sslBuffer.ReceiveBuffer.Append(_receiveBuffer.Data, 0, size);
 
@@ -457,7 +453,11 @@ namespace NetCoreServer
                     int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
                     if (length <= 0)
                         break;
-                    
+
+                    // Update statistic
+                    BytesReceived += length;
+                    Server.BytesReceived += length;
+
                     // Call the buffer received handler
                     OnReceived(_receiveChunk, length);
                 } while (true);
@@ -497,17 +497,19 @@ namespace NetCoreServer
             // Send some data to the client
             if (size > 0)
             {
-                // Update statistic
-                BytesSending -= size;
-                BytesSent += size;
-                Server.BytesSent += size;
-
                 // Increase the flush buffer offset
                 _sendBufferFlushOffset += size;
 
                 // Successfully send the whole flush buffer
                 if (_sendBufferFlushOffset == _sslBuffer.SendBuffer.Size)
                 {
+                    long sent = _sendBufferFlush.Size;
+
+                    // Update statistic
+                    BytesSending -= sent;
+                    BytesSent += sent;
+                    Server.BytesSent += sent;
+
                     // Clear the flush buffer
                     _sslBuffer.SendBuffer.Clear();
                     _sendBufferFlush.Clear();
