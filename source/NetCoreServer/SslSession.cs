@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
@@ -73,7 +72,6 @@ namespace NetCoreServer
 
         #region Connect/Disconnect session
 
-        private SslBuffer _sslBuffer;
         private SslStream _sslStream;
 
         /// <summary>
@@ -97,12 +95,6 @@ namespace NetCoreServer
             _receiveBuffer = new Buffer();
             _sendBufferMain = new Buffer();
             _sendBufferFlush = new Buffer();
-
-            // Setup event args
-            _receiveEventArg = new SocketAsyncEventArgs();
-            _receiveEventArg.Completed += OnAsyncCompleted;
-            _sendEventArg = new SocketAsyncEventArgs();
-            _sendEventArg.Completed += OnAsyncCompleted;
 
             // Apply the option: keep alive
             if (Server.OptionKeepAlive)
@@ -131,11 +123,8 @@ namespace NetCoreServer
             // Call the session connected handler in the server
             Server.OnConnectedInternal(this);
 
-            // Create SSL inner stream buffer
-            _sslBuffer = new SslBuffer(new NetworkStream(Socket, false), Socket.ReceiveBufferSize, Socket.SendBufferSize);
-
             // Create SSL stream
-            _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(_sslBuffer, false, Server.Context.CertificateValidationCallback) : new SslStream(_sslBuffer, false);
+            _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Server.Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
 
             // Begin the SSL handshake
             _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
@@ -150,18 +139,10 @@ namespace NetCoreServer
             if (!IsConnected)
                 return false;
 
-            // Reset event args
-            _receiveEventArg.Completed -= OnAsyncCompleted;
-            _sendEventArg.Completed -= OnAsyncCompleted;
-
             try
             {
-                // Switch to the network SSL stream
-                _sslBuffer.IsNetworkStream = true;
-
                 // Dispose the SSL stream & buffer
                 _sslStream.Dispose();
-                _sslBuffer.Dispose();
 
                 // Shutdown the socket associated with the client
                 Socket.Shutdown(SocketShutdown.Both);
@@ -206,13 +187,11 @@ namespace NetCoreServer
         // Receive buffer
         private bool _receiving;
         private Buffer _receiveBuffer;
-        private SocketAsyncEventArgs _receiveEventArg;
         // Send buffer
         private readonly object _sendLock = new object();
         private bool _sending;
         private Buffer _sendBufferMain;
         private Buffer _sendBufferFlush;
-        private SocketAsyncEventArgs _sendEventArg;
         private long _sendBufferFlushOffset;
 
         /// <summary>
@@ -281,9 +260,14 @@ namespace NetCoreServer
             {
                 // Async receive with the receive handler
                 _receiving = true;
-                _receiveEventArg.SetBuffer(_receiveBuffer.Data, 0, (int)_receiveBuffer.Capacity);
-                if (!Socket.ReceiveAsync(_receiveEventArg))
-                    ProcessReceive(_receiveEventArg);
+                IAsyncResult result;
+                do
+                {
+                    if (!IsHandshaked)
+                        return;
+
+                    result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, this);
+                } while (result.CompletedSynchronously);
             }
             catch (ObjectDisposedException) {}
         }
@@ -311,10 +295,6 @@ namespace NetCoreServer
                     // Update statistic
                     BytesPending = 0;
                     BytesSending += _sendBufferFlush.Size;
-
-                    // Write SSL stream
-                    _sslStream.Write(_sendBufferFlush.Data, 0, (int)_sendBufferFlush.Size);
-                    _sslStream.Flush();
                 }
             }
             else
@@ -332,9 +312,7 @@ namespace NetCoreServer
             {
                 // Async write with the write handler
                 _sending = true;
-                _sendEventArg.SetBuffer(_sslBuffer.SendBuffer.Data, (int)_sendBufferFlushOffset, (int)(_sslBuffer.SendBuffer.Size - _sendBufferFlushOffset));
-                if (!Socket.SendAsync(_sendEventArg))
-                    ProcessSend(_sendEventArg);
+                _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, this);
             }
             catch (ObjectDisposedException) {}
         }
@@ -346,9 +324,6 @@ namespace NetCoreServer
         {
             lock (_sendLock)
             {
-                // Clear SSL buffer
-                _sslBuffer.SendBuffer.Clear();
-
                 // Clear send buffers
                 _sendBufferMain.Clear();
                 _sendBufferFlush.Clear();
@@ -364,28 +339,6 @@ namespace NetCoreServer
 
         #region IO processing
 
-        private readonly byte[] _receiveChunk = new byte[4096];
-
-        /// <summary>
-        /// This method is called whenever a receive or send operation is completed on a socket
-        /// </summary>
-        private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
-        {
-            // Determine which type of operation just completed and call the associated handler
-            switch (e.LastOperation)
-            {
-                case SocketAsyncOperation.Receive:
-                    ProcessReceive(e);
-                    break;
-                case SocketAsyncOperation.Send:
-                    ProcessSend(e);
-                    break;
-                default:
-                    throw new ArgumentException("The last operation completed on the socket was not a receive or send");
-            }
-
-        }
-
         /// <summary>
         /// This method is invoked when an asynchronous handshake operation completes
         /// </summary>
@@ -393,14 +346,11 @@ namespace NetCoreServer
         {
             try
             {
-                // End the SSL handshake
-                _sslStream.EndAuthenticateAsServer(result);
-
-                // Switch to the inner SSL buffer
-                _sslBuffer.IsNetworkStream = false;
-
                 if (IsHandshaked)
                     return;
+
+                // End the SSL handshake
+                _sslStream.EndAuthenticateAsServer(result);
 
                 // Update the handshaked flag
                 IsHandshaked = true;
@@ -428,64 +378,45 @@ namespace NetCoreServer
         /// <summary>
         /// This method is invoked when an asynchronous receive operation completes
         /// </summary>
-        private void ProcessReceive(SocketAsyncEventArgs e)
+        private void ProcessReceive(IAsyncResult result)
         {
-            _receiving = false;
-
-            if (!IsHandshaked)
-                return;
-
-            long size = e.BytesTransferred;
-
-            // Received some data from the client
-            if (size > 0)
+            try
             {
-                // Append the SSL receive buffer
-                _sslBuffer.ReceiveBuffer.Append(_receiveBuffer.Data, 0, size);
+                _receiving = false;
 
-                // If the receive buffer is full increase its size
-                if (_receiveBuffer.Capacity == size)
-                    _receiveBuffer.Reserve(2 * size);
+                if (!IsHandshaked)
+                    return;
 
-                // Read SSL stream as data chunks...
-                try
+                // End the SSL read
+                long size = _sslStream.EndRead(result);
+
+                // Received some data from the client
+                if (size > 0)
                 {
-                    do
-                    {
-                        if (!IsHandshaked)
-                            break;
+                    // Update statistic
+                    BytesReceived += size;
+                    Server.BytesReceived += size;
 
-                        // Read the next chunk from the SSL stream
-                        int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
-                        if (length <= 0)
-                            break;
+                    // Call the buffer received handler
+                    OnReceived(_receiveBuffer.Data, size);
 
-                        // Update statistic
-                        BytesReceived += length;
-                        Server.BytesReceived += length;
-
-                        // Call the buffer received handler
-                        OnReceived(_receiveChunk, length);
-                    } while (true);
-
-                    // Clear SSL receive buffer
-                    _sslBuffer.ReceiveBuffer.Clear();
+                    // If the receive buffer is full increase its size
+                    if (_receiveBuffer.Capacity == size)
+                        _receiveBuffer.Reserve(2 * size);
                 }
-                catch (IOException) {}
-            }
 
-            // Try to receive again if the session is valid
-            if (e.SocketError == SocketError.Success)
-            {
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
-                    TryReceive();
+                {
+                    if (!result.CompletedSynchronously)
+                        TryReceive();
+                }
                 else
                     Disconnect();
             }
-            else
+            catch (Exception)
             {
-                SendError(e.SocketError);
+                SendError(SocketError.OperationAborted);
                 Disconnect();
             }
         }
@@ -493,47 +424,50 @@ namespace NetCoreServer
         /// <summary>
         /// This method is invoked when an asynchronous send operation completes
         /// </summary>
-        private void ProcessSend(SocketAsyncEventArgs e)
+        private void ProcessSend(IAsyncResult result)
         {
-            _sending = false;
-
-            if (!IsHandshaked)
-                return;
-
-            long size = e.BytesTransferred;
-
-            // Send some data to the client
-            if (size > 0)
+            try
             {
-                // Increase the flush buffer offset
-                _sendBufferFlushOffset += size;
+                _sending = false;
 
-                // Successfully send the whole flush buffer
-                if (_sendBufferFlushOffset == _sslBuffer.SendBuffer.Size)
+                if (!IsHandshaked)
+                    return;
+
+                // End the SSL write
+                _sslStream.EndWrite(result);
+
+                long size = _sendBufferFlush.Size;
+
+                // Send some data to the client
+                if (size > 0)
                 {
-                    long sent = _sendBufferFlush.Size;
-
                     // Update statistic
-                    BytesSending -= sent;
-                    BytesSent += sent;
-                    Server.BytesSent += sent;
+                    BytesSending -= size;
+                    BytesSent += size;
+                    Server.BytesSent += size;
 
-                    // Clear the flush buffer
-                    _sslBuffer.SendBuffer.Clear();
-                    _sendBufferFlush.Clear();
-                    _sendBufferFlushOffset = 0;
+                    // Increase the flush buffer offset
+                    _sendBufferFlushOffset += size;
+
+                    // Successfully send the whole flush buffer
+                    if (_sendBufferFlushOffset == _sendBufferFlush.Size)
+                    {
+                        // Clear the flush buffer
+                        _sendBufferFlush.Clear();
+                        _sendBufferFlushOffset = 0;
+                    }
+
+                    // Call the buffer sent handler
+                    OnSent(size, BytesPending + BytesSending);
                 }
 
-                // Call the buffer sent handler
-                OnSent(size, BytesPending + BytesSending);
+                // Try to send again if the session is valid
+                if (!result.CompletedSynchronously)
+                    TrySend();
             }
-
-            // Try to send again if the session is valid
-            if (e.SocketError == SocketError.Success)
-                TrySend();
-            else
+            catch (Exception)
             {
-                SendError(e.SocketError);
+                SendError(SocketError.OperationAborted);
                 Disconnect();
             }
         }

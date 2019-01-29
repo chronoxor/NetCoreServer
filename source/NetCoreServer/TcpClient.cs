@@ -443,7 +443,7 @@ namespace NetCoreServer
 
             long size = e.BytesTransferred;
 
-            // Received some data from the client
+            // Received some data from the server
             if (size > 0)
             {
                 // Update statistic
@@ -485,7 +485,7 @@ namespace NetCoreServer
 
             long size = e.BytesTransferred;
 
-            // Send some data to the client
+            // Send some data to the server
             if (size > 0)
             {
                 // Update statistic
