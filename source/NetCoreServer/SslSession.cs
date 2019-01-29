@@ -461,6 +461,9 @@ namespace NetCoreServer
                     // Call the buffer received handler
                     OnReceived(_receiveChunk, length);
                 } while (true);
+
+                // Clear SSL receive buffer
+                _sslBuffer.ReceiveBuffer.Clear();
             }
 
             // Try to receive again if the session is valid

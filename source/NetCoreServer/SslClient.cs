@@ -541,11 +541,26 @@ namespace NetCoreServer
                     // Read the next chunk from the SSL stream
                     int length = _sslStream.Read(_receiveChunk, 0, _receiveChunk.Length);
                     if (length <= 0)
+                    {
+                        // Special check for SSL server shutdown message...
+                        if (_sslBuffer.ReceiveBuffer.Size >= 31)
+                        {
+                            if ((_sslBuffer.ReceiveBuffer.Data[0] == 0x15) && 
+                                (_sslBuffer.ReceiveBuffer.Data[1] == 0x03) && 
+                                (_sslBuffer.ReceiveBuffer.Data[2] == 0x03) && 
+                                (_sslBuffer.ReceiveBuffer.Data[3] == 0x00) && 
+                                (_sslBuffer.ReceiveBuffer.Data[4] == 0x1A))
+                            size = 0;
+                        }
                         break;
+                    }
 
                     // Call the buffer received handler
                     OnReceived(_receiveChunk, length);
                 } while (true);
+
+                // Clear SSL receive buffer
+                _sslBuffer.ReceiveBuffer.Clear();
             }
 
             // Try to receive again if the client is valid
