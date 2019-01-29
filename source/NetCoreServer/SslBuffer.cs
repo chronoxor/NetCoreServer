@@ -68,7 +68,7 @@ namespace NetCoreServer
             if (IsNetworkStream)
                 return NetworkStream.Read(buffer, offset, count);
 
-            long size = Math.Min(ReceiveBuffer.Size, count);
+            long size = Math.Min(ReceiveBuffer.Size - ReceiveBuffer.Offset, count);
             Array.Copy(ReceiveBuffer.Data, ReceiveBuffer.Offset, buffer, offset, size);
             ReceiveBuffer.Shift(size);
             return (int)size;
@@ -83,7 +83,10 @@ namespace NetCoreServer
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (IsNetworkStream)
+            {
                 NetworkStream.Write(buffer, offset, count);
+                return;
+            }
 
             SendBuffer.Append(buffer, offset, count);
         }

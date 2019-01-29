@@ -485,7 +485,7 @@ namespace NetCoreServer
                 _sslStream.EndAuthenticateAsClient(result);
 
                 // Switch to the inner SSL buffer
-                //_sslBuffer.IsNetworkStream = false;
+                _sslBuffer.IsNetworkStream = false;
 
                 if (IsHandshaked)
                     return;
