@@ -175,6 +175,10 @@ namespace NetCoreServer
             if (_connecting)
                 Socket.CancelConnectAsync(_connectEventArg);
 
+            // Reset connecting & handshaking flags
+            _connecting = false;
+            _handshaking = false;
+
             // Reset event args
             _connectEventArg.Completed -= OnAsyncCompleted;
             _receiveEventArg.Completed -= OnAsyncCompleted;
@@ -464,6 +468,7 @@ namespace NetCoreServer
                 _sslStream = (Context.CertificateValidationCallback != null) ? new SslStream(_sslBuffer, false, Context.CertificateValidationCallback) : new SslStream(_sslBuffer, false);
 
                 // Begin the SSL handshake
+                _handshaking = true;
                 _sslStream.BeginAuthenticateAsClient(Address, (Context.Certificates != null) ? Context.Certificates : new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, this);
             }
             else
@@ -481,6 +486,8 @@ namespace NetCoreServer
         {
             try
             {
+                _handshaking = false;
+
                 // End the SSL handshake
                 _sslStream.EndAuthenticateAsClient(result);
 
