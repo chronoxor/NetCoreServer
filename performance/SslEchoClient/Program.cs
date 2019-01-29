@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -60,7 +59,7 @@ namespace SslEchoClient
         {
             if (_messagesOutput-- > 0)
             {
-                // Important: Use task chaining is neccessary here to avoid stack overflow with Socket.SendAsync() method! 
+                // Important: Use task chaining is necessary here to avoid stack overflow with Socket.SendAsync() method!
                 _sender = _sender.ContinueWith(t => { Send(Program.MessageToSend); });
             }
         }
@@ -135,7 +134,7 @@ namespace SslEchoClient
             MessageToSend = new byte[size];
 
             // Create and prepare a new SSL client context
-            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => true);
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
 
             // Create echo clients
             var echoClients = new List<EchoClient>();

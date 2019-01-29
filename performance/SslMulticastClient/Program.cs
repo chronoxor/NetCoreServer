@@ -1,49 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using System.Threading.Tasks;
 using NetCoreServer;
 using NDesk.Options;
 
-namespace TcpEchoClient
+namespace SslMulticastClient
 {
-    class EchoClient : NetCoreServer.TcpClient
+    class MulticastClient : SslClient
     {
-        public bool Connected { get; set; }
+        public bool Handshaked { get; set; }
 
-        public EchoClient(string address, int port, int messages) : base(address, port)
+        public MulticastClient(SslContext context, string address, int port) : base(context, address, port)
         {
-            _messagesOutput = messages;
-            _messagesInput = messages;
         }
 
-        protected override void OnConnected()
+        protected override void OnHandshaked()
         {
-            Connected = true;
-            SendMessage();
-        }
-
-        protected override void OnSent(long sent, long pending)
-        {
-            _sent += sent;
-            if (_sent >= Program.MessageToSend.Length)
-            {
-                SendMessage();
-                _sent -= Program.MessageToSend.Length;
-            }
+            Handshaked = true;
         }
 
         protected override void OnReceived(byte[] buffer, long size)
         {
-            _received += size;
-            while (_received >= Program.MessageToSend.Length)
-            {
-                ReceiveMessage();
-                _received -= Program.MessageToSend.Length;
-            }
-
-            Program.TimestampStop = DateTime.UtcNow;
             Program.TotalBytes += size;
         }
 
@@ -52,27 +32,6 @@ namespace TcpEchoClient
             Console.WriteLine($"Client caught an error with code {error}");
             ++Program.TotalErrors;
         }
-
-        private void SendMessage()
-        {
-            if (_messagesOutput-- > 0)
-            {
-                // Important: Use task chaining is necessary here to avoid stack overflow with Socket.SendAsync() method!
-                _sender = _sender.ContinueWith(t => { Send(Program.MessageToSend); });
-            }
-        }
-
-        void ReceiveMessage()
-        {
-            if (--_messagesInput == 0)
-                Disconnect();
-        }
-
-        private int _messagesOutput;
-        private int _messagesInput;
-        private Task _sender = Task.CompletedTask;
-        private long _sent;
-        private long _received;
     }
 
     class Program
@@ -88,9 +47,8 @@ namespace TcpEchoClient
         {
             bool help = false;
             string address = "127.0.0.1";
-            int port = 1111;
+            int port = 2222;
             int clients = 100;
-            int messages = 1000000;
             int size = 32;
 
             var options = new OptionSet()
@@ -99,7 +57,6 @@ namespace TcpEchoClient
                 { "a|address=", v => address = v },
                 { "p|port=", v => port = int.Parse(v) },
                 { "c|clients=", v => clients = int.Parse(v) },
-                { "m|messages=", v => messages = int.Parse(v) },
                 { "s|size=", v => size = int.Parse(v) }
             };
 
@@ -125,43 +82,53 @@ namespace TcpEchoClient
             Console.WriteLine($"Server address: {address}");
             Console.WriteLine($"Server port: {port}");
             Console.WriteLine($"Working clients: {clients}");
-            Console.WriteLine($"Messages to send: {messages}");
             Console.WriteLine($"Message size: {size}");
 
             // Prepare a message to send
             MessageToSend = new byte[size];
 
-            // Create echo clients
-            var echoClients = new List<EchoClient>();
+            // Create and prepare a new SSL client context
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+
+            // Create multicast clients
+            var multicastClients = new List<MulticastClient>();
             for (int i = 0; i < clients; ++i)
             {
-                var client = new EchoClient(address, port, messages / clients);
+                var client = new MulticastClient(context, address, port);
                 // client.OptionNoDelay = true;
-                echoClients.Add(client);
+                multicastClients.Add(client);
             }
 
             TimestampStart = DateTime.UtcNow;
 
             // Connect clients
             Console.Write("Clients connecting...");
-            foreach (var client in echoClients)
+            foreach (var client in multicastClients)
                 client.Connect();
             Console.WriteLine("Done!");
-            foreach (var client in echoClients)
+            foreach (var client in multicastClients)
             {
-                while (!client.Connected)
+                while (!client.Handshaked)
                     Thread.Yield();
             }
             Console.WriteLine("All clients connected!");
 
-            // Wait for processing all messages
+            // Sleep for 10 seconds...
             Console.Write("Processing...");
-            foreach (var client in echoClients)
-            {
-                while (client.IsConnected)
-                    Thread.Sleep(100);
-            }
+            Thread.Sleep(10000);
             Console.WriteLine("Done!");
+
+            // Disconnect clients
+            Console.Write("Clients disconnecting...");
+            foreach (var client in multicastClients)
+                client.Disconnect();
+            Console.WriteLine("Done!");
+            foreach (var client in multicastClients)
+                while (client.IsConnected)
+                    Thread.Yield();
+            Console.WriteLine("All clients disconnected!");
+
+            TimestampStop = DateTime.UtcNow;
 
             Console.WriteLine();
 
@@ -171,7 +138,7 @@ namespace TcpEchoClient
 
             TotalMessages = TotalBytes / size;
 
-            Console.WriteLine($"Round-trip time: {Utilities.GenerateTimePeriod((TimestampStop - TimestampStart).TotalMilliseconds)}");
+            Console.WriteLine($"Multicast time: {Utilities.GenerateTimePeriod((TimestampStop - TimestampStart).TotalMilliseconds)}");
             Console.WriteLine($"Total data: {Utilities.GenerateDataSize(TotalBytes)}");
             Console.WriteLine($"Total messages: {TotalMessages}");
             Console.WriteLine($"Data throughput: {Utilities.GenerateDataSize((long)(TotalBytes / (TimestampStop - TimestampStart).TotalSeconds))}/s");

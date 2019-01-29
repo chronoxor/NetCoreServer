@@ -26,8 +26,8 @@ namespace UdpEchoServer
 
         protected override void OnSent(IPEndPoint endpoint, long sent)
         {
-            // Continue receive datagrams. 
-            // Important: Receive using thread pool is neccessary here to avoid stack overflow with Socket.ReceiveFromAsync() method!
+            // Continue receive datagrams.
+            // Important: Receive using thread pool is necessary here to avoid stack overflow with Socket.ReceiveFromAsync() method!
             ThreadPool.QueueUserWorkItem(o => { Receive(); } );
         }
 
