@@ -1,14 +1,21 @@
-# OS environment
-sudo: required
-dist: xenial
-
 # .NET Core
 language: csharp
 mono: none
 dotnet: 2.2.103
+solution: NetCoreServer.sln
+
+# Build matrix (OS, compiler)
+matrix:
+  include:
+    - os: linux
+    - os: osx
+
+# OS environment
+sudo: required
+dist: xenial
 
 # Build scripts
 script:
   - dotnet restore
   - dotnet build
-#  - dotnet test
+  - dotnet test
