@@ -129,7 +129,7 @@ namespace NetCoreServer
                 _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Server.Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
 
                 // Begin the SSL handshake
-                _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
+                _handshakeAsyncResult = _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
             }
             catch (Exception)
             {
@@ -168,6 +168,10 @@ namespace NetCoreServer
 
             // Update the connected flag
             IsConnected = false;
+
+            // Wait for async results
+            if (!_handshakeAsyncResult.IsCompleted || !_receiveAsyncResult.IsCompleted || !_sendAsyncResult.IsCompleted)
+                Thread.Yield();
 
             // Update sending/receiving flags
             _receiving = false;
@@ -267,15 +271,14 @@ namespace NetCoreServer
             try
             {
                 // Async receive with the receive handler
-                IAsyncResult result;
                 do
                 {
                     if (!IsHandshaked)
                         return;
 
                     _receiving = true;
-                    result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, this);
-                } while (result.CompletedSynchronously);
+                    _receiveAsyncResult = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, this);
+                } while (_receiveAsyncResult.CompletedSynchronously);
             }
             catch (ObjectDisposedException) {}
         }
@@ -320,7 +323,7 @@ namespace NetCoreServer
             {
                 // Async write with the write handler
                 _sending = true;
-                _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, this);
+                _sendAsyncResult = _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, this);
             }
             catch (ObjectDisposedException) {}
         }
@@ -346,6 +349,10 @@ namespace NetCoreServer
         #endregion
 
         #region IO processing
+
+        private IAsyncResult _handshakeAsyncResult;
+        private IAsyncResult _receiveAsyncResult;
+        private IAsyncResult _sendAsyncResult;
 
         /// <summary>
         /// This method is invoked when an asynchronous handshake operation completes

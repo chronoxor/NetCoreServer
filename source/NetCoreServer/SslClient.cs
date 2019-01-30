@@ -199,6 +199,10 @@ namespace NetCoreServer
             // Update the connected flag
             IsConnected = false;
 
+            // Wait for async results
+            if (!_handshakeAsyncResult.IsCompleted || !_receiveAsyncResult.IsCompleted || !_sendAsyncResult.IsCompleted)
+                Thread.Yield();
+            
             // Update sending/receiving flags
             _receiving = false;
             _sending = false;
@@ -306,15 +310,14 @@ namespace NetCoreServer
             try
             {
                 // Async receive with the receive handler
-                IAsyncResult result;
                 do
                 {
                     if (!IsHandshaked)
                         return;
 
                     _receiving = true;
-                    result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, this);
-                } while (result.CompletedSynchronously);
+                    _receiveAsyncResult = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, this);
+                } while (_receiveAsyncResult.CompletedSynchronously);
                 
             }
             catch (ObjectDisposedException) {}
@@ -360,7 +363,7 @@ namespace NetCoreServer
             {
                 // Async write with the write handler
                 _sending = true;
-                _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, this);
+                _sendAsyncResult = _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, this);
             }
             catch (ObjectDisposedException) {}
         }
@@ -386,6 +389,10 @@ namespace NetCoreServer
         #endregion
 
         #region IO processing
+
+        private IAsyncResult _handshakeAsyncResult;
+        private IAsyncResult _receiveAsyncResult;
+        private IAsyncResult _sendAsyncResult;
 
         /// <summary>
         /// This method is called whenever a receive or send operation is completed on a socket
@@ -444,7 +451,7 @@ namespace NetCoreServer
 
                     // Begin the SSL handshake
                     _handshaking = true;
-                    _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, this);
+                    _handshakeAsyncResult =_sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, this);
                 }
                 catch (Exception)
                 {
