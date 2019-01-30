@@ -306,13 +306,13 @@ namespace NetCoreServer
             try
             {
                 // Async receive with the receive handler
-                _receiving = true;
                 IAsyncResult result;
                 do
                 {
                     if (!IsHandshaked)
                         return;
 
+                    _receiving = true;
                     result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, this);
                 } while (result.CompletedSynchronously);
                 
