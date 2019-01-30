@@ -123,11 +123,19 @@ namespace NetCoreServer
             // Call the session connected handler in the server
             Server.OnConnectedInternal(this);
 
-            // Create SSL stream
-            _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Server.Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
+            try
+            {
+                // Create SSL stream
+                _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Server.Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
 
-            // Begin the SSL handshake
-            _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
+                // Begin the SSL handshake
+                _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
+            }
+            catch (Exception)
+            {
+                SendError(SocketError.NotConnected);
+                Disconnect();                
+            }
         }
 
         /// <summary>

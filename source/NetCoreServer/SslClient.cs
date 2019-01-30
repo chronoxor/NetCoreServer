@@ -437,12 +437,20 @@ namespace NetCoreServer
                 // Call the client connected handler
                 OnConnected();
 
-                // Create SSL stream
-                _sslStream = (Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
+                try
+                {
+                    // Create SSL stream
+                    _sslStream = (Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
 
-                // Begin the SSL handshake
-                _handshaking = true;
-                _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, this);
+                    // Begin the SSL handshake
+                    _handshaking = true;
+                    _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, this);
+                }
+                catch (Exception)
+                {
+                    SendError(SocketError.NotConnected);
+                    Disconnect();                
+                }
             }
             else
             {
