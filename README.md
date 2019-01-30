@@ -67,8 +67,20 @@ git clone https://github.com/chronoxor/NetCoreServer.git
 cd NetCoreServer
 ```
 
+### Linux
+```shell
+cd build
+./unix.sh
+```
+
+### OSX
+```shell
+cd build
+./unix.sh
+```
+
 ### Windows (Visual Studio)
-Open and build NetCoreServer.sln or run the build script:
+Open and build [NetCoreServer.sln](https://github.com/chronoxor/NetCoreServer/blob/master/NetCoreServer.sln) or run the build script:
 ```shell
 cd build
 vs.bat
