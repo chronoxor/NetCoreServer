@@ -171,12 +171,12 @@ namespace NetCoreServer
             }
             catch (ObjectDisposedException) {}
 
+            // Update the connected flag
+            IsConnected = false;
+
             // Update sending/receiving flags
             _receiving = false;
             _sending = false;
-
-            // Update the connected flag
-            IsConnected = false;
 
             // Clear send/receive buffers
             ClearBuffers();

@@ -216,12 +216,12 @@ namespace NetCoreServer
             }
             catch (ObjectDisposedException) {}
 
+            // Update the started flag
+            IsStarted = false;
+
             // Update sending/receiving flags
             _receiving = false;
             _sending = false;
-
-            // Update the started flag
-            IsStarted = false;
 
             // Clear send/receive buffers
             ClearBuffers();
