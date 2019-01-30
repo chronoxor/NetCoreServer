@@ -184,8 +184,6 @@ namespace NetCoreServer
             // Reset event args
             _connectEventArg.Completed -= OnAsyncCompleted;
 
-            Console.WriteLine($"Client {Id} disconnecting...");
-
             try
             {
                 // Dispose the SSL stream & buffer
@@ -220,7 +218,6 @@ namespace NetCoreServer
 
             // Reset the disconnecting flag
             _disconnecting = false;
-            Console.WriteLine($"Client {Id} disconnected...");
 
             return true;
         }
@@ -461,14 +458,12 @@ namespace NetCoreServer
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine($"Client {Id} BeginAuthenticateAsClient failed!");
                     SendError(SocketError.NotConnected);
                     Disconnect();                
                 }
             }
             else
             {
-                Console.WriteLine($"Client {Id} ProcessConnect failed!");
                 // Call the client disconnected handler
                 SendError(e.SocketError);
                 OnDisconnected();
@@ -505,7 +500,6 @@ namespace NetCoreServer
             }
             catch (Exception)
             {
-                Console.WriteLine($"Client {Id} ProcessHandshake failed!");
                 SendError(SocketError.NotConnected);
                 Disconnect();
             }
@@ -551,7 +545,6 @@ namespace NetCoreServer
             }
             catch (Exception)
             {
-                Console.WriteLine($"Client {Id} ProcessReceive failed!");
                 SendError(SocketError.OperationAborted);
                 Disconnect();
             }
@@ -602,7 +595,6 @@ namespace NetCoreServer
             }
             catch (Exception)
             {
-                Console.WriteLine($"Client {Id} ProcessSend failed!");
                 SendError(SocketError.OperationAborted);
                 Disconnect();
             }
