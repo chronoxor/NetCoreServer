@@ -160,8 +160,12 @@ namespace NetCoreServer
 
             try
             {
-                // Shutdown the socket associated with the client
-                Socket.Shutdown(SocketShutdown.Both);
+                try
+                {
+                    // Shutdown the socket associated with the client
+                    Socket.Shutdown(SocketShutdown.Both);
+                }
+                catch (SocketException) {}
 
                 // Close the client socket
                 Socket.Close();

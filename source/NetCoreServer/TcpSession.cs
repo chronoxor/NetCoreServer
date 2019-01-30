@@ -145,8 +145,12 @@ namespace NetCoreServer
 
             try
             {
-                // Shutdown the socket associated with the client
-                Socket.Shutdown(SocketShutdown.Both);
+                try
+                {
+                    // Shutdown the socket associated with the client
+                    Socket.Shutdown(SocketShutdown.Both);
+                }
+                catch (SocketException) {}
 
                 // Close the session socket
                 Socket.Close();
