@@ -41,16 +41,23 @@ solution.
     * [Diffie-Hellman key exchange](#diffie-hellman-key-exchange)
 
 # Features
+* Cross platform (Linux, OSX, Windows)
 * Asynchronous communication
 * Supported transport protocols: [TCP](#example-tcp-chat-server), [SSL](#example-ssl-chat-server),
   [UDP](#example-udp-echo-server), [UDP multicast](#example-udp-multicast-server)
 
 # Requirements
+* Linux
+* OSX
 * Windows 10
+* [.NET Core](https://dotnet.microsoft.com/download)
 * [7-Zip](https://www.7-zip.org)
 * [cmake](https://www.cmake.org)
 * [git](https://git-scm.com)
 * [Visual Studio](https://www.visualstudio.com)
+
+Optional:
+* [Rider](https://www.jetbrains.com/rider)
 
 # How to build?
 
