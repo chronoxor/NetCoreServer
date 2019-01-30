@@ -193,21 +193,21 @@ namespace NetCoreServer
             }
             catch (ObjectDisposedException) {}
 
+            // Wait for async results
+            if (((_handshakeAsyncResult != null) && !_handshakeAsyncResult.IsCompleted) ||
+                ((_receiveAsyncResult != null) && !_receiveAsyncResult.IsCompleted) ||
+                ((_sendAsyncResult != null) && !_sendAsyncResult.IsCompleted))
+                Thread.Yield();
+
+            // Update sending/receiving flags
+            _receiving = false;
+            _sending = false;
+
             // Update the handshaked flag
             IsHandshaked = false;
 
             // Update the connected flag
             IsConnected = false;
-
-            // Wait for async results
-            if (((_handshakeAsyncResult != null) && !_handshakeAsyncResult.IsCompleted) || 
-                ((_receiveAsyncResult != null) && !_receiveAsyncResult.IsCompleted) || 
-                ((_sendAsyncResult != null) && !_sendAsyncResult.IsCompleted))
-                Thread.Yield();
-            
-            // Update sending/receiving flags
-            _receiving = false;
-            _sending = false;
 
             // Clear send/receive buffers
             ClearBuffers();
