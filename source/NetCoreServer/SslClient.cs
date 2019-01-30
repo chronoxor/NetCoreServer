@@ -200,7 +200,9 @@ namespace NetCoreServer
             IsConnected = false;
 
             // Wait for async results
-            if (!_handshakeAsyncResult.IsCompleted || !_receiveAsyncResult.IsCompleted || !_sendAsyncResult.IsCompleted)
+            if (((_handshakeAsyncResult != null) && !_handshakeAsyncResult.IsCompleted) || 
+                ((_receiveAsyncResult != null) && !_receiveAsyncResult.IsCompleted) || 
+                ((_sendAsyncResult != null) && !_sendAsyncResult.IsCompleted))
                 Thread.Yield();
             
             // Update sending/receiving flags
