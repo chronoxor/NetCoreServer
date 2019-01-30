@@ -11,4 +11,4 @@ dotnet: 2.2.103
 script:
   - dotnet restore
   - dotnet build
-  - dotnet test
+#  - dotnet test
