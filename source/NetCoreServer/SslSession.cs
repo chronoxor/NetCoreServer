@@ -74,6 +74,7 @@ namespace NetCoreServer
 
         private bool _disconnecting;
         private SslStream _sslStream;
+        private Guid? _sslStreamId;
 
         /// <summary>
         /// Is the session connected?
@@ -127,10 +128,11 @@ namespace NetCoreServer
             try
             {
                 // Create SSL stream
+                _sslStreamId = Guid.NewGuid();
                 _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Server.Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
 
                 // Begin the SSL handshake
-                _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, this);
+                _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, _sslStreamId);
             }
             catch (Exception)
             {
@@ -158,6 +160,7 @@ namespace NetCoreServer
             {
                 // Dispose the SSL stream & buffer
                 _sslStream.Dispose();
+                _sslStreamId = null;
 
                 // Shutdown the socket associated with the client
                 Socket.Shutdown(SocketShutdown.Both);
@@ -284,7 +287,7 @@ namespace NetCoreServer
                         return;
 
                     _receiving = true;
-                    result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, this);
+                    result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, _sslStreamId);
                 } while (result.CompletedSynchronously);
             }
             catch (ObjectDisposedException) {}
@@ -330,7 +333,7 @@ namespace NetCoreServer
             {
                 // Async write with the write handler
                 _sending = true;
-                _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, this);
+                _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, _sslStreamId);
             }
             catch (ObjectDisposedException) {}
         }
@@ -365,6 +368,11 @@ namespace NetCoreServer
             try
             {
                 if (IsHandshaked)
+                    return;
+
+                // Validate SSL stream Id
+                var sslStreamId = result.AsyncState as Guid?;
+                if (_sslStreamId != sslStreamId)
                     return;
 
                 // End the SSL handshake
@@ -403,6 +411,11 @@ namespace NetCoreServer
                 _receiving = false;
 
                 if (!IsHandshaked)
+                    return;
+
+                // Validate SSL stream Id
+                var sslStreamId = result.AsyncState as Guid?;
+                if (_sslStreamId != sslStreamId)
                     return;
 
                 // End the SSL read
@@ -447,6 +460,11 @@ namespace NetCoreServer
             try
             {
                 _sending = false;
+
+                // Validate SSL stream Id
+                var sslStreamId = result.AsyncState as Guid?;
+                if (_sslStreamId != sslStreamId)
+                    return;
 
                 if (!IsHandshaked)
                     return;
