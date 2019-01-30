@@ -115,6 +115,7 @@ namespace NetCoreServer
 
         private bool _connecting;
         private bool _handshaking;
+        private bool _disconnecting;
         private SocketAsyncEventArgs _connectEventArg;
         private SslStream _sslStream;
 
@@ -170,9 +171,15 @@ namespace NetCoreServer
             if (_connecting)
                 Socket.CancelConnectAsync(_connectEventArg);
 
+            if (_disconnecting)
+                return false;
+
             // Reset connecting & handshaking flags
             _connecting = false;
             _handshaking = false;
+
+            // Update the disconnecting flag
+            _disconnecting = true;
 
             // Reset event args
             _connectEventArg.Completed -= OnAsyncCompleted;
@@ -211,6 +218,8 @@ namespace NetCoreServer
             // Call the client disconnected handler
             OnDisconnected();
 
+            // Reset the disconnecting flag
+            _disconnecting = false;
             Console.WriteLine($"Client {Id} disconnected...");
 
             return true;

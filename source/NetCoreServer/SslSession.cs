@@ -72,6 +72,7 @@ namespace NetCoreServer
 
         #region Connect/Disconnect session
 
+        private bool _disconnecting;
         private SslStream _sslStream;
 
         /// <summary>
@@ -147,6 +148,12 @@ namespace NetCoreServer
             if (!IsConnected)
                 return false;
 
+            if (_disconnecting)
+                return false;
+
+            // Update the disconnecting flag
+            _disconnecting = true;
+
             try
             {
                 // Dispose the SSL stream & buffer
@@ -184,6 +191,9 @@ namespace NetCoreServer
 
             // Unregister session
             Server.UnregisterSession(Id);
+
+            // Reset the disconnecting flag
+            _disconnecting = false;
 
             return true;
         }
