@@ -16,9 +16,9 @@ namespace tests
 
         public EchoUdpClient(string address, int port) : base(address, port) {}
 
-        protected override void OnConnected() { Connected = true; Receive(); }
+        protected override void OnConnected() { Connected = true; ReceiveAsync(); }
         protected override void OnDisconnected() { Disconnected = true; }
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) { Receive(); }
+        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) { ReceiveAsync(); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -30,10 +30,10 @@ namespace tests
 
         public EchoUdpServer(IPAddress address, int port) : base(address, port) {}
 
-        protected override void OnStarted() { Started = true; Receive(); }
+        protected override void OnStarted() { Started = true; ReceiveAsync(); }
         protected override void OnStopped() { Stopped = true; }
         protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) { SendAsync(endpoint, buffer, 0, size); }
-        protected override void OnSent(IPEndPoint endpoint, long sent) { ThreadPool.QueueUserWorkItem(o => { Receive(); } ); }
+        protected override void OnSent(IPEndPoint endpoint, long sent) { ThreadPool.QueueUserWorkItem(o => { ReceiveAsync(); } ); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -53,7 +53,7 @@ namespace tests
 
             // Create and connect Echo client
             var client = new EchoUdpClient(address, port);
-            Assert.True(client.Connect());
+            Assert.True(client.ConnectAsync());
             while (!client.IsConnected)
                 Thread.Yield();
 
@@ -65,7 +65,7 @@ namespace tests
                 Thread.Yield();
 
             // Disconnect the Echo client
-            Assert.True(client.Disconnect());
+            Assert.True(client.DisconnectAsync());
             while (client.IsConnected)
                 Thread.Yield();
 
@@ -120,7 +120,7 @@ namespace tests
                         // Create and connect Echo client
                         var client = new EchoUdpClient(address, port);
                         clients.Add(client);
-                        client.Connect();
+                        client.ConnectAsync();
                         while (!client.IsConnected)
                             Thread.Yield();
                     }
@@ -134,13 +134,13 @@ namespace tests
                         var client = clients[index];
                         if (client.IsConnected)
                         {
-                            client.Disconnect();
+                            client.DisconnectAsync();
                             while (client.IsConnected)
                                 Thread.Yield();
                         }
                         else
                         {
-                            client.Connect();
+                            client.ConnectAsync();
                             while (!client.IsConnected)
                                 Thread.Yield();
                         }
@@ -155,7 +155,7 @@ namespace tests
                         var client = clients[index];
                         if (client.IsConnected)
                         {
-                            client.Reconnect();
+                            client.ReconnectAsync();
                             while (!client.IsConnected)
                                 Thread.Yield();
                         }
@@ -180,7 +180,7 @@ namespace tests
             // Disconnect clients
             foreach (var client in clients)
             {
-                client.Disconnect();
+                client.DisconnectAsync();
                 while (client.IsConnected)
                     Thread.Yield();
             }

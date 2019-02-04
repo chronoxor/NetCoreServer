@@ -42,7 +42,7 @@ namespace tests
         protected override void OnConnected() { Connected = true; }
         protected override void OnHandshaked() { Handshaked = true; }
         protected override void OnDisconnected() { Disconnected = true; }
-        protected override void OnReceived(byte[] buffer, long size) { Send(buffer, 0, size); }
+        protected override void OnReceived(byte[] buffer, long size) { SendAsync(buffer, 0, size); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -95,19 +95,19 @@ namespace tests
 
             // Create and connect Echo client
             var client = new EchoSslClient(clientContext, address, port);
-            Assert.True(client.Connect());
+            Assert.True(client.ConnectAsync());
             while (!client.IsConnected || !client.IsHandshaked || (server.Clients != 1))
                 Thread.Yield();
 
             // Send a message to the Echo server
-            client.Send("test");
+            client.SendAsync("test");
 
             // Wait for all data processed...
             while (client.BytesReceived != 4)
                 Thread.Yield();
 
             // Disconnect the Echo client
-            Assert.True(client.Disconnect());
+            Assert.True(client.DisconnectAsync());
             while (client.IsConnected || client.IsHandshaked || (server.Clients != 0))
                 Thread.Yield();
 
@@ -155,7 +155,7 @@ namespace tests
 
             // Create and connect Echo client
             var client1 = new EchoSslClient(clientContext, address, port);
-            Assert.True(client1.Connect());
+            Assert.True(client1.ConnectAsync());
             while (!client1.IsConnected || !client1.IsHandshaked || (server.Clients != 1))
                 Thread.Yield();
 
@@ -168,7 +168,7 @@ namespace tests
 
             // Create and connect Echo client
             var client2 = new EchoSslClient(clientContext, address, port);
-            Assert.True(client2.Connect());
+            Assert.True(client2.ConnectAsync());
             while (!client2.IsConnected || !client2.IsHandshaked || (server.Clients != 2))
                 Thread.Yield();
 
@@ -181,7 +181,7 @@ namespace tests
 
             // Create and connect Echo client
             var client3 = new EchoSslClient(clientContext, address, port);
-            Assert.True(client3.Connect());
+            Assert.True(client3.ConnectAsync());
             while (!client3.IsConnected || !client3.IsHandshaked || (server.Clients != 3))
                 Thread.Yield();
 
@@ -193,7 +193,7 @@ namespace tests
                 Thread.Yield();
 
             // Disconnect the Echo client
-            Assert.True(client1.Disconnect());
+            Assert.True(client1.DisconnectAsync());
             while (client1.IsConnected || client1.IsHandshaked || (server.Clients != 2))
                 Thread.Yield();
 
@@ -205,7 +205,7 @@ namespace tests
                 Thread.Yield();
 
             // Disconnect the Echo client
-            Assert.True(client2.Disconnect());
+            Assert.True(client2.DisconnectAsync());
             while (client2.IsConnected || client2.IsHandshaked || (server.Clients != 1))
                 Thread.Yield();
 
@@ -217,7 +217,7 @@ namespace tests
                 Thread.Yield();
 
             // Disconnect the Echo client
-            Assert.True(client3.Disconnect());
+            Assert.True(client3.DisconnectAsync());
             while (client3.IsConnected || client3.IsHandshaked || (server.Clients != 0))
                 Thread.Yield();
 
@@ -290,7 +290,7 @@ namespace tests
                         // Create and connect Echo client
                         var client = new EchoSslClient(clientContext, address, port);
                         clients.Add(client);
-                        client.Connect();
+                        client.ConnectAsync();
                         while (!client.IsHandshaked)
                             Thread.Yield();
                     }
@@ -304,13 +304,13 @@ namespace tests
                         var client = clients[index];
                         if (client.IsHandshaked)
                         {
-                            client.Disconnect();
+                            client.DisconnectAsync();
                             while (client.IsConnected)
                                 Thread.Yield();
                         }
                         else if (!client.IsConnected)
                         {
-                            client.Connect();
+                            client.ConnectAsync();
                             while (!client.IsHandshaked)
                                 Thread.Yield();
                         }
@@ -325,7 +325,7 @@ namespace tests
                         var client = clients[index];
                         if (client.IsHandshaked)
                         {
-                            client.Reconnect();
+                            client.ReconnectAsync();
                             while (!client.IsHandshaked)
                                 Thread.Yield();
                         }
@@ -344,7 +344,7 @@ namespace tests
                         int index = rand.Next() % clients.Count;
                         var client = clients[index];
                         if (client.IsHandshaked)
-                            client.Send("test");
+                            client.SendAsync("test");
                     }
                 }
 
@@ -355,7 +355,7 @@ namespace tests
             // Disconnect clients
             foreach (var client in clients)
             {
-                client.Disconnect();
+                client.DisconnectAsync();
                 while (client.IsConnected)
                     Thread.Yield();
             }

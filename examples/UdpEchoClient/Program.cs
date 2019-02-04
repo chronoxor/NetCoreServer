@@ -13,7 +13,7 @@ namespace UdpEchoClient
         public void DisconnectAndStop()
         {
             _stop = true;
-            Disconnect();
+            DisconnectAsync();
             while (IsConnected)
                 Thread.Yield();
         }
@@ -23,7 +23,7 @@ namespace UdpEchoClient
             Console.WriteLine($"Echo UDP client connected a new session with Id {Id}");
 
             // Start receive datagrams
-            Receive();
+            ReceiveAsync();
         }
 
         protected override void OnDisconnected()
@@ -35,7 +35,7 @@ namespace UdpEchoClient
 
             // Try to connect again
             if (!_stop)
-                Connect();
+                ConnectAsync();
         }
 
         protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
@@ -43,7 +43,7 @@ namespace UdpEchoClient
             Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, 0, (int)size));
 
             // Continue receive datagrams
-            Receive();
+            ReceiveAsync();
         }
 
         protected override void OnError(SocketError error)
@@ -76,7 +76,7 @@ namespace UdpEchoClient
 
             // Connect the client
             Console.Write("Client connecting...");
-            client.Connect();
+            client.ConnectAsync();
             Console.WriteLine("Done!");
 
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
@@ -92,7 +92,7 @@ namespace UdpEchoClient
                 if (line == "!")
                 {
                     Console.Write("Client disconnecting...");
-                    client.Disconnect();
+                    client.DisconnectAsync();
                     Console.WriteLine("Done!");
                     continue;
                 }

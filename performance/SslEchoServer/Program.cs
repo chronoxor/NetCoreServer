@@ -15,7 +15,7 @@ namespace SslEchoServer
         protected override void OnReceived(byte[] buffer, long size)
         {
             // Resend the message back to the client
-            Send(buffer, 0, size);
+            SendAsync(buffer, 0, size);
         }
 
         protected override void OnError(SocketError error)

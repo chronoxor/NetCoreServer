@@ -13,7 +13,7 @@ namespace TcpChatClient
         public void DisconnectAndStop()
         {
             _stop = true;
-            Disconnect();
+            DisconnectAsync();
             while (IsConnected)
                 Thread.Yield();
         }
@@ -32,7 +32,7 @@ namespace TcpChatClient
 
             // Try to connect again
             if (!_stop)
-                Connect();
+                ConnectAsync();
         }
 
         protected override void OnReceived(byte[] buffer, long size)
@@ -70,7 +70,7 @@ namespace TcpChatClient
 
             // Connect the client
             Console.Write("Client connecting...");
-            client.Connect();
+            client.ConnectAsync();
             Console.WriteLine("Done!");
 
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
@@ -86,13 +86,13 @@ namespace TcpChatClient
                 if (line == "!")
                 {
                     Console.Write("Client disconnecting...");
-                    client.Disconnect();
+                    client.DisconnectAsync();
                     Console.WriteLine("Done!");
                     continue;
                 }
 
                 // Send the entered text to the chat server
-                client.Send(line);
+                client.SendAsync(line);
             }
 
             // Disconnect the client

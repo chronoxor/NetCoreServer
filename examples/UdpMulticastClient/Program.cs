@@ -15,7 +15,7 @@ namespace UdpMulticastClient
         public void DisconnectAndStop()
         {
             _stop = true;
-            Disconnect();
+            DisconnectAsync();
             while (IsConnected)
                 Thread.Yield();
         }
@@ -28,7 +28,7 @@ namespace UdpMulticastClient
             JoinMulticastGroup(Multicast);
 
             // Start receive datagrams
-            Receive();
+            ReceiveAsync();
         }
 
         protected override void OnDisconnected()
@@ -40,7 +40,7 @@ namespace UdpMulticastClient
 
             // Try to connect again
             if (!_stop)
-                Connect();
+                ConnectAsync();
         }
 
         protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
@@ -48,7 +48,7 @@ namespace UdpMulticastClient
             Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, 0, (int)size));
 
             // Continue receive datagrams
-            Receive();
+            ReceiveAsync();
         }
 
         protected override void OnError(SocketError error)
@@ -89,7 +89,7 @@ namespace UdpMulticastClient
 
             // Connect the client
             Console.Write("Client connecting...");
-            client.Connect();
+            client.ConnectAsync();
             Console.WriteLine("Done!");
 
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
@@ -105,7 +105,7 @@ namespace UdpMulticastClient
                 if (line == "!")
                 {
                     Console.Write("Client disconnecting...");
-                    client.Disconnect();
+                    client.DisconnectAsync();
                     Console.WriteLine("Done!");
                     continue;
                 }

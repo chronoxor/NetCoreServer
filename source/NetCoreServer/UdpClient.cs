@@ -116,10 +116,10 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
-        /// Connect the client
+        /// Connect the client (asynchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
-        public virtual bool Connect()
+        public virtual bool ConnectAsync()
         {
             if (IsConnected)
                 return false;
@@ -179,10 +179,10 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Disconnect the client
+        /// Disconnect the client (asynchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
-        public virtual bool Disconnect()
+        public virtual bool DisconnectAsync()
         {
             if (!IsConnected)
                 return false;
@@ -218,18 +218,18 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Reconnect the client
+        /// Reconnect the client (asynchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully reconnected, 'false' if the client is already reconnected</returns>
-        public virtual bool Reconnect()
+        public virtual bool ReconnectAsync()
         {
-            if (!Disconnect())
+            if (!DisconnectAsync())
                 return false;
 
             while (IsConnected)
                 Thread.Yield();
 
-            return Connect();
+            return ConnectAsync();
         }
 
         #endregion
@@ -303,9 +303,9 @@ namespace NetCoreServer
         private SocketAsyncEventArgs _sendEventArg;
 
         /// <summary>
-        /// Receive a new datagram
+        /// Receive a new datagram (asynchronous)
         /// </summary>
-        public virtual void Receive() { TryReceive(); }
+        public virtual void ReceiveAsync() { TryReceive(); }
 
         /// <summary>
         /// Send datagram to the connected server (asynchronous)
@@ -447,7 +447,7 @@ namespace NetCoreServer
             catch (SocketException ex)
             {
                 SendError(ex.SocketErrorCode);
-                Disconnect();
+                DisconnectAsync();
                 return false;
             }
         }
@@ -557,7 +557,7 @@ namespace NetCoreServer
             if (e.SocketError != SocketError.Success)
             {
                 SendError(e.SocketError);
-                Disconnect();
+                DisconnectAsync();
                 return;
             }
 
@@ -593,7 +593,7 @@ namespace NetCoreServer
             if (e.SocketError != SocketError.Success)
             {
                 SendError(e.SocketError);
-                Disconnect();
+                DisconnectAsync();
                 return;
             }
 
@@ -718,7 +718,7 @@ namespace NetCoreServer
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    Disconnect();
+                    DisconnectAsync();
                 }
 
                 // Dispose unmanaged resources here...

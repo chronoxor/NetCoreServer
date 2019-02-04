@@ -107,10 +107,10 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
-        /// Connect the client
+        /// Connect the client (asynchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
-        public virtual bool Connect()
+        public virtual bool ConnectAsync()
         {
             if (IsConnected || _connecting)
                 return false;
@@ -141,10 +141,10 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Disconnect the client
+        /// Disconnect the client (asynchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
-        public virtual bool Disconnect()
+        public virtual bool DisconnectAsync()
         {
             if (!IsConnected && !_connecting)
                 return false;
@@ -192,18 +192,18 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Reconnect the client
+        /// Reconnect the client (asynchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully reconnected, 'false' if the client is already reconnected</returns>
-        public virtual bool Reconnect()
+        public virtual bool ReconnectAsync()
         {
-            if (!Disconnect())
+            if (!DisconnectAsync())
                 return false;
 
             while (IsConnected)
                 Thread.Yield();
 
-            return Connect();
+            return ConnectAsync();
         }
 
         #endregion
@@ -223,20 +223,20 @@ namespace NetCoreServer
         private long _sendBufferFlushOffset;
 
         /// <summary>
-        /// Send data to the server
+        /// Send data to the server (asynchronous)
         /// </summary>
         /// <param name="buffer">Buffer to send</param>
         /// <returns>'true' if the data was successfully sent, 'false' if the client is not connected</returns>
-        public virtual bool Send(byte[] buffer) { return Send(buffer, 0, buffer.Length); }
+        public virtual bool SendAsync(byte[] buffer) { return SendAsync(buffer, 0, buffer.Length); }
 
         /// <summary>
-        /// Send data to the server
+        /// Send data to the server (asynchronous)
         /// </summary>
         /// <param name="buffer">Buffer to send</param>
         /// <param name="offset">Buffer offset</param>
         /// <param name="size">Buffer size</param>
         /// <returns>'true' if the data was successfully sent, 'false' if the client is not connected</returns>
-        public virtual bool Send(byte[] buffer, long offset, long size)
+        public virtual bool SendAsync(byte[] buffer, long offset, long size)
         {
             if (!IsConnected)
                 return false;
@@ -267,11 +267,11 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Send text to the server
+        /// Send text to the server (asynchronous)
         /// </summary>
         /// <param name="text">Text string to send</param>
         /// <returns>'true' if the text was successfully sent, 'false' if the client is not connected</returns>
-        public virtual bool Send(string text) { return Send(Encoding.UTF8.GetBytes(text)); }
+        public virtual bool SendAsync(string text) { return SendAsync(Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
         /// Try to receive new data
@@ -468,12 +468,12 @@ namespace NetCoreServer
                 if (size > 0)
                     TryReceive();
                 else
-                    Disconnect();
+                    DisconnectAsync();
             }
             else
             {
                 SendError(e.SocketError);
-                Disconnect();
+                DisconnectAsync();
             }
         }
 
@@ -517,7 +517,7 @@ namespace NetCoreServer
             else
             {
                 SendError(e.SocketError);
-                Disconnect();
+                DisconnectAsync();
             }
         }
 
@@ -622,7 +622,7 @@ namespace NetCoreServer
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    Disconnect();
+                    DisconnectAsync();
                 }
 
                 // Dispose unmanaged resources here...

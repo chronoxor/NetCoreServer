@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using System.Threading;
 using NetCoreServer;
 using NDesk.Options;
-using System.Threading.Tasks;
 
 namespace UdpEchoServer
 {
@@ -15,7 +14,7 @@ namespace UdpEchoServer
         protected override void OnStarted()
         {
             // Start receive datagrams
-            Receive();
+            ReceiveAsync();
         }
 
         protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
@@ -28,7 +27,7 @@ namespace UdpEchoServer
         {
             // Continue receive datagrams.
             // Important: Receive using thread pool is necessary here to avoid stack overflow with Socket.ReceiveFromAsync() method!
-            ThreadPool.QueueUserWorkItem(o => { Receive(); } );
+            ThreadPool.QueueUserWorkItem(o => { ReceiveAsync(); } );
         }
 
         protected override void OnError(SocketError error)

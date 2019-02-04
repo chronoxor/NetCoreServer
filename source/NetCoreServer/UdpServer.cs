@@ -264,9 +264,9 @@ namespace NetCoreServer
         private SocketAsyncEventArgs _sendEventArg;
 
         /// <summary>
-        /// Receive a new datagram
+        /// Receive a new datagram (asynchronous)
         /// </summary>
-        public virtual void Receive() { TryReceive(); }
+        public virtual void ReceiveAsync() { TryReceive(); }
 
         /// <summary>
         /// Multicast datagram to the prepared mulicast endpoint (asynchronous)

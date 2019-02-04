@@ -77,10 +77,10 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
-        /// Connect the session
+        /// Connect the session (asynchronous)
         /// </summary>
         /// <param name="socket">Session socket</param>
-        internal void Connect(Socket socket)
+        internal void ConnectAsync(Socket socket)
         {
             Socket = socket;
 
@@ -131,10 +131,10 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Disconnect the session
+        /// Disconnect the session (asynchronous)
         /// </summary>
         /// <returns>'true' if the section was successfully disconnected, 'false' if the section is already disconnected</returns>
-        public virtual bool Disconnect()
+        public virtual bool DisconnectAsync()
         {
             if (!IsConnected)
                 return false;
@@ -199,20 +199,20 @@ namespace NetCoreServer
         private long _sendBufferFlushOffset;
 
         /// <summary>
-        /// Send data to the client
+        /// Send data to the client (asynchronous)
         /// </summary>
         /// <param name="buffer">Buffer to send</param>
         /// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
-        public virtual bool Send(byte[] buffer) { return Send(buffer, 0, buffer.Length); }
+        public virtual bool SendAsync(byte[] buffer) { return SendAsync(buffer, 0, buffer.Length); }
 
         /// <summary>
-        /// Send data to the client
+        /// Send data to the client (asynchronous)
         /// </summary>
         /// <param name="buffer">Buffer to send</param>
         /// <param name="offset">Buffer offset</param>
         /// <param name="size">Buffer size</param>
         /// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
-        public virtual bool Send(byte[] buffer, long offset, long size)
+        public virtual bool SendAsync(byte[] buffer, long offset, long size)
         {
             if (!IsConnected)
                 return false;
@@ -243,11 +243,11 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Send text to the client
+        /// Send text to the client (asynchronous)
         /// </summary>
         /// <param name="text">Text string to send</param>
         /// <returns>'true' if the text was successfully sent, 'false' if the session is not connected</returns>
-        public virtual bool Send(string text) { return Send(Encoding.UTF8.GetBytes(text)); }
+        public virtual bool SendAsync(string text) { return SendAsync(Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
         /// Try to receive new data
@@ -394,12 +394,12 @@ namespace NetCoreServer
                 if (size > 0)
                     TryReceive();
                 else
-                    Disconnect();
+                    DisconnectAsync();
             }
             else
             {
                 SendError(e.SocketError);
-                Disconnect();
+                DisconnectAsync();
             }
         }
 
@@ -444,7 +444,7 @@ namespace NetCoreServer
             else
             {
                 SendError(e.SocketError);
-                Disconnect();
+                DisconnectAsync();
             }
         }
 

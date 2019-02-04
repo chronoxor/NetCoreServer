@@ -14,7 +14,7 @@ namespace SslMulticastServer
     {
         public MulticastSession(SslServer server) : base(server) {}
 
-        public override bool Send(byte[] buffer, long offset, long size)
+        public override bool SendAsync(byte[] buffer, long offset, long size)
         {
             // Limit session send buffer to 1 megabyte
             const long limit = 1 * 1024 * 1024;
@@ -24,7 +24,7 @@ namespace SslMulticastServer
             if (size > (limit - pending))
                 size = limit - pending;
 
-            return base.Send(buffer, offset, size);
+            return base.SendAsync(buffer, offset, size);
         }
 
         protected override void OnError(SocketError error)

@@ -60,14 +60,14 @@ namespace SslEchoClient
             if (_messagesOutput-- > 0)
             {
                 // Important: Use task chaining is necessary here to avoid stack overflow with Socket.SendAsync() method!
-                _sender = _sender.ContinueWith(t => { Send(Program.MessageToSend); });
+                _sender = _sender.ContinueWith(t => { SendAsync(Program.MessageToSend); });
             }
         }
 
         void ReceiveMessage()
         {
             if (--_messagesInput == 0)
-                Disconnect();
+                DisconnectAsync();
         }
 
         private int _messagesOutput;
@@ -150,7 +150,7 @@ namespace SslEchoClient
             // Connect clients
             Console.Write("Clients connecting...");
             foreach (var client in echoClients)
-                client.Connect();
+                client.ConnectAsync();
             Console.WriteLine("Done!");
             foreach (var client in echoClients)
             {
