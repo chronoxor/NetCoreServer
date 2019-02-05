@@ -300,7 +300,63 @@ namespace NetCoreServer
         public virtual bool SendAsync(string text) { return SendAsync(Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
-        /// Receive a new data (asynchronous)
+        /// Receive data from the client (synchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to receive</param>
+        /// <returns>Size of received data</returns>
+        public virtual long Receive(byte[] buffer) { return Receive(buffer, 0, buffer.Length); }
+
+        /// <summary>
+        /// Receive data from the client (synchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to receive</param>
+        /// <param name="offset">Buffer offset</param>
+        /// <param name="size">Buffer size</param>
+        /// <returns>Size of received data</returns>
+        public virtual long Receive(byte[] buffer, long offset, long size)
+        {
+            if (!IsConnected)
+                return 0;
+
+            if (size == 0)
+                return 0;
+
+            // Receive data from the client
+            long received = Socket.Receive(buffer, (int)offset, (int)size, SocketFlags.None, out SocketError ec);
+            if (received > 0)
+            {
+                // Update statistic
+                BytesReceived += received;
+                Server.BytesReceived += received;
+
+                // Call the buffer received handler
+                OnReceived(buffer, 0, received);
+            }
+
+            // Check for socket error
+            if (ec != SocketError.Success)
+            {
+                SendError(ec);
+                Disconnect();
+            }
+
+            return received;
+        }
+
+        /// <summary>
+        /// Receive text from the client (synchronous)
+        /// </summary>
+        /// <param name="size">Text size to receive</param>
+        /// <returns>Received text</returns>
+        public virtual string Receive(long size)
+        {
+            var buffer = new byte[size];
+            var length = Receive(buffer);
+            return Encoding.UTF8.GetString(buffer, 0, (int)length);
+        }
+
+        /// <summary>
+        /// Receive data from the client (asynchronous)
         /// </summary>
         public virtual void ReceiveAsync() { TryReceive(); }
 

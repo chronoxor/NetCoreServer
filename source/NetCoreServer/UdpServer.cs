@@ -497,7 +497,7 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Receive a new datagram (asynchronous)
+        /// Receive datagram from the client (asynchronous)
         /// </summary>
         public virtual void ReceiveAsync() { TryReceive(); }
 
