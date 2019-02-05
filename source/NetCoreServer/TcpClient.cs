@@ -107,10 +107,10 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
-        /// Connect the client (asynchronous)
+        /// Connect the client (synchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
-        public virtual bool ConnectAsync()
+        public virtual bool Connect()
         {
             if (IsConnected || _connecting)
                 return false;
@@ -132,19 +132,55 @@ namespace NetCoreServer
             // Create a new client socket
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            // Async connect to the server
-            _connecting = true;
-            if (!Socket.ConnectAsync(_connectEventArg))
-                ProcessConnect(_connectEventArg);
+            try
+            {
+                // Connect to the server
+                Socket.Connect(Endpoint);
+            }
+            catch (SocketException ex)
+            {
+                // Call the client disconnected handler
+                SendError(ex.SocketErrorCode);
+                OnDisconnected();
+                return false;
+            }
+
+            // Apply the option: keep alive
+            if (OptionKeepAlive)
+                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            // Apply the option: no delay
+            if (OptionNoDelay)
+                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+
+            // Prepare receive & send buffers
+            _receiveBuffer.Reserve(OptionReceiveBufferSize);
+            _sendBufferMain.Reserve(OptionSendBufferSize);
+            _sendBufferFlush.Reserve(OptionSendBufferSize);
+
+            // Reset statistic
+            BytesPending = 0;
+            BytesSending = 0;
+            BytesSent = 0;
+            BytesReceived = 0;
+
+            // Update the connected flag
+            IsConnected = true;
+
+            // Call the client connected handler
+            OnConnected();
+
+            // Call the empty send buffer handler
+            if (_sendBufferMain.IsEmpty)
+                OnEmpty();
 
             return true;
         }
 
         /// <summary>
-        /// Disconnect the client (asynchronous)
+        /// Disconnect the client (synchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
-        public virtual bool DisconnectAsync()
+        public virtual bool Disconnect()
         {
             if (!IsConnected && !_connecting)
                 return false;
@@ -190,6 +226,58 @@ namespace NetCoreServer
 
             return true;
         }
+
+        /// <summary>
+        /// Reconnect the client (synchronous)
+        /// </summary>
+        /// <returns>'true' if the client was successfully reconnected, 'false' if the client is already reconnected</returns>
+        public virtual bool Reconnect()
+        {
+            if (!Disconnect())
+                return false;
+
+            return Connect();
+        }
+
+        /// <summary>
+        /// Connect the client (asynchronous)
+        /// </summary>
+        /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
+        public virtual bool ConnectAsync()
+        {
+            if (IsConnected || _connecting)
+                return false;
+
+            // Setup buffers
+            _receiveBuffer = new Buffer();
+            _sendBufferMain = new Buffer();
+            _sendBufferFlush = new Buffer();
+
+            // Setup event args
+            _connectEventArg = new SocketAsyncEventArgs();
+            _connectEventArg.RemoteEndPoint = Endpoint;
+            _connectEventArg.Completed += OnAsyncCompleted;
+            _receiveEventArg = new SocketAsyncEventArgs();
+            _receiveEventArg.Completed += OnAsyncCompleted;
+            _sendEventArg = new SocketAsyncEventArgs();
+            _sendEventArg.Completed += OnAsyncCompleted;
+
+            // Create a new client socket
+            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            // Async connect to the server
+            _connecting = true;
+            if (!Socket.ConnectAsync(_connectEventArg))
+                ProcessConnect(_connectEventArg);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Disconnect the client (asynchronous)
+        /// </summary>
+        /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
+        public virtual bool DisconnectAsync() { return Disconnect(); }
 
         /// <summary>
         /// Reconnect the client (asynchronous)
