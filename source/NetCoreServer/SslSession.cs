@@ -220,6 +220,57 @@ namespace NetCoreServer
         private long _sendBufferFlushOffset;
 
         /// <summary>
+        /// Send data to the client (synchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send</param>
+        /// <returns>Size of sent data</returns>
+        public virtual long Send(byte[] buffer) { return Send(buffer, 0, buffer.Length); }
+
+        /// <summary>
+        /// Send data to the client (synchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send</param>
+        /// <param name="offset">Buffer offset</param>
+        /// <param name="size">Buffer size</param>
+        /// <returns>Size of sent data</returns>
+        public virtual long Send(byte[] buffer, long offset, long size)
+        {
+            if (!IsHandshaked)
+                return 0;
+
+            if (size == 0)
+                return 0;
+
+            try
+            {
+                // Sent data to the server
+                _sslStream.Write(buffer, (int)offset, (int)size);
+
+                // Update statistic
+                BytesSent += size;
+                Server.BytesSent += size;
+
+                // Call the buffer sent handler
+                OnSent(size, BytesPending + BytesSending);
+
+                return size;
+            }
+            catch (Exception)
+            {
+                SendError(SocketError.OperationAborted);
+                Disconnect();
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Send text to the client (synchronous)
+        /// </summary>
+        /// <param name="text">Text string to send</param>
+        /// <returns>Size of sent text</returns>
+        public virtual long Send(string text) { return Send(Encoding.UTF8.GetBytes(text)); }
+
+        /// <summary>
         /// Send data to the client (asynchronous)
         /// </summary>
         /// <param name="buffer">Buffer to send</param>
@@ -269,6 +320,11 @@ namespace NetCoreServer
         /// <param name="text">Text string to send</param>
         /// <returns>'true' if the text was successfully sent, 'false' if the session is not connected</returns>
         public virtual bool SendAsync(string text) { return SendAsync(Encoding.UTF8.GetBytes(text)); }
+
+        /// <summary>
+        /// Receive a new data (asynchronous)
+        /// </summary>
+        public virtual void ReceiveAsync() { TryReceive(); }
 
         /// <summary>
         /// Try to receive new data
