@@ -18,7 +18,7 @@ namespace tests
 
         protected override void OnConnected() { Connected = true; ReceiveAsync(); }
         protected override void OnDisconnected() { Disconnected = true; }
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) { ReceiveAsync(); }
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) { ReceiveAsync(); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -53,7 +53,7 @@ namespace tests
             // Create and connect multicast client
             var client1 = new MulticastUdpClient(listenAddress, multicastPort);
             client1.SetupMulticast(true);
-            Assert.True(client1.ConnectAsync());
+            Assert.True(client1.Connect());
             while (!client1.IsConnected)
                 Thread.Yield();
 
@@ -62,7 +62,7 @@ namespace tests
             Thread.Sleep(100);
 
             // Multicast some data to all clients
-            server.MulticastSync("test");
+            server.Multicast("test");
 
             // Wait for all data processed...
             while (client1.BytesReceived != 4)
@@ -71,7 +71,7 @@ namespace tests
             // Create and connect multicast client
             var client2 = new MulticastUdpClient(listenAddress, multicastPort);
             client2.SetupMulticast(true);
-            Assert.True(client2.ConnectAsync());
+            Assert.True(client2.Connect());
             while (!client2.IsConnected)
                 Thread.Yield();
 
@@ -80,7 +80,7 @@ namespace tests
             Thread.Sleep(100);
 
             // Multicast some data to all clients
-            server.MulticastSync("test");
+            server.Multicast("test");
 
             // Wait for all data processed...
             while ((client1.BytesReceived != 8) || (client2.BytesReceived != 4))
@@ -89,7 +89,7 @@ namespace tests
             // Create and connect multicast client
             var client3 = new MulticastUdpClient(listenAddress, multicastPort);
             client3.SetupMulticast(true);
-            Assert.True(client3.ConnectAsync());
+            Assert.True(client3.Connect());
             while (!client3.IsConnected)
                 Thread.Yield();
 
@@ -98,7 +98,7 @@ namespace tests
             Thread.Sleep(100);
 
             // Multicast some data to all clients
-            server.MulticastSync("test");
+            server.Multicast("test");
 
             // Wait for all data processed...
             while ((client1.BytesReceived != 12) || (client2.BytesReceived != 8) || (client3.BytesReceived != 4))
@@ -109,12 +109,12 @@ namespace tests
             Thread.Sleep(100);
 
             // Disconnect the multicast client
-            Assert.True(client1.DisconnectAsync());
+            Assert.True(client1.Disconnect());
             while (client1.IsConnected)
                 Thread.Yield();
 
             // Multicast some data to all clients
-            server.MulticastSync("test");
+            server.Multicast("test");
 
             // Wait for all data processed...
             while ((client1.BytesReceived != 12) || (client2.BytesReceived != 12) || (client3.BytesReceived != 8))
@@ -125,12 +125,12 @@ namespace tests
             Thread.Sleep(100);
 
             // Disconnect the multicast client
-            Assert.True(client2.DisconnectAsync());
+            Assert.True(client2.Disconnect());
             while (client2.IsConnected)
                 Thread.Yield();
 
             // Multicast some data to all clients
-            server.MulticastSync("test");
+            server.Multicast("test");
 
             // Wait for all data processed...
             while ((client1.BytesReceived != 12) || (client2.BytesReceived != 12) || (client3.BytesReceived != 12))
@@ -141,7 +141,7 @@ namespace tests
             Thread.Sleep(100);
 
             // Disconnect the multicast client
-            Assert.True(client3.DisconnectAsync());
+            Assert.True(client3.Disconnect());
             while (client3.IsConnected)
                 Thread.Yield();
 
@@ -202,7 +202,7 @@ namespace tests
                         var client = new MulticastUdpClient(listenAddress, multicastPort);
                         clients.Add(client);
                         client.SetupMulticast(true);
-                        client.ConnectAsync();
+                        client.Connect();
                         while (!client.IsConnected)
                             Thread.Yield();
 
@@ -224,13 +224,13 @@ namespace tests
                             client.LeaveMulticastGroup(multicastAddress);
                             Thread.Sleep(100);
 
-                            client.DisconnectAsync();
+                            client.Disconnect();
                             while (client.IsConnected)
                                 Thread.Yield();
                         }
                         else
                         {
-                            client.ConnectAsync();
+                            client.Connect();
                             while (!client.IsConnected)
                                 Thread.Yield();
 
@@ -243,7 +243,7 @@ namespace tests
                 // Multicast a message to all clients
                 else if ((rand.Next() % 10) == 0)
                 {
-                    server.MulticastSync("test");
+                    server.Multicast("test");
                 }
 
                 // Sleep for a while...
@@ -253,7 +253,7 @@ namespace tests
             // Disconnect clients
             foreach (var client in clients)
             {
-                client.DisconnectAsync();
+                client.Disconnect();
                 while (client.IsConnected)
                     Thread.Yield();
             }

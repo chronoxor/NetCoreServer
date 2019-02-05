@@ -29,7 +29,7 @@ namespace UdpMulticastClient
             ReceiveAsync();
         }
 
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
             Program.TotalBytes += size;
 
@@ -111,7 +111,7 @@ namespace UdpMulticastClient
             // Connect clients
             Console.Write("Clients connecting...");
             foreach (var client in multicastClients)
-                client.ConnectAsync();
+                client.Connect();
             Console.WriteLine("Done!");
             foreach (var client in multicastClients)
             {
@@ -128,7 +128,7 @@ namespace UdpMulticastClient
             // Disconnect clients
             Console.Write("Clients disconnecting...");
             foreach (var client in multicastClients)
-                client.DisconnectAsync();
+                client.Disconnect();
             Console.WriteLine("Done!");
             foreach (var client in multicastClients)
                 while (client.IsConnected)

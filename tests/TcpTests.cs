@@ -31,7 +31,7 @@ namespace tests
 
         protected override void OnConnected() { Connected = true; }
         protected override void OnDisconnected() { Disconnected = true; }
-        protected override void OnReceived(byte[] buffer, long size) { SendAsync(buffer, 0, size); }
+        protected override void OnReceived(byte[] buffer, long offset, long size) { SendAsync(buffer, offset, size); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 

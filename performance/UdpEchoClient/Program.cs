@@ -27,7 +27,7 @@ namespace UdpEchoClient
             SendMessage();
         }
 
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
             Program.TimestampStop = DateTime.UtcNow;
             Program.TotalBytes += size;
@@ -48,9 +48,9 @@ namespace UdpEchoClient
         private void SendMessage()
         {
             if (_messages-- > 0)
-                SendSync(Program.MessageToSend);
+                Send(Program.MessageToSend);
             else
-                DisconnectAsync();
+                Disconnect();
         }
 
         private int _messages;
@@ -125,7 +125,7 @@ namespace UdpEchoClient
             // Connect clients
             Console.Write("Clients connecting...");
             foreach (var client in echoClients)
-                client.ConnectAsync();
+                client.Connect();
             Console.WriteLine("Done!");
             foreach (var client in echoClients)
             {

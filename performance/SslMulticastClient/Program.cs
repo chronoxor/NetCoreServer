@@ -22,7 +22,7 @@ namespace SslMulticastClient
             Handshaked = true;
         }
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             Program.TotalBytes += size;
         }

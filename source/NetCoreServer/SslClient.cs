@@ -544,7 +544,7 @@ namespace NetCoreServer
                     BytesReceived += size;
 
                     // Call the buffer received handler
-                    OnReceived(_receiveBuffer.Data, size);
+                    OnReceived(_receiveBuffer.Data, 0, size);
 
                     // If the receive buffer is full increase its size
                     if (_receiveBuffer.Capacity == size)
@@ -643,11 +643,12 @@ namespace NetCoreServer
         /// Handle buffer received notification
         /// </summary>
         /// <param name="buffer">Received buffer</param>
+        /// <param name="offset">Received buffer offset</param>
         /// <param name="size">Received buffer size</param>
         /// <remarks>
         /// Notification is called when another chunk of buffer was received from the server
         /// </remarks>
-        protected virtual void OnReceived(byte[] buffer, long size) {}
+        protected virtual void OnReceived(byte[] buffer, long offset, long size) {}
         /// <summary>
         /// Handle buffer sent notification
         /// </summary>

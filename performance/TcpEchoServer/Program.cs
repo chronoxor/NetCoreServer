@@ -10,10 +10,10 @@ namespace TcpEchoServer
     {
         public EchoSession(TcpServer server) : base(server) {}
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             // Resend the message back to the client
-            SendAsync(buffer, 0, size);
+            SendAsync(buffer, offset, size);
         }
 
         protected override void OnError(SocketError error)

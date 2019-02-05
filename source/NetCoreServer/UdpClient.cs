@@ -116,10 +116,10 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
-        /// Connect the client (asynchronous)
+        /// Connect the client (synchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
-        public virtual bool ConnectAsync()
+        public virtual bool Connect()
         {
             if (IsConnected)
                 return false;
@@ -179,10 +179,10 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Disconnect the client (asynchronous)
+        /// Disconnect the client (synchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
-        public virtual bool DisconnectAsync()
+        public virtual bool Disconnect()
         {
             if (!IsConnected)
                 return false;
@@ -218,18 +218,15 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Reconnect the client (asynchronous)
+        /// Reconnect the client (synchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully reconnected, 'false' if the client is already reconnected</returns>
-        public virtual bool ReconnectAsync()
+        public virtual bool Reconnect()
         {
-            if (!DisconnectAsync())
+            if (!Disconnect())
                 return false;
 
-            while (IsConnected)
-                Thread.Yield();
-
-            return ConnectAsync();
+            return Connect();
         }
 
         #endregion
@@ -247,7 +244,7 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Join multicast group with a given IP address
+        /// Join multicast group with a given IP address (synchronous)
         /// </summary>
         /// <param name="address">IP address</param>
         public virtual void JoinMulticastGroup(IPAddress address)
@@ -261,13 +258,13 @@ namespace NetCoreServer
             OnJoinedMulticastGroup(address);
         }
         /// <summary>
-        /// Join multicast group with a given IP address
+        /// Join multicast group with a given IP address (synchronous)
         /// </summary>
         /// <param name="address">IP address</param>
         public virtual void JoinMulticastGroup(string address) { JoinMulticastGroup(IPAddress.Parse(address)); }
 
         /// <summary>
-        /// Leave multicast group with a given IP address
+        /// Leave multicast group with a given IP address (synchronous)
         /// </summary>
         /// <param name="address">IP address</param>
         public virtual void LeaveMulticastGroup(IPAddress address)
@@ -281,7 +278,7 @@ namespace NetCoreServer
             OnLeftMulticastGroup(address);
         }
         /// <summary>
-        /// Leave multicast group with a given IP address
+        /// Leave multicast group with a given IP address (synchronous)
         /// </summary>
         /// <param name="address">IP address</param>
         public virtual void LeaveMulticastGroup(string address) { LeaveMulticastGroup(IPAddress.Parse(address)); }
@@ -291,8 +288,8 @@ namespace NetCoreServer
         #region Send/Recieve data
 
         // Receive and send endpoints
-        IPEndPoint _receiveEndpoint;
-        IPEndPoint _sendEndpoint;
+        EndPoint _receiveEndpoint;
+        EndPoint _sendEndpoint;
         // Receive buffer
         private bool _receiving;
         private Buffer _receiveBuffer;
@@ -303,9 +300,84 @@ namespace NetCoreServer
         private SocketAsyncEventArgs _sendEventArg;
 
         /// <summary>
-        /// Receive a new datagram (asynchronous)
+        /// Send datagram to the connected server (synchronous)
         /// </summary>
-        public virtual void ReceiveAsync() { TryReceive(); }
+        /// <param name="buffer">Datagram buffer to send</param>
+        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
+        public virtual bool Send(byte[] buffer) { return Send(buffer, 0, buffer.Length); }
+
+        /// <summary>
+        /// Send datagram to the connected server (synchronous)
+        /// </summary>
+        /// <param name="buffer">Datagram buffer to send</param>
+        /// <param name="offset">Datagram buffer offset</param>
+        /// <param name="size">Datagram buffer size</param>
+        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
+        public virtual bool Send(byte[] buffer, long offset, long size) { return Send(Endpoint, buffer, offset, size); }
+
+        /// <summary>
+        /// Send text to the connected server (synchronous)
+        /// </summary>
+        /// <param name="text">Text string to send</param>
+        /// <returns>'true' if the text was successfully sent, 'false' if the text was not sent</returns>
+        public virtual bool Send(string text) { return Send(Encoding.UTF8.GetBytes(text)); }
+
+        /// <summary>
+        /// Send datagram to the given endpoint (synchronous)
+        /// </summary>
+        /// <param name="endpoint">Endpoint to send</param>
+        /// <param name="buffer">Datagram buffer to send</param>
+        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
+        public virtual bool Send(EndPoint endpoint, byte[] buffer) { return Send(endpoint, buffer, 0, buffer.Length); }
+
+        /// <summary>
+        /// Send datagram to the given endpoint (synchronous)
+        /// </summary>
+        /// <param name="endpoint">Endpoint to send</param>
+        /// <param name="buffer">Datagram buffer to send</param>
+        /// <param name="offset">Datagram buffer offset</param>
+        /// <param name="size">Datagram buffer size</param>
+        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
+        public virtual bool Send(EndPoint endpoint, byte[] buffer, long offset, long size)
+        {
+            if (!IsConnected)
+                return false;
+
+            if (size == 0)
+                return true;
+
+            try
+            {
+                // Sent datagram to the server
+                int sent = Socket.SendTo(buffer, (int)offset, (int)size, SocketFlags.None, endpoint);
+                if (sent > 0)
+                {
+                    // Update statistic
+                    DatagramsSent++;
+                    BytesSent += sent;
+
+                    // Call the datagram sent handler
+                    OnSent(endpoint, sent);
+                }
+
+                return true;
+            }
+            catch (ObjectDisposedException) { return false; }
+            catch (SocketException ex)
+            {
+                SendError(ex.SocketErrorCode);
+                Disconnect();
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Send text to the given endpoint (synchronous)
+        /// </summary>
+        /// <param name="endpoint">Endpoint to send</param>
+        /// <param name="text">Text string to send</param>
+        /// <returns>'true' if the text was successfully sent, 'false' if the text was not sent</returns>
+        public virtual bool Send(EndPoint endpoint, string text) { return Send(endpoint, Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
         /// Send datagram to the connected server (asynchronous)
@@ -336,7 +408,7 @@ namespace NetCoreServer
         /// <param name="endpoint">Endpoint to send</param>
         /// <param name="buffer">Datagram buffer to send</param>
         /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool SendAsync(IPEndPoint endpoint, byte[] buffer) { return SendAsync(endpoint, buffer, 0, buffer.Length); }
+        public virtual bool SendAsync(EndPoint endpoint, byte[] buffer) { return SendAsync(endpoint, buffer, 0, buffer.Length); }
 
         /// <summary>
         /// Send datagram to the given endpoint (asynchronous)
@@ -346,7 +418,7 @@ namespace NetCoreServer
         /// <param name="offset">Datagram buffer offset</param>
         /// <param name="size">Datagram buffer size</param>
         /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool SendAsync(IPEndPoint endpoint, byte[] buffer, long offset, long size)
+        public virtual bool SendAsync(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
             if (_sending)
                 return false;
@@ -378,87 +450,74 @@ namespace NetCoreServer
         /// <param name="endpoint">Endpoint to send</param>
         /// <param name="text">Text string to send</param>
         /// <returns>'true' if the text was successfully sent, 'false' if the text was not sent</returns>
-        public virtual bool SendAsync(IPEndPoint endpoint, string text) { return SendAsync(endpoint, Encoding.UTF8.GetBytes(text)); }
+        public virtual bool SendAsync(EndPoint endpoint, string text) { return SendAsync(endpoint, Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
-        /// Send datagram to the connected server (synchronous)
+        /// Receive a new datagram from the given endpoint (synchronous)
         /// </summary>
-        /// <param name="buffer">Datagram buffer to send</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool SendSync(byte[] buffer) { return SendSync(buffer, 0, buffer.Length); }
+        /// <param name="endpoint">Endpoint to receive from</param>
+        /// <param name="buffer">Datagram buffer to receive</param>
+        /// <returns>Size of received datagram</returns>
+        public virtual long Receive(ref EndPoint endpoint, byte[] buffer) { return Receive(ref endpoint, buffer, 0, buffer.Length); }
 
         /// <summary>
-        /// Send datagram to the connected server (synchronous)
+        /// Receive a new datagram from the given endpoint (synchronous)
         /// </summary>
-        /// <param name="buffer">Datagram buffer to send</param>
+        /// <param name="endpoint">Endpoint to receive from</param>
+        /// <param name="buffer">Datagram buffer to receive</param>
         /// <param name="offset">Datagram buffer offset</param>
         /// <param name="size">Datagram buffer size</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool SendSync(byte[] buffer, long offset, long size) { return SendSync(Endpoint, buffer, offset, size); }
-
-        /// <summary>
-        /// Send text to the connected server (synchronous)
-        /// </summary>
-        /// <param name="text">Text string to send</param>
-        /// <returns>'true' if the text was successfully sent, 'false' if the text was not sent</returns>
-        public virtual bool SendSync(string text) { return SendSync(Encoding.UTF8.GetBytes(text)); }
-
-        /// <summary>
-        /// Send datagram to the given endpoint (synchronous)
-        /// </summary>
-        /// <param name="endpoint">Endpoint to send</param>
-        /// <param name="buffer">Datagram buffer to send</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool SendSync(IPEndPoint endpoint, byte[] buffer) { return SendSync(endpoint, buffer, 0, buffer.Length); }
-
-        /// <summary>
-        /// Send datagram to the given endpoint (synchronous)
-        /// </summary>
-        /// <param name="endpoint">Endpoint to send</param>
-        /// <param name="buffer">Datagram buffer to send</param>
-        /// <param name="offset">Datagram buffer offset</param>
-        /// <param name="size">Datagram buffer size</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool SendSync(IPEndPoint endpoint, byte[] buffer, long offset, long size)
+        /// <returns>Size of received datagram</returns>
+        public virtual long Receive(ref EndPoint endpoint, byte[] buffer, long offset, long size)
         {
             if (!IsConnected)
-                return false;
+                return 0;
 
             if (size == 0)
-                return true;
+                return 0;
 
             try
             {
-                // Sent datagram to the server
-                int sent = Socket.SendTo(buffer, (int)offset, (int)size, SocketFlags.None, endpoint);
-                if (sent > 0)
+                // Receive datagram from the server
+                int received = Socket.ReceiveFrom(buffer, (int)offset, (int)size, SocketFlags.None, ref endpoint);
+                if (received > 0)
                 {
                     // Update statistic
-                    DatagramsSent++;
-                    BytesSent += sent;
+                    DatagramsReceived++;
+                    BytesReceived += received;
 
-                    // Call the datagram sent handler
-                    OnSent(endpoint, sent);
+                    // Call the datagram received handler
+                    OnReceived(endpoint, buffer, offset, size);
                 }
 
-                return true;
+                return received;
             }
-            catch (ObjectDisposedException) { return false; }
+            catch (ObjectDisposedException) { return 0; }
             catch (SocketException ex)
             {
                 SendError(ex.SocketErrorCode);
-                DisconnectAsync();
-                return false;
+                Disconnect();
+                return 0;
             }
         }
 
         /// <summary>
-        /// Send text to the given endpoint (synchronous)
+        /// Receive text from the given endpoint (synchronous)
         /// </summary>
-        /// <param name="endpoint">Endpoint to send</param>
-        /// <param name="text">Text string to send</param>
-        /// <returns>'true' if the text was successfully sent, 'false' if the text was not sent</returns>
-        public virtual bool SendSync(IPEndPoint endpoint, string text) { return SendSync(endpoint, Encoding.UTF8.GetBytes(text)); }
+        /// <param name="endpoint">Endpoint to receive from</param>
+        /// <param name="size">Text size to receive</param>
+        /// <returns>Received text</returns>
+        public virtual string Receive(ref EndPoint endpoint, long size)
+        {
+            var buffer = new byte[size];
+            var length = Receive(ref endpoint, buffer);
+            return Encoding.UTF8.GetString(buffer, 0, (int)length);
+        }
+
+        /// <summary>
+        /// Receive a new datagram (asynchronous)
+        /// </summary>
+        public virtual void ReceiveAsync() { TryReceive(); }
 
         /// <summary>
         /// Try to receive new data
@@ -557,7 +616,7 @@ namespace NetCoreServer
             if (e.SocketError != SocketError.Success)
             {
                 SendError(e.SocketError);
-                DisconnectAsync();
+                Disconnect();
                 return;
             }
 
@@ -571,7 +630,7 @@ namespace NetCoreServer
                 BytesReceived += size;
 
                 // Call the datagram received handler
-                OnReceived(e.RemoteEndPoint as IPEndPoint, _receiveBuffer.Data, size);
+                OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, size);
 
                 // If the receive buffer is full increase its size
                 if (_receiveBuffer.Capacity == size)
@@ -593,7 +652,7 @@ namespace NetCoreServer
             if (e.SocketError != SocketError.Success)
             {
                 SendError(e.SocketError);
-                DisconnectAsync();
+                Disconnect();
                 return;
             }
 
@@ -643,11 +702,12 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="endpoint">Received endpoint</param>
         /// <param name="buffer">Received datagram buffer</param>
+        /// <param name="offset">Received datagram buffer offset</param>
         /// <param name="size">Received datagram buffer size</param>
         /// <remarks>
         /// Notification is called when another datagram was received from some endpoint
         /// </remarks>
-        protected virtual void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) {}
+        protected virtual void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) {}
         /// <summary>
         /// Handle datagram sent notification
         /// </summary>
@@ -657,7 +717,7 @@ namespace NetCoreServer
         /// Notification is called when a datagram was sent to the server.
         /// This handler could be used to send another datagram to the server for instance when the pending size is zero.
         /// </remarks>
-        protected virtual void OnSent(IPEndPoint endpoint, long sent) {}
+        protected virtual void OnSent(EndPoint endpoint, long sent) {}
 
         /// <summary>
         /// Handle error notification
@@ -718,7 +778,7 @@ namespace NetCoreServer
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    DisconnectAsync();
+                    Disconnect();
                 }
 
                 // Dispose unmanaged resources here...

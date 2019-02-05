@@ -16,15 +16,15 @@ namespace UdpEchoServer
             ReceiveAsync();
         }
 
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
-            Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, 0, (int)size));
+            Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
 
             // Echo the message back to the sender
             SendAsync(endpoint, buffer, 0, size);
         }
 
-        protected override void OnSent(IPEndPoint endpoint, long sent)
+        protected override void OnSent(EndPoint endpoint, long sent)
         {
             // Continue receive datagrams
             ReceiveAsync();

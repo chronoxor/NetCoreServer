@@ -18,7 +18,7 @@ namespace tests
 
         protected override void OnConnected() { Connected = true; ReceiveAsync(); }
         protected override void OnDisconnected() { Disconnected = true; }
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) { ReceiveAsync(); }
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) { ReceiveAsync(); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -32,8 +32,8 @@ namespace tests
 
         protected override void OnStarted() { Started = true; ReceiveAsync(); }
         protected override void OnStopped() { Stopped = true; }
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size) { SendAsync(endpoint, buffer, 0, size); }
-        protected override void OnSent(IPEndPoint endpoint, long sent) { ThreadPool.QueueUserWorkItem(o => { ReceiveAsync(); } ); }
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) { SendAsync(endpoint, buffer, offset, size); }
+        protected override void OnSent(EndPoint endpoint, long sent) { ThreadPool.QueueUserWorkItem(o => { ReceiveAsync(); } ); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -53,19 +53,19 @@ namespace tests
 
             // Create and connect Echo client
             var client = new EchoUdpClient(address, port);
-            Assert.True(client.ConnectAsync());
+            Assert.True(client.Connect());
             while (!client.IsConnected)
                 Thread.Yield();
 
             // Send a message to the Echo server
-            client.SendSync("test");
+            client.Send("test");
 
             // Wait for all data processed...
             while (client.BytesReceived != 4)
                 Thread.Yield();
 
             // Disconnect the Echo client
-            Assert.True(client.DisconnectAsync());
+            Assert.True(client.Disconnect());
             while (client.IsConnected)
                 Thread.Yield();
 
@@ -120,7 +120,7 @@ namespace tests
                         // Create and connect Echo client
                         var client = new EchoUdpClient(address, port);
                         clients.Add(client);
-                        client.ConnectAsync();
+                        client.Connect();
                         while (!client.IsConnected)
                             Thread.Yield();
                     }
@@ -134,13 +134,13 @@ namespace tests
                         var client = clients[index];
                         if (client.IsConnected)
                         {
-                            client.DisconnectAsync();
+                            client.Disconnect();
                             while (client.IsConnected)
                                 Thread.Yield();
                         }
                         else
                         {
-                            client.ConnectAsync();
+                            client.Connect();
                             while (!client.IsConnected)
                                 Thread.Yield();
                         }
@@ -155,7 +155,7 @@ namespace tests
                         var client = clients[index];
                         if (client.IsConnected)
                         {
-                            client.ReconnectAsync();
+                            client.Reconnect();
                             while (!client.IsConnected)
                                 Thread.Yield();
                         }
@@ -169,7 +169,7 @@ namespace tests
                         int index = rand.Next() % clients.Count;
                         var client = clients[index];
                         if (client.IsConnected)
-                            client.SendSync("test");
+                            client.Send("test");
                     }
                 }
 
@@ -180,7 +180,7 @@ namespace tests
             // Disconnect clients
             foreach (var client in clients)
             {
-                client.DisconnectAsync();
+                client.Disconnect();
                 while (client.IsConnected)
                     Thread.Yield();
             }

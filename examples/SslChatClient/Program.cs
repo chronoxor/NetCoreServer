@@ -42,9 +42,9 @@ namespace SslChatClient
                 ConnectAsync();
         }
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
-            Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, (int)size));
+            Console.WriteLine(Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
         }
 
         protected override void OnError(SocketError error)

@@ -36,7 +36,7 @@ namespace SslEchoClient
             }
         }
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             _received += size;
             while (_received >= Program.MessageToSend.Length)

@@ -17,13 +17,13 @@ namespace UdpEchoServer
             ReceiveAsync();
         }
 
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
             // Echo the message back to the sender
-            SendAsync(endpoint, buffer, 0, size);
+            SendAsync(endpoint, buffer, offset, size);
         }
 
-        protected override void OnSent(IPEndPoint endpoint, long sent)
+        protected override void OnSent(EndPoint endpoint, long sent)
         {
             // Continue receive datagrams.
             // Important: Receive using thread pool is necessary here to avoid stack overflow with Socket.ReceiveFromAsync() method!

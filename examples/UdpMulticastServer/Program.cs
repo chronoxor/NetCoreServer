@@ -60,7 +60,7 @@ namespace UdpMulticastServer
 
                 // Multicast admin message to all sessions
                 line = "(admin) " + line;
-                server.MulticastSync(line);
+                server.Multicast(line);
             }
 
             // Stop the server

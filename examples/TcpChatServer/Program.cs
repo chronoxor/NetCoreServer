@@ -24,9 +24,9 @@ namespace TcpChatServer
             Console.WriteLine($"Chat TCP session with Id {Id} disconnected!");
         }
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
-            string message = Encoding.UTF8.GetString(buffer, 0, (int)size);
+            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
             Console.WriteLine("Incoming: " + message);
 
             // Multicast message to all connected sessions

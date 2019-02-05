@@ -83,7 +83,7 @@ namespace UdpMulticastServer
                 {
                     var start = DateTime.UtcNow;
                     for (int i = 0; i < messagesRate; ++i)
-                        server.MulticastSync(message);
+                        server.Multicast(message);
                     var end = DateTime.UtcNow;
 
                     // Sleep for remaining time or yield
