@@ -240,7 +240,7 @@ namespace NetCoreServer
                 RegisterSession(session);
 
                 // Connect new session
-                session.ConnectAsync(e.AcceptSocket);
+                session.Connect(e.AcceptSocket);
             }
             else
                 SendError(e.SocketError);
@@ -287,7 +287,7 @@ namespace NetCoreServer
 
             // Disconnect all sessions
             foreach (var session in _sessions.Values)
-                session.DisconnectAsync();
+                session.Disconnect();
 
             return true;
         }

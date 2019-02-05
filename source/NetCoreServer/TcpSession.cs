@@ -77,10 +77,10 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
-        /// Connect the session (asynchronous)
+        /// Connect the session
         /// </summary>
         /// <param name="socket">Session socket</param>
-        internal void ConnectAsync(Socket socket)
+        internal void Connect(Socket socket)
         {
             Socket = socket;
 
@@ -131,10 +131,10 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Disconnect the session (asynchronous)
+        /// Disconnect the session
         /// </summary>
         /// <returns>'true' if the section was successfully disconnected, 'false' if the section is already disconnected</returns>
-        public virtual bool DisconnectAsync()
+        public virtual bool Disconnect()
         {
             if (!IsConnected)
                 return false;
@@ -394,12 +394,12 @@ namespace NetCoreServer
                 if (size > 0)
                     TryReceive();
                 else
-                    DisconnectAsync();
+                    Disconnect();
             }
             else
             {
                 SendError(e.SocketError);
-                DisconnectAsync();
+                Disconnect();
             }
         }
 
@@ -444,7 +444,7 @@ namespace NetCoreServer
             else
             {
                 SendError(e.SocketError);
-                DisconnectAsync();
+                Disconnect();
             }
         }
 

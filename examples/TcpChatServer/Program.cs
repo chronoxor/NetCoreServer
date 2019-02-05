@@ -34,7 +34,7 @@ namespace TcpChatServer
 
             // If the buffer starts with '!' the disconnect the current session
             if (message == "!")
-                DisconnectAsync();
+                Disconnect();
         }
 
         protected override void OnError(SocketError error)

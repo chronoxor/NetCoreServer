@@ -86,10 +86,10 @@ namespace NetCoreServer
         public bool IsHandshaked { get; private set; }
 
         /// <summary>
-        /// Connect the session (asynchronous)
+        /// Connect the session
         /// </summary>
         /// <param name="socket">Session socket</param>
-        internal void ConnectAsync(Socket socket)
+        internal void Connect(Socket socket)
         {
             Socket = socket;
 
@@ -137,15 +137,15 @@ namespace NetCoreServer
             catch (Exception)
             {
                 SendError(SocketError.NotConnected);
-                DisconnectAsync();
+                Disconnect();
             }
         }
 
         /// <summary>
-        /// Disconnect the session (asynchronous)
+        /// Disconnect the session
         /// </summary>
         /// <returns>'true' if the section was successfully disconnected, 'false' if the section is already disconnected</returns>
-        public virtual bool DisconnectAsync()
+        public virtual bool Disconnect()
         {
             if (!IsConnected)
                 return false;
@@ -401,7 +401,7 @@ namespace NetCoreServer
             catch (Exception)
             {
                 SendError(SocketError.NotConnected);
-                DisconnectAsync();
+                Disconnect();
             }
         }
 
@@ -447,12 +447,12 @@ namespace NetCoreServer
                         TryReceive();
                 }
                 else
-                    DisconnectAsync();
+                    Disconnect();
             }
             catch (Exception)
             {
                 SendError(SocketError.OperationAborted);
-                DisconnectAsync();
+                Disconnect();
             }
         }
 
@@ -508,7 +508,7 @@ namespace NetCoreServer
             catch (Exception)
             {
                 SendError(SocketError.OperationAborted);
-                DisconnectAsync();
+                Disconnect();
             }
         }
 
