@@ -264,8 +264,8 @@ namespace NetCoreServer
         /// Multicast datagram to the prepared mulicast endpoint (synchronous)
         /// </summary>
         /// <param name="buffer">Datagram buffer to multicast</param>
-        /// <returns>'true' if the datagram was successfully multicasted, 'false' if the datagram was not multicasted</returns>
-        public virtual bool Multicast(byte[] buffer) { return Multicast(buffer, 0, buffer.Length); }
+        /// <returns>Size of multicasted datagram</returns>
+        public virtual long Multicast(byte[] buffer) { return Multicast(buffer, 0, buffer.Length); }
 
         /// <summary>
         /// Multicast datagram to the prepared mulicast endpoint (synchronous)
@@ -273,15 +273,15 @@ namespace NetCoreServer
         /// <param name="buffer">Datagram buffer to multicast</param>
         /// <param name="offset">Datagram buffer offset</param>
         /// <param name="size">Datagram buffer size</param>
-        /// <returns>'true' if the datagram was successfully multicasted, 'false' if the datagram was not multicasted</returns>
-        public virtual bool Multicast(byte[] buffer, long offset, long size) { return Send(MulticastEndpoint, buffer, offset, size); }
+        /// <returns>Size of multicasted datagram</returns>
+        public virtual long Multicast(byte[] buffer, long offset, long size) { return Send(MulticastEndpoint, buffer, offset, size); }
 
         /// <summary>
         /// Multicast text to the prepared mulicast endpoint (synchronous)
         /// </summary>
         /// <param name="text">Text string to multicast</param>
-        /// <returns>'true' if the text was successfully multicasted, 'false' if the text was not multicasted</returns>
-        public virtual bool Multicast(string text) { return Multicast(Encoding.UTF8.GetBytes(text)); }
+        /// <returns>Size of multicasted datagram</returns>
+        public virtual long Multicast(string text) { return Multicast(Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
         /// Multicast datagram to the prepared mulicast endpoint (asynchronous)
@@ -310,8 +310,8 @@ namespace NetCoreServer
         /// Send datagram to the connected server (synchronous)
         /// </summary>
         /// <param name="buffer">Datagram buffer to send</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool Send(byte[] buffer) { return Send(buffer, 0, buffer.Length); }
+        /// <returns>Size of sent datagram</returns>
+        public virtual long Send(byte[] buffer) { return Send(buffer, 0, buffer.Length); }
 
         /// <summary>
         /// Send datagram to the connected server (synchronous)
@@ -319,23 +319,23 @@ namespace NetCoreServer
         /// <param name="buffer">Datagram buffer to send</param>
         /// <param name="offset">Datagram buffer offset</param>
         /// <param name="size">Datagram buffer size</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool Send(byte[] buffer, long offset, long size) { return Send(Endpoint, buffer, offset, size); }
+        /// <returns>Size of sent datagram</returns>
+        public virtual long Send(byte[] buffer, long offset, long size) { return Send(Endpoint, buffer, offset, size); }
 
         /// <summary>
         /// Send text to the connected server (synchronous)
         /// </summary>
         /// <param name="text">Text string to send</param>
-        /// <returns>'true' if the text was successfully sent, 'false' if the text was not sent</returns>
-        public virtual bool Send(string text) { return Send(Encoding.UTF8.GetBytes(text)); }
+        /// <returns>Size of sent datagram</returns>
+        public virtual long Send(string text) { return Send(Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
         /// Send datagram to the given endpoint (synchronous)
         /// </summary>
         /// <param name="endpoint">Endpoint to send</param>
         /// <param name="buffer">Datagram buffer to send</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool Send(EndPoint endpoint, byte[] buffer) { return Send(endpoint, buffer, 0, buffer.Length); }
+        /// <returns>Size of sent datagram</returns>
+        public virtual long Send(EndPoint endpoint, byte[] buffer) { return Send(endpoint, buffer, 0, buffer.Length); }
 
         /// <summary>
         /// Send datagram to the given endpoint (synchronous)
@@ -344,14 +344,14 @@ namespace NetCoreServer
         /// <param name="buffer">Datagram buffer to send</param>
         /// <param name="offset">Datagram buffer offset</param>
         /// <param name="size">Datagram buffer size</param>
-        /// <returns>'true' if the datagram was successfully sent, 'false' if the datagram was not sent</returns>
-        public virtual bool Send(EndPoint endpoint, byte[] buffer, long offset, long size)
+        /// <returns>Size of sent datagram</returns>
+        public virtual long Send(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
             if (!IsStarted)
-                return false;
+                return 0;
 
             if (size == 0)
-                return true;
+                return 0;
 
             try
             {
@@ -367,13 +367,13 @@ namespace NetCoreServer
                     OnSent(endpoint, sent);
                 }
 
-                return true;
+                return sent;
             }
-            catch (ObjectDisposedException) { return false; }
+            catch (ObjectDisposedException) { return 0; }
             catch (SocketException ex)
             {
                 SendError(ex.SocketErrorCode);
-                return false;
+                return 0;
             }
         }
 
@@ -382,8 +382,8 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="endpoint">Endpoint to send</param>
         /// <param name="text">Text string to send</param>
-        /// <returns>'true' if the text was successfully sent, 'false' if the text was not sent</returns>
-        public virtual bool Send(EndPoint endpoint, string text) { return Send(endpoint, Encoding.UTF8.GetBytes(text)); }
+        /// <returns>Size of sent datagram</returns>
+        public virtual long Send(EndPoint endpoint, string text) { return Send(endpoint, Encoding.UTF8.GetBytes(text)); }
 
         /// <summary>
         /// Send datagram to the given endpoint (asynchronous)
