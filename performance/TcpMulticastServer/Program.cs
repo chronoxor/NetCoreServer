@@ -83,6 +83,8 @@ namespace TcpMulticastServer
             Console.WriteLine($"Messages rate: {messagesRate}");
             Console.WriteLine($"Message size: {messageSize}");
 
+            Console.WriteLine();
+
             // Create a new echo server
             var server = new MulticastServer(IPAddress.Any, port);
             // server.OptionNoDelay = true;

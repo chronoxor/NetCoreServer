@@ -85,6 +85,8 @@ namespace SslMulticastServer
             Console.WriteLine($"Messages rate: {messagesRate}");
             Console.WriteLine($"Message size: {messageSize}");
 
+            Console.WriteLine();
+
             // Create and prepare a new SSL server context
             var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
 

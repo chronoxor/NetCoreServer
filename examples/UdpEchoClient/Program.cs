@@ -71,6 +71,8 @@ namespace UdpEchoClient
             Console.WriteLine($"UDP server address: {address}");
             Console.WriteLine($"UDP server port: {port}");
 
+            Console.WriteLine();
+
             // Create a new TCP chat client
             var client = new EchoClient(address, port);
 

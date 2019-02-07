@@ -32,6 +32,8 @@ namespace UdpMulticastServer
             Console.WriteLine($"UDP multicast address: {multicastAddress}");
             Console.WriteLine($"UDP multicast port: {multicastPort}");
 
+            Console.WriteLine();
+
             // Create a new UDP multicast server
             var server = new MulticastServer(IPAddress.Any, 0);
 

@@ -70,6 +70,8 @@ namespace UdpEchoServer
 
             Console.WriteLine($"Server port: {port}");
 
+            Console.WriteLine();
+
             // Create a new echo server
             var server = new EchoServer(IPAddress.Any, port);
             server.OptionReuseAddress = true;

@@ -82,6 +82,8 @@ namespace UdpMulticastClient
             Console.WriteLine($"UDP multicast address: {multicastAddress}");
             Console.WriteLine($"UDP multicast port: {multicastPort}");
 
+            Console.WriteLine();
+
             // Create a new TCP chat client
             var client = new MulticastClient(listenAddress, multicastPort);
             client.SetupMulticast(true);

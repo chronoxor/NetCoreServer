@@ -61,6 +61,8 @@ namespace UdpMulticastServer
             Console.WriteLine($"Messages rate: {messagesRate}");
             Console.WriteLine($"Message size: {messageSize}");
 
+            Console.WriteLine();
+
             // Create a new echo server
             var server = new MulticastServer(IPAddress.Any, 0);
             server.OptionReuseAddress = true;

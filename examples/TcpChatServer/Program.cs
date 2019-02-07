@@ -66,6 +66,8 @@ namespace TcpChatServer
 
             Console.WriteLine($"TCP server port: {port}");
 
+            Console.WriteLine();
+
             // Create a new TCP chat server
             var server = new ChatServer(IPAddress.Any, port);
 

@@ -47,6 +47,8 @@ namespace UdpEchoServer
 
             Console.WriteLine($"UDP server port: {port}");
 
+            Console.WriteLine();
+
             // Create a new UDP echo server
             var server = new EchoServer(IPAddress.Any, port);
 

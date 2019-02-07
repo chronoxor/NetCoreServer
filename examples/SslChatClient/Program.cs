@@ -72,6 +72,8 @@ namespace SslChatClient
             Console.WriteLine($"SSL server address: {address}");
             Console.WriteLine($"SSL server port: {port}");
 
+            Console.WriteLine();
+
             // Create and prepare a new SSL client context
             var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
 

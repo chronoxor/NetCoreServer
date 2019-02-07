@@ -70,6 +70,8 @@ namespace SslEchoServer
 
             Console.WriteLine($"Server port: {port}");
 
+            Console.WriteLine();
+
             // Create and prepare a new SSL server context
             var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
 
