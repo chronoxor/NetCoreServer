@@ -42,7 +42,7 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// SSL client Id
+        /// Client Id
         /// </summary>
         public Guid Id { get; }
 

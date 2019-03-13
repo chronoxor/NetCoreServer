@@ -35,7 +35,7 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// TCP client Id
+        /// Client Id
         /// </summary>
         public Guid Id { get; }
 

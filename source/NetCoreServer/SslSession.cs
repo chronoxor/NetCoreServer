@@ -23,7 +23,7 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// SSL session Id
+        /// Session Id
         /// </summary>
         public Guid Id { get; }
 

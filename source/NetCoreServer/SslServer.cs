@@ -36,9 +36,15 @@ namespace NetCoreServer
         /// <param name="endpoint">IP endpoint</param>
         public SslServer(SslContext context, IPEndPoint endpoint)
         {
-            Context = context; 
+            Id = Guid.NewGuid();
+            Context = context;
             Endpoint = endpoint;
         }
+
+        /// <summary>
+        /// Server Id
+        /// </summary>
+        public Guid Id { get; }
 
         /// <summary>
         /// SSL context

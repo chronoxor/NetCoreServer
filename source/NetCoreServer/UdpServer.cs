@@ -29,7 +29,16 @@ namespace NetCoreServer
         /// Initialize UDP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public UdpServer(IPEndPoint endpoint) { Endpoint = endpoint; }
+        public UdpServer(IPEndPoint endpoint)
+        {
+            Id = Guid.NewGuid();
+            Endpoint = endpoint;
+        }
+
+        /// <summary>
+        /// Server Id
+        /// </summary>
+        public Guid Id { get; }
 
         /// <summary>
         /// IP endpoint

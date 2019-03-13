@@ -30,7 +30,16 @@ namespace NetCoreServer
         /// Initialize TCP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public TcpServer(IPEndPoint endpoint) { Endpoint = endpoint; }
+        public TcpServer(IPEndPoint endpoint)
+        {
+            Id = Guid.NewGuid();
+            Endpoint = endpoint;
+        }
+
+        /// <summary>
+        /// Server Id
+        /// </summary>
+        public Guid Id { get; }
 
         /// <summary>
         /// IP endpoint
@@ -109,7 +118,7 @@ namespace NetCoreServer
             if (IsStarted)
                 return false;
 
-            // Setup acceptor event arg 
+            // Setup acceptor event arg
             _acceptorEventArg = new SocketAsyncEventArgs();
             _acceptorEventArg.Completed += OnAsyncCompleted;
 
@@ -336,7 +345,7 @@ namespace NetCoreServer
 
             if (size == 0)
                 return true;
-            
+
             // Multicast data to all sessions
             foreach (var session in _sessions.Values)
                 session.SendAsync(buffer, offset, size);
@@ -420,16 +429,16 @@ namespace NetCoreServer
 
         protected virtual void Dispose(bool disposingManagedResources)
         {
-            // The idea here is that Dispose(Boolean) knows whether it is 
-            // being called to do explicit cleanup (the Boolean is true) 
-            // versus being called due to a garbage collection (the Boolean 
-            // is false). This distinction is useful because, when being 
-            // disposed explicitly, the Dispose(Boolean) method can safely 
-            // execute code using reference type fields that refer to other 
-            // objects knowing for sure that these other objects have not been 
-            // finalized or disposed of yet. When the Boolean is false, 
-            // the Dispose(Boolean) method should not execute code that 
-            // refer to reference type fields because those objects may 
+            // The idea here is that Dispose(Boolean) knows whether it is
+            // being called to do explicit cleanup (the Boolean is true)
+            // versus being called due to a garbage collection (the Boolean
+            // is false). This distinction is useful because, when being
+            // disposed explicitly, the Dispose(Boolean) method can safely
+            // execute code using reference type fields that refer to other
+            // objects knowing for sure that these other objects have not been
+            // finalized or disposed of yet. When the Boolean is false,
+            // the Dispose(Boolean) method should not execute code that
+            // refer to reference type fields because those objects may
             // have already been finalized."
 
             if (!_disposed)
