@@ -1,5 +1,5 @@
 # Specify version format
-version: "1.3.0.{build}"
+version: "1.4.0.{build}"
 
 # Image to use
 image: Visual Studio 2017
