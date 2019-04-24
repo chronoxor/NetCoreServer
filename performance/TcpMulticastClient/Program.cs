@@ -9,15 +9,8 @@ namespace TcpMulticastClient
 {
     class MulticastClient : NetCoreServer.TcpClient
     {
-        public bool Connected { get; set; }
-
         public MulticastClient(string address, int port) : base(address, port)
         {
-        }
-
-        protected override void OnConnected()
-        {
-            Connected = true;
         }
 
         protected override void OnReceived(byte[] buffer, long offset, long size)
@@ -104,10 +97,8 @@ namespace TcpMulticastClient
                 client.ConnectAsync();
             Console.WriteLine("Done!");
             foreach (var client in multicastClients)
-            {
-                while (!client.Connected)
+                while (!client.IsConnected)
                     Thread.Yield();
-            }
             Console.WriteLine("All clients connected!");
 
             // Sleep for 10 seconds...

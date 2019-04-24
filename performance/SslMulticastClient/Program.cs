@@ -11,15 +11,8 @@ namespace SslMulticastClient
 {
     class MulticastClient : SslClient
     {
-        public bool Handshaked { get; set; }
-
         public MulticastClient(SslContext context, string address, int port) : base(context, address, port)
         {
-        }
-
-        protected override void OnHandshaked()
-        {
-            Handshaked = true;
         }
 
         protected override void OnReceived(byte[] buffer, long offset, long size)
@@ -109,10 +102,8 @@ namespace SslMulticastClient
                 client.ConnectAsync();
             Console.WriteLine("Done!");
             foreach (var client in multicastClients)
-            {
-                while (!client.Handshaked)
+                while (!client.IsHandshaked)
                     Thread.Yield();
-            }
             Console.WriteLine("All clients connected!");
 
             // Sleep for 10 seconds...

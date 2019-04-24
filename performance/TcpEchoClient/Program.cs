@@ -10,28 +10,20 @@ namespace TcpEchoClient
 {
     class EchoClient : NetCoreServer.TcpClient
     {
-        public bool Connected { get; set; }
-
         public EchoClient(string address, int port, int messages) : base(address, port)
         {
-            _messagesOutput = messages;
-            _messagesInput = messages;
+            _messages = messages;
         }
 
         protected override void OnConnected()
         {
-            Connected = true;
-            SendMessage();
+            for (long i = _messages; i > 0; --i)
+                SendMessage();
         }
 
         protected override void OnSent(long sent, long pending)
         {
             _sent += sent;
-            if (_sent >= Program.MessageToSend.Length)
-            {
-                SendMessage();
-                _sent -= Program.MessageToSend.Length;
-            }
         }
 
         protected override void OnReceived(byte[] buffer, long offset, long size)
@@ -39,7 +31,7 @@ namespace TcpEchoClient
             _received += size;
             while (_received >= Program.MessageToSend.Length)
             {
-                ReceiveMessage();
+                SendMessage();
                 _received -= Program.MessageToSend.Length;
             }
 
@@ -55,24 +47,13 @@ namespace TcpEchoClient
 
         private void SendMessage()
         {
-            if (_messagesOutput-- > 0)
-            {
-                // Important: Use task chaining is necessary here to avoid stack overflow with Socket.SendAsync() method!
-                _sender = _sender.ContinueWith(t => { SendAsync(Program.MessageToSend); });
-            }
+            SendAsync(Program.MessageToSend);
         }
 
-        void ReceiveMessage()
-        {
-            if (--_messagesInput == 0)
-                DisconnectAsync();
-        }
-
-        private int _messagesOutput;
-        private int _messagesInput;
         private Task _sender = Task.CompletedTask;
         private long _sent;
         private long _received;
+        private long _messages;
     }
 
     class Program
@@ -90,8 +71,9 @@ namespace TcpEchoClient
             string address = "127.0.0.1";
             int port = 1111;
             int clients = 100;
-            int messages = 1000000;
+            int messages = 1000;
             int size = 32;
+            int seconds = 10;
 
             var options = new OptionSet()
             {
@@ -100,7 +82,8 @@ namespace TcpEchoClient
                 { "p|port=", v => port = int.Parse(v) },
                 { "c|clients=", v => clients = int.Parse(v) },
                 { "m|messages=", v => messages = int.Parse(v) },
-                { "s|size=", v => size = int.Parse(v) }
+                { "s|size=", v => size = int.Parse(v) },
+                { "z|seconds=", v => seconds = int.Parse(v) }
             };
 
             try
@@ -125,8 +108,9 @@ namespace TcpEchoClient
             Console.WriteLine($"Server address: {address}");
             Console.WriteLine($"Server port: {port}");
             Console.WriteLine($"Working clients: {clients}");
-            Console.WriteLine($"Messages to send: {messages}");
+            Console.WriteLine($"Working messages: {messages}");
             Console.WriteLine($"Message size: {size}");
+            Console.WriteLine($"Seconds to benchmarking: {seconds}");
 
             Console.WriteLine();
 
@@ -137,7 +121,7 @@ namespace TcpEchoClient
             var echoClients = new List<EchoClient>();
             for (int i = 0; i < clients; ++i)
             {
-                var client = new EchoClient(address, port, messages / clients);
+                var client = new EchoClient(address, port, messages);
                 // client.OptionNoDelay = true;
                 echoClients.Add(client);
             }
@@ -150,20 +134,24 @@ namespace TcpEchoClient
                 client.ConnectAsync();
             Console.WriteLine("Done!");
             foreach (var client in echoClients)
-            {
-                while (!client.Connected)
+                while (!client.IsConnected)
                     Thread.Yield();
-            }
             Console.WriteLine("All clients connected!");
 
-            // Wait for processing all messages
-            Console.Write("Processing...");
-            foreach (var client in echoClients)
-            {
-                while (client.IsConnected)
-                    Thread.Sleep(100);
-            }
+            // Wait for benchmarking
+            Console.Write("Benchmarking...");
+            Thread.Sleep(seconds * 1000);
             Console.WriteLine("Done!");
+
+            // Disconnect clients
+            Console.Write("Clients disconnecting...");
+            foreach (var client in echoClients)
+                client.Disconnect();
+            Console.WriteLine("Done!");
+            foreach (var client in echoClients)
+                while (client.IsConnected)
+                    Thread.Yield();
+            Console.WriteLine("All clients disconnected!");
 
             Console.WriteLine();
 
