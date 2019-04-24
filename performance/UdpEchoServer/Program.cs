@@ -19,6 +19,13 @@ namespace UdpEchoServer
 
         protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
+            // Continue receive datagrams.
+            if (size == 0)
+            {
+                // Important: Receive using thread pool is necessary here to avoid stack overflow with Socket.ReceiveFromAsync() method!
+                ThreadPool.QueueUserWorkItem(o => { ReceiveAsync(); });
+            }
+
             // Echo the message back to the sender
             SendAsync(endpoint, buffer, offset, size);
         }

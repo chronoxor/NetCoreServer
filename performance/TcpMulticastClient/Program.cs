@@ -28,8 +28,8 @@ namespace TcpMulticastClient
     class Program
     {
         public static byte[] MessageToSend;
-        public static DateTime TimestampStart;
-        public static DateTime TimestampStop;
+        public static DateTime TimestampStart = DateTime.UtcNow;
+        public static DateTime TimestampStop = DateTime.UtcNow;
         public static long TotalErrors;
         public static long TotalBytes;
         public static long TotalMessages;

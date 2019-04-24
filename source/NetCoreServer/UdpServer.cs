@@ -607,6 +607,10 @@ namespace NetCoreServer
             if (e.SocketError != SocketError.Success)
             {
                 SendError(e.SocketError);
+
+                // Call the datagram received zero handler
+                OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, 0);
+
                 return;
             }
 
@@ -642,6 +646,10 @@ namespace NetCoreServer
             if (e.SocketError != SocketError.Success)
             {
                 SendError(e.SocketError);
+
+                // Call the buffer sent zero handler
+                OnSent(_sendEndpoint, 0);
+
                 return;
             }
 

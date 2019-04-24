@@ -31,7 +31,8 @@ namespace UdpEchoClient
             ++Program.TotalMessages;
 
             // Continue receive datagrams
-            ReceiveAsync();
+            // Important: Receive using thread pool is necessary here to avoid stack overflow with Socket.ReceiveFromAsync() method!
+            ThreadPool.QueueUserWorkItem(o => { ReceiveAsync(); } );
 
             SendMessage();
         }
@@ -42,9 +43,14 @@ namespace UdpEchoClient
             ++Program.TotalErrors;
         }
 
+        private object _locker = new object();
+
         private void SendMessage()
         {
-            SendAsync(Program.MessageToSend);
+            lock (_locker)
+            {
+                SendAsync(Program.MessageToSend);
+            }
         }
 
         private long _messages;
@@ -53,8 +59,8 @@ namespace UdpEchoClient
     class Program
     {
         public static byte[] MessageToSend;
-        public static DateTime TimestampStart;
-        public static DateTime TimestampStop;
+        public static DateTime TimestampStart = DateTime.UtcNow;
+        public static DateTime TimestampStop = DateTime.UtcNow;
         public static long TotalErrors;
         public static long TotalBytes;
         public static long TotalMessages;
@@ -64,7 +70,7 @@ namespace UdpEchoClient
             bool help = false;
             string address = "127.0.0.1";
             int port = 3333;
-            int clients = 100;
+            int clients = 1;
             int messages = 1000;
             int size = 32;
             int seconds = 10;
