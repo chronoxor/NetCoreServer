@@ -57,6 +57,7 @@ namespace UdpMulticastClient
             int port = 3333;
             int clients = 100;
             int size = 32;
+            int seconds = 10;
 
             var options = new OptionSet()
             {
@@ -64,7 +65,8 @@ namespace UdpMulticastClient
                 { "a|address=", v => address = v },
                 { "p|port=", v => port = int.Parse(v) },
                 { "c|clients=", v => clients = int.Parse(v) },
-                { "s|size=", v => size = int.Parse(v) }
+                { "s|size=", v => size = int.Parse(v) },
+                { "z|seconds=", v => seconds = int.Parse(v) }
             };
 
             try
@@ -90,6 +92,7 @@ namespace UdpMulticastClient
             Console.WriteLine($"Server port: {port}");
             Console.WriteLine($"Working clients: {clients}");
             Console.WriteLine($"Message size: {size}");
+            Console.WriteLine($"Seconds to benchmarking: {seconds}");
 
             Console.WriteLine();
 
@@ -117,9 +120,9 @@ namespace UdpMulticastClient
                     Thread.Yield();
             Console.WriteLine("All clients connected!");
 
-            // Sleep for 10 seconds...
-            Console.Write("Processing...");
-            Thread.Sleep(10000);
+            // Wait for benchmarking
+            Console.Write("Benchmarking...");
+            Thread.Sleep(seconds * 1000);
             Console.WriteLine("Done!");
 
             // Disconnect clients
@@ -142,7 +145,7 @@ namespace UdpMulticastClient
 
             TotalMessages = TotalBytes / size;
 
-            Console.WriteLine($"Multicast time: {Utilities.GenerateTimePeriod((TimestampStop - TimestampStart).TotalMilliseconds)}");
+            Console.WriteLine($"Total time: {Utilities.GenerateTimePeriod((TimestampStop - TimestampStart).TotalMilliseconds)}");
             Console.WriteLine($"Total data: {Utilities.GenerateDataSize(TotalBytes)}");
             Console.WriteLine($"Total messages: {TotalMessages}");
             Console.WriteLine($"Data throughput: {Utilities.GenerateDataSize((long)(TotalBytes / (TimestampStop - TimestampStart).TotalSeconds))}/s");
