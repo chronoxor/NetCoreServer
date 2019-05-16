@@ -1028,12 +1028,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.016 s
-Total data: 113.521 MiB
-Total messages: 3719457
-Data throughput: 11.340 MiB/s
-Message latency: 2.693 mcs
-Message throughput: 371330 msg/s
+Total time: 10.017 s
+Total data: 389.962 MiB
+Total messages: 12777566
+Data throughput: 38.948 MiB/s
+Message latency: 783 ns
+Message throughput: 1275543 msg/s
 ```
 
 * [TcpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
@@ -1047,14 +1047,14 @@ Working messages: 1000
 Message size: 32
 Seconds to benchmarking: 10
 
-Errors: 1
+Errors: 0
 
-Total time: 10.175 s
-Total data: 222.860 MiB
-Total messages: 7302027
-Data throughput: 21.922 MiB/s
-Message latency: 1.393 mcs
-Message throughput: 717639 msg/s
+Total time: 10.179 s
+Total data: 884.520 MiB
+Total messages: 28983575
+Data throughput: 86.911 MiB/s
+Message latency: 351 ns
+Message throughput: 2847229 msg/s
 ```
 
 ### SSL echo server
@@ -1072,12 +1072,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.069 s
-Total data: 41.841 MiB
-Total messages: 1370404
-Data throughput: 4.156 MiB/s
-Message latency: 7.348 mcs
-Message throughput: 136091 msg/s
+Total time: 10.088 s
+Total data: 41.873 MiB
+Total messages: 1371444
+Data throughput: 4.152 MiB/s
+Message latency: 7.356 mcs
+Message throughput: 135939 msg/s
 ```
 
 * [SslEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoServer/Program.cs)
@@ -1093,12 +1093,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 21.373 s
-Total data: 172.208 MiB
-Total messages: 5642766
-Data throughput: 8.058 MiB/s
-Message latency: 3.787 mcs
-Message throughput: 264010 msg/s
+Total time: 12.270 s
+Total data: 187.644 MiB
+Total messages: 6148244
+Data throughput: 15.298 MiB/s
+Message latency: 1.995 mcs
+Message throughput: 501056 msg/s
 ```
 
 ### UDP echo server
@@ -1164,15 +1164,16 @@ Server address: 127.0.0.1
 Server port: 1111
 Working clients: 1
 Message size: 32
+Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.018 s
-Total data: 28.975 MiB
-Total messages: 948717
-Data throughput: 2.911 MiB/s
-Message latency: 10.559 mcs
-Message throughput: 94699 msg/s
+Total time: 10.019 s
+Total data: 66.374 MiB
+Total messages: 2174676
+Data throughput: 6.638 MiB/s
+Message latency: 4.607 mcs
+Message throughput: 217051 msg/s
 ```
 
 * [TcpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
@@ -1204,15 +1205,16 @@ Server address: 127.0.0.1
 Server port: 2222
 Working clients: 1
 Message size: 32
+Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.102 s
-Total data: 20.531 MiB
-Total messages: 672358
-Data throughput: 2.031 MiB/s
-Message latency: 15.025 mcs
-Message throughput: 66554 msg/s
+Total time: 10.091 s
+Total data: 46.905 MiB
+Total messages: 1536317
+Data throughput: 4.661 MiB/s
+Message latency: 6.568 mcs
+Message throughput: 152236 msg/s
 ```
 
 * [SslMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastServer/Program.cs)
