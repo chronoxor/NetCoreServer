@@ -8,7 +8,9 @@
 build
 cmake
 cmake-build-*
-modules
+modules/*
+!modules/CMakeLists.txt
+!modules/*.cmake
 temp
 
 # User-specific files
