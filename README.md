@@ -1297,7 +1297,7 @@ openssl rsa -passin pass:qwerty -in ca-secret.key -out ca.key
 
 * Create CA self-signed certificate
 ```shell
-openssl req -new -x509 -days 3650 -subj '/C=BY/ST=Belarus/L=Minsk/O=Example root CA/OU=Example CA unit/CN=example.com' -key ca.key -out ca.crt -config openssl.cfg
+openssl req -new -x509 -days 3650 -subj '/C=BY/ST=Belarus/L=Minsk/O=Example root CA/OU=Example CA unit/CN=example.com' -key ca.key -out ca.crt -config openssl.cnf
 ```
 
 * Convert CA self-signed certificate to PKCS
@@ -1329,7 +1329,7 @@ openssl rsa -passin pass:qwerty -in server-secret.key -out server.key
 
 * Create CSR for the server
 ```shell
-openssl req -new -subj '/C=BY/ST=Belarus/L=Minsk/O=Example server/OU=Example server unit/CN=server.example.com' -key server.key -out server.csr -config openssl.cfg
+openssl req -new -subj '/C=BY/ST=Belarus/L=Minsk/O=Example server/OU=Example server unit/CN=server.example.com' -key server.key -out server.csr -config openssl.cnf
 ```
 
 * Create certificate for the server
@@ -1366,7 +1366,7 @@ openssl rsa -passin pass:qwerty -in client-secret.key -out client.key
 
 * Create CSR for the client
 ```shell
-openssl req -new -subj '/C=BY/ST=Belarus/L=Minsk/O=Example client/OU=Example client unit/CN=client.example.com' -key client.key -out client.csr -config openssl.cfg
+openssl req -new -subj '/C=BY/ST=Belarus/L=Minsk/O=Example client/OU=Example client unit/CN=client.example.com' -key client.key -out client.csr -config openssl.cnf
 ```
 
 * Create the client certificate
