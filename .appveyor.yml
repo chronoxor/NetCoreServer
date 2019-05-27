@@ -2,7 +2,7 @@
 version: "1.4.0.{build}"
 
 # Image to use
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 # Branches to build
 branches:
@@ -28,9 +28,6 @@ matrix:
 install:
   # Chocolatey
   - choco upgrade chocolatey
-  # Visual Studio
-  - if "%type%"=="VisualStudio" set INCLUDE=C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared;%INCLUDE%
-  - if "%type%"=="VisualStudio" set LIB=C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64;%LIB%
   # CMake
   - '%command% "cmake --version"'
 
