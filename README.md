@@ -1300,19 +1300,14 @@ openssl rsa -passin pass:qwerty -in ca-secret.key -out ca.key
 openssl req -new -x509 -days 3650 -subj '/C=BY/ST=Belarus/L=Minsk/O=Example root CA/OU=Example CA unit/CN=example.com' -key ca.key -out ca.crt
 ```
 
-* Convert CA self-signed certificate to PKCS
+* Convert CA self-signed certificate to PFX
 ```shell
-openssl pkcs12 -clcerts -export -passout pass:qwerty -in ca.crt -inkey ca.key -out ca.p12
+openssl pkcs12 -export -passout pass:qwerty -inkey ca.key -in ca.crt -out ca.pfx
 ```
 
 * Convert CA self-signed certificate to PEM
 ```shell
-openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in ca.p12 -out ca.pem
-```
-
-* Convert CA self-signed certificate to PFX
-```shell
-openssl pkcs12 -export -out ca.pfx -inkey ca.key -in ca.crt
+openssl pkcs12 -passin pass:qwerty -passout pass:qwerty -in ca.pfx -out ca.pem
 ```
 
 ## SSL Server certificate
@@ -1337,19 +1332,14 @@ openssl req -new -subj '/C=BY/ST=Belarus/L=Minsk/O=Example server/OU=Example ser
 openssl x509 -req -days 3650 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
 ```
 
-* Convert the server certificate to PKCS
+* Convert the server certificate to PFX
 ```shell
-openssl pkcs12 -clcerts -export -passout pass:qwerty -in server.crt -inkey server.key -out server.p12
+openssl pkcs12 -export -passout pass:qwerty -inkey server.key -in server.crt -out server.pfx
 ```
 
 * Convert the server certificate to PEM
 ```shell
-openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in server.p12 -out server.pem
-```
-
-* Convert the server certificate to PFX
-```shell
-openssl pkcs12 -export -out server.pfx -inkey server.key -in server.crt
+openssl pkcs12 -passin pass:qwerty -passout pass:qwerty -in server.pfx -out server.pem
 ```
 
 ## SSL Client certificate
@@ -1374,19 +1364,14 @@ openssl req -new -subj '/C=BY/ST=Belarus/L=Minsk/O=Example client/OU=Example cli
 openssl x509 -req -days 3650 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt
 ```
 
-* Convert the client certificate to PKCS
+* Convert the client certificate to PFX
 ```shell
-openssl pkcs12 -clcerts -export -passout pass:qwerty -in client.crt -inkey client.key -out client.p12
+openssl pkcs12 -export -passout pass:qwerty -inkey client.key -in client.crt -out client.pfx
 ```
 
 * Convert the client certificate to PEM
 ```shell
-openssl pkcs12 -clcerts -passin pass:qwerty -passout pass:qwerty -in client.p12 -out client.pem
-```
-
-* Convert the client certificate to PFX
-```shell
-openssl pkcs12 -export -out client.pfx -inkey client.key -in client.crt
+openssl pkcs12 -passin pass:qwerty -passout pass:qwerty -in client.pfx -out client.pem
 ```
 
 ## Diffie-Hellman key exchange
