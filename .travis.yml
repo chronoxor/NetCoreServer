@@ -4,15 +4,17 @@ mono: none
 dotnet: 2.2.103
 solution: NetCoreServer.sln
 
+# OS environment
+dist: xenial
+
 # Build matrix (OS, compiler)
 matrix:
   include:
-    - os: linux
-    - os: osx
-
-# OS environment
-sudo: required
-dist: xenial
+    - name: "Linux"
+      os: linux
+    - name: "MacOS"
+      os: osx
+      osx_image: xcode11
 
 # Build scripts
 script:
