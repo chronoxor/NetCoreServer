@@ -125,9 +125,9 @@ namespace TcpChatServer
             Console.WriteLine($"Chat TCP session with Id {Id} disconnected!");
         }
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
-            string message = Encoding.UTF8.GetString(buffer, 0, (int)size);
+            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
             Console.WriteLine("Incoming: " + message);
 
             // Multicast message to all connected sessions
@@ -135,7 +135,7 @@ namespace TcpChatServer
 
             // If the buffer starts with '!' the disconnect the current session
             if (message == "!")
-                DisconnectAsync();
+                Disconnect();
         }
 
         protected override void OnError(SocketError error)
@@ -166,6 +166,8 @@ namespace TcpChatServer
                 port = int.Parse(args[0]);
 
             Console.WriteLine($"TCP server port: {port}");
+
+            Console.WriteLine();
 
             // Create a new TCP chat server
             var server = new ChatServer(IPAddress.Any, port);
@@ -249,9 +251,9 @@ namespace TcpChatClient
                 ConnectAsync();
         }
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
-            Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, (int)size));
+            Console.WriteLine(Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
         }
 
         protected override void OnError(SocketError error)
@@ -278,6 +280,8 @@ namespace TcpChatClient
 
             Console.WriteLine($"TCP server address: {address}");
             Console.WriteLine($"TCP server port: {port}");
+
+            Console.WriteLine();
 
             // Create a new TCP chat client
             var client = new ChatClient(address, port);
@@ -351,8 +355,8 @@ namespace SslChatServer
             Console.WriteLine($"Chat SSL session with Id {Id} handshaked!");
 
             // Send invite message
-            //string message = "Hello from SSL chat! Please send a message or '!' to disconnect the client!";
-            //Send(message);
+            string message = "Hello from SSL chat! Please send a message or '!' to disconnect the client!";
+            Send(message);
         }
 
         protected override void OnDisconnected()
@@ -360,9 +364,9 @@ namespace SslChatServer
             Console.WriteLine($"Chat SSL session with Id {Id} disconnected!");
         }
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
-            string message = Encoding.UTF8.GetString(buffer, 0, (int)size);
+            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
             Console.WriteLine("Incoming: " + message);
 
             // Multicast message to all connected sessions
@@ -370,7 +374,7 @@ namespace SslChatServer
 
             // If the buffer starts with '!' the disconnect the current session
             if (message == "!")
-                DisconnectAsync();
+                Disconnect();
         }
 
         protected override void OnError(SocketError error)
@@ -401,6 +405,8 @@ namespace SslChatServer
                 port = int.Parse(args[0]);
 
             Console.WriteLine($"SSL server port: {port}");
+
+            Console.WriteLine();
 
             // Create and prepare a new SSL server context
             var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
@@ -497,9 +503,9 @@ namespace SslChatClient
                 ConnectAsync();
         }
 
-        protected override void OnReceived(byte[] buffer, long size)
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
-            Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, (int)size));
+            Console.WriteLine(Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
         }
 
         protected override void OnError(SocketError error)
@@ -526,6 +532,8 @@ namespace SslChatClient
 
             Console.WriteLine($"SSL server address: {address}");
             Console.WriteLine($"SSL server port: {port}");
+
+            Console.WriteLine();
 
             // Create and prepare a new SSL client context
             var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
@@ -592,15 +600,15 @@ namespace UdpEchoServer
             ReceiveAsync();
         }
 
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
-            Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, 0, (int)size));
+            Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
 
             // Echo the message back to the sender
             SendAsync(endpoint, buffer, 0, size);
         }
 
-        protected override void OnSent(IPEndPoint endpoint, long sent)
+        protected override void OnSent(EndPoint endpoint, long sent)
         {
             // Continue receive datagrams
             ReceiveAsync();
@@ -622,6 +630,8 @@ namespace UdpEchoServer
                 port = int.Parse(args[0]);
 
             Console.WriteLine($"UDP server port: {port}");
+
+            Console.WriteLine();
 
             // Create a new UDP echo server
             var server = new EchoServer(IPAddress.Any, port);
@@ -678,7 +688,7 @@ namespace UdpEchoClient
         public void DisconnectAndStop()
         {
             _stop = true;
-            DisconnectAsync();
+            Disconnect();
             while (IsConnected)
                 Thread.Yield();
         }
@@ -700,12 +710,12 @@ namespace UdpEchoClient
 
             // Try to connect again
             if (!_stop)
-                ConnectAsync();
+                Connect();
         }
 
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
-            Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, 0, (int)size));
+            Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
 
             // Continue receive datagrams
             ReceiveAsync();
@@ -736,12 +746,14 @@ namespace UdpEchoClient
             Console.WriteLine($"UDP server address: {address}");
             Console.WriteLine($"UDP server port: {port}");
 
+            Console.WriteLine();
+
             // Create a new TCP chat client
             var client = new EchoClient(address, port);
 
             // Connect the client
             Console.Write("Client connecting...");
-            client.ConnectAsync();
+            client.Connect();
             Console.WriteLine("Done!");
 
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
@@ -757,13 +769,13 @@ namespace UdpEchoClient
                 if (line == "!")
                 {
                     Console.Write("Client disconnecting...");
-                    client.DisconnectAsync();
+                    client.Disconnect();
                     Console.WriteLine("Done!");
                     continue;
                 }
 
                 // Send the entered text to the chat server
-                client.SendSync(line);
+                client.Send(line);
             }
 
             // Disconnect the client
@@ -815,6 +827,8 @@ namespace UdpMulticastServer
             Console.WriteLine($"UDP multicast address: {multicastAddress}");
             Console.WriteLine($"UDP multicast port: {multicastPort}");
 
+            Console.WriteLine();
+
             // Create a new UDP multicast server
             var server = new MulticastServer(IPAddress.Any, 0);
 
@@ -843,7 +857,7 @@ namespace UdpMulticastServer
 
                 // Multicast admin message to all sessions
                 line = "(admin) " + line;
-                server.MulticastSync(line);
+                server.Multicast(line);
             }
 
             // Stop the server
@@ -878,7 +892,7 @@ namespace UdpMulticastClient
         public void DisconnectAndStop()
         {
             _stop = true;
-            DisconnectAsync();
+            Disconnect();
             while (IsConnected)
                 Thread.Yield();
         }
@@ -903,12 +917,12 @@ namespace UdpMulticastClient
 
             // Try to connect again
             if (!_stop)
-                ConnectAsync();
+                Connect();
         }
 
-        protected override void OnReceived(IPEndPoint endpoint, byte[] buffer, long size)
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
-            Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, 0, (int)size));
+            Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
 
             // Continue receive datagrams
             ReceiveAsync();
@@ -945,6 +959,8 @@ namespace UdpMulticastClient
             Console.WriteLine($"UDP multicast address: {multicastAddress}");
             Console.WriteLine($"UDP multicast port: {multicastPort}");
 
+            Console.WriteLine();
+
             // Create a new TCP chat client
             var client = new MulticastClient(listenAddress, multicastPort);
             client.SetupMulticast(true);
@@ -952,7 +968,7 @@ namespace UdpMulticastClient
 
             // Connect the client
             Console.Write("Client connecting...");
-            client.ConnectAsync();
+            client.Connect();
             Console.WriteLine("Done!");
 
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
@@ -968,7 +984,7 @@ namespace UdpMulticastClient
                 if (line == "!")
                 {
                     Console.Write("Client disconnecting...");
-                    client.DisconnectAsync();
+                    client.Disconnect();
                     Console.WriteLine("Done!");
                     continue;
                 }

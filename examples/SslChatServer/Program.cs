@@ -22,8 +22,8 @@ namespace SslChatServer
             Console.WriteLine($"Chat SSL session with Id {Id} handshaked!");
 
             // Send invite message
-            //string message = "Hello from SSL chat! Please send a message or '!' to disconnect the client!";
-            //Send(message);
+            string message = "Hello from SSL chat! Please send a message or '!' to disconnect the client!";
+            Send(message);
         }
 
         protected override void OnDisconnected()
