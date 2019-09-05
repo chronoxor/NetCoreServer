@@ -5,7 +5,7 @@ dotnet: 3.0.100-preview8-013656
 solution: NetCoreServer.sln
 
 # OS environment
-dist: xenial
+dist: bionic
 
 # Build matrix (OS, compiler)
 matrix:
