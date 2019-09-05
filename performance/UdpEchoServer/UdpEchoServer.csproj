@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NDesk.Options.Core" Version="1.2.4" />
+    <PackageReference Include="NDesk.Options.Core" Version="1.2.5" />
   </ItemGroup>
 
   <ItemGroup>
