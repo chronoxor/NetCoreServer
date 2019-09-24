@@ -150,6 +150,8 @@ namespace NetCoreServer
 
             // Bind the server socket to the IP endpoint
             Socket.Bind(Endpoint);
+            // Refresh the endpoint property based on the actual endpoint created
+            Endpoint = (IPEndPoint)Socket.LocalEndPoint;
 
             // Prepare receive endpoint
             _receiveEndpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any, 0);

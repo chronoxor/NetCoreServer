@@ -145,6 +145,8 @@ namespace NetCoreServer
 
             // Bind the acceptor socket to the IP endpoint
             _acceptorSocket.Bind(Endpoint);
+            // Refresh the endpoint property based on the actual endpoint created
+            Endpoint = (IPEndPoint)_acceptorSocket.LocalEndPoint;
             // Start listen to the acceptor socket with the given accepting backlog size
             _acceptorSocket.Listen(_acceptorBacklog);
 
