@@ -1,7 +1,7 @@
 # .NET Core
 language: csharp
 mono: none
-dotnet: 3.0.100-preview8-013656
+dotnet: 3.0
 solution: NetCoreServer.sln
 
 # OS environment
