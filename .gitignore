@@ -3,14 +3,25 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-# Temporary directories
-.idea
+# Build
+build
+
+# CMake
 build
 cmake
 cmake-build-*
+
+# Ctags files
+tags
+tags.idx
+
+# Modules
 modules/*
 !modules/CMakeLists.txt
 !modules/*.cmake
+
+# Temporary
+.idea
 temp
 
 # User-specific files
