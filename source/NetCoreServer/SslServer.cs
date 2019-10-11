@@ -62,15 +62,15 @@ namespace NetCoreServer
         /// <summary>
         /// Number of bytes pending sent by the server
         /// </summary>
-        public long BytesPending { get; internal set; }
+        public long BytesPending { get { return _bytesPending; } }
         /// <summary>
         /// Number of bytes sent by the server
         /// </summary>
-        public long BytesSent { get; internal set; }
+        public long BytesSent { get { return _bytesSent; } }
         /// <summary>
         /// Number of bytes received by the server
         /// </summary>
-        public long BytesReceived { get; internal set; }
+        public long BytesReceived { get { return _bytesReceived; } }
 
         /// <summary>
         /// Option: keep alive
@@ -107,6 +107,11 @@ namespace NetCoreServer
         private int _acceptorBacklog = 1024;
         private Socket _acceptorSocket;
         private SocketAsyncEventArgs _acceptorEventArg;
+
+        // Server statistic
+        internal long _bytesPending;
+        internal long _bytesSent;
+        internal long _bytesReceived;
 
         /// <summary>
         /// Is the server started?
@@ -151,9 +156,9 @@ namespace NetCoreServer
             _acceptorSocket.Listen(_acceptorBacklog);
 
             // Reset statistic
-            BytesPending = 0;
-            BytesSent = 0;
-            BytesReceived = 0;
+            _bytesPending = 0;
+            _bytesSent = 0;
+            _bytesReceived = 0;
 
             // Update the started flag
             IsStarted = true;

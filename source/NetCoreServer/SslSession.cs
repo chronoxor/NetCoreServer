@@ -251,7 +251,7 @@ namespace NetCoreServer
 
                 // Update statistic
                 BytesSent += size;
-                Server.BytesSent += size;
+                Interlocked.Add(ref Server._bytesSent, size);
 
                 // Call the buffer sent handler
                 OnSent(size, BytesPending + BytesSending);
@@ -354,7 +354,7 @@ namespace NetCoreServer
                 {
                     // Update statistic
                     BytesReceived += received;
-                    Server.BytesReceived += received;
+                    Interlocked.Add(ref Server._bytesReceived, received);
 
                     // Call the buffer received handler
                     OnReceived(buffer, 0, received);
@@ -547,7 +547,7 @@ namespace NetCoreServer
                 {
                     // Update statistic
                     BytesReceived += size;
-                    Server.BytesReceived += size;
+                    Interlocked.Add(ref Server._bytesReceived, size);
 
                     // Call the buffer received handler
                     OnReceived(_receiveBuffer.Data, 0, size);
@@ -601,7 +601,7 @@ namespace NetCoreServer
                     // Update statistic
                     BytesSending -= size;
                     BytesSent += size;
-                    Server.BytesSent += size;
+                    Interlocked.Add(ref Server._bytesSent, size);
 
                     // Increase the flush buffer offset
                     _sendBufferFlushOffset += size;
