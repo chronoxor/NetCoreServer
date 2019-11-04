@@ -58,7 +58,7 @@ namespace NetCoreServer
         /// <summary>
         /// Number of sessions connected to the server
         /// </summary>
-        public long ConnectedSessions { get; internal set; }
+        public long ConnectedSessions { get { return _sessions.Count; } }
         /// <summary>
         /// Number of bytes pending sent by the server
         /// </summary>
