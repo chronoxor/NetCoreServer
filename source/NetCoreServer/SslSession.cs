@@ -158,12 +158,17 @@ namespace NetCoreServer
 
             try
             {
+                try
+                {
                 // Shutdown the SSL stream
-                _sslStream.ShutdownAsync().Wait();
+                    _sslStream.ShutdownAsync().Wait();
 
-                // Dispose the SSL stream & buffer
-                _sslStream.Dispose();
-                _sslStreamId = null;
+                    // Dispose the SSL stream & buffer
+                    _sslStream.Dispose();
+                    _sslStreamId = null;
+                }
+                catch (System.IO.IOException) { }
+                catch (AggregateException) { }
 
                 try
                 {
