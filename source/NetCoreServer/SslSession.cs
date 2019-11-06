@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
@@ -158,8 +159,13 @@ namespace NetCoreServer
 
             try
             {
-                // Shutdown the SSL stream
-                _sslStream.ShutdownAsync().Wait();
+                try
+                {
+                    // Shutdown the SSL stream
+                    _sslStream.ShutdownAsync().Wait();
+                }
+                catch (AggregateException) {}
+                catch (IOException) {}
 
                 // Dispose the SSL stream & buffer
                 _sslStream.Dispose();

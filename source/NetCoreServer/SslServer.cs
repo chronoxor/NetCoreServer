@@ -73,6 +73,13 @@ namespace NetCoreServer
         public long BytesReceived { get { return _bytesReceived; } }
 
         /// <summary>
+        /// Option: acceptor backlog size
+        /// </summary>
+        /// <remarks>
+        /// This option will set the listening socket's backlog size
+        /// </remarks>
+        public int OptionAcceptorBacklog { get; set; } = 1024;
+        /// <summary>
         /// Option: keep alive
         /// </summary>
         /// <remarks>
@@ -104,7 +111,6 @@ namespace NetCoreServer
         #region Start/Stop server
 
         // Server acceptor
-        private int _acceptorBacklog = 1024;
         private Socket _acceptorSocket;
         private SocketAsyncEventArgs _acceptorEventArg;
 
@@ -153,7 +159,7 @@ namespace NetCoreServer
             // Refresh the endpoint property based on the actual endpoint created
             Endpoint = (IPEndPoint)_acceptorSocket.LocalEndPoint;
             // Start listen to the acceptor socket with the given accepting backlog size
-            _acceptorSocket.Listen(_acceptorBacklog);
+            _acceptorSocket.Listen(OptionAcceptorBacklog);
 
             // Reset statistic
             _bytesPending = 0;
