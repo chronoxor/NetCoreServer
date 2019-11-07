@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreServer", "source\NetCoreServer\NetCoreServer.csproj", "{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}"
 EndProject
@@ -23,17 +23,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpMulticastClient", "perfo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tests", "tests\tests.csproj", "{9C37C898-6C8C-49D6-B06F-0A9B26F3FF7F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpEchoClientExample", "examples\UdpEchoClient\UdpEchoClientExample.csproj", "{08FAAF0A-5D41-45F7-A6D3-A0AB84E26B36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpEchoClient", "examples\UdpEchoClient\UdpEchoClient.csproj", "{08FAAF0A-5D41-45F7-A6D3-A0AB84E26B36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpMulticastClientExample", "examples\UdpMulticastClient\UdpMulticastClientExample.csproj", "{08200780-1BD6-4E3C-8059-D28E614A1375}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpMulticastClient", "examples\UdpMulticastClient\UdpMulticastClient.csproj", "{08200780-1BD6-4E3C-8059-D28E614A1375}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpEchoClient", "performance\UdpEchoClient\UdpEchoClient.csproj", "{A3AA15B3-FD4D-4CFA-989A-B9EE6F18E687}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpMulticastClient", "performance\UdpMulticastClient\UdpMulticastClient.csproj", "{8F357970-5559-4129-9129-BD085688DF98}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpEchoServerExample", "examples\UdpEchoServer\UdpEchoServerExample.csproj", "{148EF33E-8884-411D-8B3A-F75DFA96DCD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpEchoServer", "examples\UdpEchoServer\UdpEchoServer.csproj", "{148EF33E-8884-411D-8B3A-F75DFA96DCD9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpMulticastServerExample", "examples\UdpMulticastServer\UdpMulticastServerExample.csproj", "{B2AF0232-BBCF-4A4A-82E5-112F5279EE67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpMulticastServer", "examples\UdpMulticastServer\UdpMulticastServer.csproj", "{B2AF0232-BBCF-4A4A-82E5-112F5279EE67}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpEchoServer", "performance\UdpEchoServer\UdpEchoServer.csproj", "{A83EDDC0-414B-482D-BFF7-26AC70ED3FBB}"
 EndProject
@@ -47,9 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslEchoClient", "performanc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslEchoServer", "performance\SslEchoServer\SslEchoServer.csproj", "{2028D7FF-922C-42B1-98A3-FEA0250CCDDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SslMulticastClient", "performance\SslMulticastClient\SslMulticastClient.csproj", "{9686ECB4-BBB7-43B1-BDAF-8660676C2944}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslMulticastClient", "performance\SslMulticastClient\SslMulticastClient.csproj", "{9686ECB4-BBB7-43B1-BDAF-8660676C2944}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SslMulticastServer", "performance\SslMulticastServer\SslMulticastServer.csproj", "{1BCD5345-E960-4421-90C8-ECCECB7B7D78}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslMulticastServer", "performance\SslMulticastServer\SslMulticastServer.csproj", "{1BCD5345-E960-4421-90C8-ECCECB7B7D78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
