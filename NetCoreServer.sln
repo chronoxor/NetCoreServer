@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreServer", "source\NetCoreServer\NetCoreServer.csproj", "{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "performance", "performance", "{8965E5CD-E36E-4DC5-A36E-827AFFC642D1}"
@@ -51,6 +49,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslMulticastClient", "perfo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslMulticastServer", "performance\SslMulticastServer\SslMulticastServer.csproj", "{1BCD5345-E960-4421-90C8-ECCECB7B7D78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreServer", "source\NetCoreServer\NetCoreServer.csproj", "{9A98F7FC-93C2-451F-8754-AB5E03982955}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,18 +61,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Debug|x64.Build.0 = Debug|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Debug|x86.Build.0 = Debug|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Release|x64.ActiveCfg = Release|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Release|x64.Build.0 = Release|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Release|x86.ActiveCfg = Release|Any CPU
-		{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}.Release|x86.Build.0 = Release|Any CPU
 		{AC03EE4C-F42A-40B4-83FB-16A5DA368947}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AC03EE4C-F42A-40B4-83FB-16A5DA368947}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC03EE4C-F42A-40B4-83FB-16A5DA368947}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -325,6 +313,18 @@ Global
 		{1BCD5345-E960-4421-90C8-ECCECB7B7D78}.Release|x64.Build.0 = Release|Any CPU
 		{1BCD5345-E960-4421-90C8-ECCECB7B7D78}.Release|x86.ActiveCfg = Release|Any CPU
 		{1BCD5345-E960-4421-90C8-ECCECB7B7D78}.Release|x86.Build.0 = Release|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Debug|x64.Build.0 = Debug|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Debug|x86.Build.0 = Debug|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Release|x64.ActiveCfg = Release|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Release|x64.Build.0 = Release|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A98F7FC-93C2-451F-8754-AB5E03982955}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
