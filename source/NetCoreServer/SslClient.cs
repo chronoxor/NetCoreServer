@@ -114,8 +114,6 @@ namespace NetCoreServer
 
         #region Connect/Disconnect client
 
-        private bool _connecting;
-        private bool _handshaking;
         private bool _disconnecting;
         private SocketAsyncEventArgs _connectEventArg;
         private SslStream _sslStream;
@@ -129,6 +127,14 @@ namespace NetCoreServer
         /// Is the client handshaked?
         /// </summary>
         public bool IsHandshaked { get; private set; }
+        /// <summary>
+        /// Is the client connecting?
+        /// </summary>
+        public bool IsConnecting { get; private set; }
+        /// <summary>
+        /// Is the client handshaking?
+        /// </summary>
+        public bool IsHandshaking { get; private set; }
 
         /// <summary>
         /// Connect the client (synchronous)
@@ -136,7 +142,7 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool Connect()
         {
-            if (IsConnected || IsHandshaked || _connecting || _handshaking)
+            if (IsConnected || IsHandshaked || IsConnecting || IsHandshaking)
                 return false;
 
             // Setup buffers
@@ -224,19 +230,19 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
         public virtual bool Disconnect()
         {
-            if (!IsConnected && !_connecting)
+            if (!IsConnected && !IsConnecting)
                 return false;
 
             // Cancel connecting operation
-            if (_connecting)
+            if (IsConnecting)
                 Socket.CancelConnectAsync(_connectEventArg);
 
             if (_disconnecting)
                 return false;
 
             // Reset connecting & handshaking flags
-            _connecting = false;
-            _handshaking = false;
+            IsConnecting = false;
+            IsHandshaking = false;
 
             // Update the disconnecting flag
             _disconnecting = true;
@@ -313,7 +319,7 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool ConnectAsync()
         {
-            if (IsConnected || IsHandshaked || _connecting || _handshaking)
+            if (IsConnected || IsHandshaked || IsConnecting || IsHandshaking)
                 return false;
 
             // Setup buffers
@@ -330,7 +336,7 @@ namespace NetCoreServer
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             // Async connect to the server
-            _connecting = true;
+            IsConnecting = true;
             if (!Socket.ConnectAsync(_connectEventArg))
                 ProcessConnect(_connectEventArg);
 
@@ -652,7 +658,7 @@ namespace NetCoreServer
         /// </summary>
         private void ProcessConnect(SocketAsyncEventArgs e)
         {
-            _connecting = false;
+            IsConnecting = false;
 
             if (e.SocketError == SocketError.Success)
             {
@@ -687,7 +693,7 @@ namespace NetCoreServer
                     _sslStream = (Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
 
                     // Begin the SSL handshake
-                    _handshaking = true;
+                    IsHandshaking = true;
                     _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, _sslStreamId);
                 }
                 catch (Exception)
@@ -711,7 +717,7 @@ namespace NetCoreServer
         {
             try
             {
-                _handshaking = false;
+                IsHandshaking = false;
 
                 if (IsHandshaked)
                     return;
