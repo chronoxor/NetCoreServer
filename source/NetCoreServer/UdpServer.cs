@@ -108,6 +108,28 @@ namespace NetCoreServer
             get => Socket.SendBufferSize;
             set => Socket.SendBufferSize = value;
         }
+        /// <summary>
+        /// Option: receive timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionReceiveTimeout
+        {
+            get => Socket.ReceiveTimeout;
+            set => Socket.ReceiveTimeout = value;
+        }
+        /// <summary>
+        /// Option: send timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionSendTimeout
+        {
+            get => Socket.SendTimeout;
+            set => Socket.SendTimeout = value;
+        }
 
         #region Connect/Disconnect client
 
