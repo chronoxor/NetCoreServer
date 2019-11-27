@@ -86,12 +86,12 @@ namespace NetCoreServer
         /// </remarks>
         public bool OptionReuseAddress { get; set; }
         /// <summary>
-        /// Option: reuse port
+        /// Option: enables a socket to be bound for exclusive access
         /// </summary>
         /// <remarks>
-        /// This option will enable/disable SO_REUSEPORT if the OS support this feature
+        /// This option will enable/disable SO_EXCLUSIVEADDRUSE if the OS support this feature
         /// </remarks>
-        public bool OptionReusePort { get; set; }
+        public bool OptionExclusiveAddressUse { get; set; }
         /// <summary>
         /// Option: receive buffer size
         /// </summary>
@@ -162,13 +162,9 @@ namespace NetCoreServer
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
             // Apply the option: reuse address
-            if (OptionReuseAddress)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            // Apply the option: reuse port
-            /*
-            if (OptionReusePort)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReusePort, true);
-            */
+            Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, OptionReuseAddress);
+            // Apply the option: exclusive address use
+            Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, OptionExclusiveAddressUse);
 
             // Bind the server socket to the IP endpoint
             Socket.Bind(Endpoint);
