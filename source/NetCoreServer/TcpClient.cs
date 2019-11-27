@@ -98,9 +98,12 @@ namespace NetCoreServer
 
         #region Connect/Disconnect client
 
-        private bool _connecting;
         private SocketAsyncEventArgs _connectEventArg;
 
+        /// <summary>
+        /// Is the client connecting?
+        /// </summary>
+        public bool IsConnecting { get; private set; }
         /// <summary>
         /// Is the client connected?
         /// </summary>
@@ -112,7 +115,7 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool Connect()
         {
-            if (IsConnected || _connecting)
+            if (IsConnected || IsConnecting)
                 return false;
 
             // Setup buffers
@@ -182,11 +185,11 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
         public virtual bool Disconnect()
         {
-            if (!IsConnected && !_connecting)
+            if (!IsConnected && !IsConnecting)
                 return false;
 
             // Cancel connecting operation
-            if (_connecting)
+            if (IsConnecting)
                 Socket.CancelConnectAsync(_connectEventArg);
 
             // Reset event args
@@ -245,7 +248,7 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool ConnectAsync()
         {
-            if (IsConnected || _connecting)
+            if (IsConnected || IsConnecting)
                 return false;
 
             // Setup buffers
@@ -266,7 +269,7 @@ namespace NetCoreServer
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             // Async connect to the server
-            _connecting = true;
+            IsConnecting = true;
             if (!Socket.ConnectAsync(_connectEventArg))
                 ProcessConnect(_connectEventArg);
 
@@ -590,7 +593,7 @@ namespace NetCoreServer
         /// </summary>
         private void ProcessConnect(SocketAsyncEventArgs e)
         {
-            _connecting = false;
+            IsConnecting = false;
 
             if (e.SocketError == SocketError.Success)
             {
