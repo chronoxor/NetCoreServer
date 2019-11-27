@@ -130,6 +130,14 @@ namespace NetCoreServer
             get => Socket.SendTimeout;
             set => Socket.SendTimeout = value;
         }
+        /// <summary>
+        /// Option: linger state
+        /// </summary>
+        public LingerOption OptionLingerState
+        {
+            get => Socket.LingerState;
+            set => Socket.LingerState = value;
+        }
 
         #region Connect/Disconnect client
 
