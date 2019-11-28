@@ -111,7 +111,7 @@ namespace HttpsServer
 
         protected override void OnError(SocketError error)
         {
-            Console.WriteLine($"HTTPS session caught an error: {error.ToString()}");
+            Console.WriteLine($"HTTPS session caught an error: {error}");
         }
     }
 
@@ -123,7 +123,7 @@ namespace HttpsServer
 
         protected override void OnError(SocketError error)
         {
-            Console.WriteLine($"HTTPS server caught an error: {error.ToString()}");
+            Console.WriteLine($"HTTPS server caught an error: {error}");
         }
     }
 

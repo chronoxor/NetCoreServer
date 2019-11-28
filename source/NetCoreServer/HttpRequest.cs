@@ -119,7 +119,6 @@ namespace NetCoreServer
             }
             sb.AppendLine($"Request body: {BodyLength}");
             sb.AppendLine(Body);
-
             return sb.ToString();
         }
 

@@ -15,9 +15,6 @@ namespace tests
 
         protected override void OnReceivedRequest(HttpRequest request)
         {
-            // Show HTTP request content
-            Console.WriteLine(request);
-
             // Process HTTP request methods
             if (request.Method == "HEAD")
                 SendResponseAsync(Response.MakeHeadResponse());
@@ -67,7 +64,7 @@ namespace tests
 
         protected override void OnError(SocketError error)
         {
-            Console.WriteLine($"HTTPS session caught an error: {error.ToString()}");
+            Console.WriteLine($"HTTPS session caught an error: {error}");
         }
     }
 
@@ -79,7 +76,7 @@ namespace tests
 
         protected override void OnError(SocketError error)
         {
-            Console.WriteLine($"HTTPS server caught an error: {error.ToString()}");
+            Console.WriteLine($"HTTPS server caught an error: {error}");
         }
     }
 
