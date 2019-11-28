@@ -13,10 +13,4 @@
     <ProjectReference Include="..\..\source\NetCoreServer\NetCoreServer.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\tools\certificates\server.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
