@@ -341,7 +341,7 @@ namespace NetCoreServer
         protected override void OnDisconnected()
         {
             // Cancel timeout check timer
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            _timer?.Change(Timeout.Infinite, Timeout.Infinite);
 
             base.OnDisconnected();
         }
@@ -349,7 +349,7 @@ namespace NetCoreServer
         protected override void OnReceivedResponse(HttpResponse response)
         {
             // Cancel timeout check timer
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            _timer?.Change(Timeout.Infinite, Timeout.Infinite);
 
             SetPromiseValue(response);
         }
@@ -357,7 +357,7 @@ namespace NetCoreServer
         protected override void OnReceivedResponseError(HttpResponse response, string error)
         {
             // Cancel timeout check timer
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            _timer?.Change(Timeout.Infinite, Timeout.Infinite);
 
             SetPromiseError(error);
         }
@@ -392,7 +392,7 @@ namespace NetCoreServer
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    _timer.Dispose();
+                    _timer?.Dispose();
                 }
 
                 // Dispose unmanaged resources here...
