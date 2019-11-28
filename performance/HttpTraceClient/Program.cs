@@ -1,9 +1,9 @@
-﻿using NDesk.Options;
-using NetCoreServer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
+using NetCoreServer;
+using NDesk.Options;
 
 namespace HttpTraceClient
 {

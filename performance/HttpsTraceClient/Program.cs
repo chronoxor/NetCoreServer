@@ -1,11 +1,11 @@
-﻿using NDesk.Options;
-using NetCoreServer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using NetCoreServer;
+using NDesk.Options;
 
 namespace HttpsTraceClient
 {

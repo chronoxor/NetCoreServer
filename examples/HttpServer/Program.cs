@@ -51,7 +51,7 @@ namespace HttpServer
         private static CommonCache _instance;
     }
 
-    class HttpCacheSession : NetCoreServer.HttpSession
+    class HttpCacheSession : HttpSession
     {
         public HttpCacheSession(NetCoreServer.HttpServer server) : base(server) {}
 

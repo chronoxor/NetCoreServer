@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using NetCoreServer;
 
 namespace HttpClient
 {
@@ -23,7 +23,7 @@ namespace HttpClient
             Console.WriteLine();
 
             // Create a new HTTP client
-            var client = new NetCoreServer.HttpClientEx(address, port);
+            var client = new HttpClientEx(address, port);
 
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
 

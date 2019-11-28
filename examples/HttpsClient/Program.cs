@@ -1,8 +1,7 @@
-﻿using NetCoreServer;
-using System;
+﻿using System;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
+using NetCoreServer;
 
 namespace HttpsClient
 {
