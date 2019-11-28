@@ -66,7 +66,6 @@ namespace UdpMulticastServer
             // Create a new echo server
             var server = new MulticastServer(IPAddress.Any, 0);
             server.OptionReuseAddress = true;
-            server.OptionReusePort = true;
 
             // Start the server
             Console.Write("Server starting...");

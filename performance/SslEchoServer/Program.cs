@@ -79,7 +79,6 @@ namespace SslEchoServer
             var server = new EchoServer(context, IPAddress.Any, port);
             // server.OptionNoDelay = true;
             server.OptionReuseAddress = true;
-            server.OptionReusePort = true;
 
             // Start the server
             Console.Write("Server starting...");
