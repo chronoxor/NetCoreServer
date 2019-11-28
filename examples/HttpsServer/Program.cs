@@ -142,6 +142,7 @@ namespace HttpsServer
 
             Console.WriteLine($"HTTPS server port: {port}");
             Console.WriteLine($"HTTPS server static content path: {www}");
+            Console.WriteLine($"HTTPS server website: https://localhost:{port}/api/index.html");
 
             Console.WriteLine();
 
@@ -182,4 +183,3 @@ namespace HttpsServer
         }
     }
 }
-

@@ -51,7 +51,7 @@ namespace NetCoreServer
                 HttpResponse header = new HttpResponse();
                 header.SetBegin(200);
                 header.SetContentType(Path.GetExtension(key));
-                header.SetHeader("cache-control", $"max-age={timespan.Seconds}");
+                header.SetHeader("Cache-Control", $"max-age={timespan.Seconds}");
                 header.SetBody(value);
                 return cache.Add(key, header.Cache, timespan);
             };

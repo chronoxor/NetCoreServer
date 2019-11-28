@@ -140,6 +140,7 @@ namespace HttpServer
 
             Console.WriteLine($"HTTP server port: {port}");
             Console.WriteLine($"HTTP server static content path: {www}");
+            Console.WriteLine($"HTTP server website: http://localhost:{port}/api/index.html");
 
             Console.WriteLine();
 
