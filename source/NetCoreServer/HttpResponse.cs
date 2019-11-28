@@ -82,7 +82,7 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP response cache content
         /// </summary>
-        public byte[] Cache { get { return _cache.Data; } }
+        public Buffer Cache { get { return _cache; } }
 
         /// <summary>
         /// Get string from the current HTTP response
@@ -468,6 +468,28 @@ namespace NetCoreServer
         /// <summary>
         /// Set the HTTP response body
         /// </summary>
+        /// <param name="body">Body string content (default is "")</param>
+        public HttpResponse SetBody(string body = "")
+        {
+            // Append content length header
+            SetHeader("Content-Length", body.Length.ToString());
+
+            _cache.Append("\r\n");
+
+            int index = (int)_cache.Size;
+
+            // Append the HTTP response body
+            _cache.Append(body);
+            _bodyIndex = index;
+            _bodySize = body.Length;
+            _bodyLength = body.Length;
+            _bodyLengthProvided = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP response body
+        /// </summary>
         /// <param name="body">Body binary content</param>
         public HttpResponse SetBody(byte[] body)
         {
@@ -490,21 +512,21 @@ namespace NetCoreServer
         /// <summary>
         /// Set the HTTP response body
         /// </summary>
-        /// <param name="body">Body content (default is "")</param>
-        public HttpResponse SetBody(string body = "")
+        /// <param name="body">Body buffer content</param>
+        public HttpResponse SetBody(Buffer body)
         {
             // Append content length header
-            SetHeader("Content-Length", body.Length.ToString());
+            SetHeader("Content-Length", body.Size.ToString());
 
             _cache.Append("\r\n");
 
             int index = (int)_cache.Size;
 
             // Append the HTTP response body
-            _cache.Append(body);
+            _cache.Append(body.Data, body.Offset, body.Size);
             _bodyIndex = index;
-            _bodySize = body.Length;
-            _bodyLength = body.Length;
+            _bodySize = (int)body.Size;
+            _bodyLength = (int)body.Size;
             _bodyLengthProvided = true;
             return this;
         }
@@ -572,8 +594,34 @@ namespace NetCoreServer
         /// <summary>
         /// Make GET response
         /// </summary>
-        /// <param name="body">Body content (default is "")</param>
+        /// <param name="body">Body string content (default is "")</param>
         public HttpResponse MakeGetResponse(string body = "")
+        {
+            Clear();
+            SetBegin(200);
+            SetHeader("Content-Type", "text/html; charset=UTF-8");
+            SetBody(body);
+            return this;
+        }
+
+        /// <summary>
+        /// Make GET response
+        /// </summary>
+        /// <param name="body">Body binary content</param>
+        public HttpResponse MakeGetResponse(byte[] body)
+        {
+            Clear();
+            SetBegin(200);
+            SetHeader("Content-Type", "text/html; charset=UTF-8");
+            SetBody(body);
+            return this;
+        }
+
+        /// <summary>
+        /// Make GET response
+        /// </summary>
+        /// <param name="body">Body buffer content</param>
+        public HttpResponse MakeGetResponse(Buffer body)
         {
             Clear();
             SetBegin(200);
@@ -598,8 +646,34 @@ namespace NetCoreServer
         /// <summary>
         /// Make TRACE response
         /// </summary>
-        /// <param name="request">Request content</param>
+        /// <param name="request">Request string content</param>
         public HttpResponse MakeTraceResponse(string request)
+        {
+            Clear();
+            SetBegin(200);
+            SetHeader("Content-Type", "message/http");
+            SetBody(request);
+            return this;
+        }
+
+        /// <summary>
+        /// Make TRACE response
+        /// </summary>
+        /// <param name="request">Request binary content</param>
+        public HttpResponse MakeTraceResponse(byte[] request)
+        {
+            Clear();
+            SetBegin(200);
+            SetHeader("Content-Type", "message/http");
+            SetBody(request);
+            return this;
+        }
+
+        /// <summary>
+        /// Make TRACE response
+        /// </summary>
+        /// <param name="request">Request buffer content</param>
+        public HttpResponse MakeTraceResponse(Buffer request)
         {
             Clear();
             SetBegin(200);

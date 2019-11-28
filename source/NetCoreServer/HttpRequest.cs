@@ -100,7 +100,7 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request cache content
         /// </summary>
-        public string Cache { get { return _cache.ToString(); } }
+        public Buffer Cache { get { return _cache; } }
 
         /// <summary>
         /// Get string from the current HTTP request
@@ -283,7 +283,7 @@ namespace NetCoreServer
         /// <summary>
         /// Set the HTTP request body
         /// </summary>
-        /// <param name="body">Body content (default is "")</param>
+        /// <param name="body">Body string content (default is "")</param>
         public HttpRequest SetBody(string body = "")
         {
             // Append content length header
@@ -298,6 +298,50 @@ namespace NetCoreServer
             _bodyIndex = index;
             _bodySize = body.Length;
             _bodyLength = body.Length;
+            _bodyLengthProvided = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP request body
+        /// </summary>
+        /// <param name="body">Body binary content</param>
+        public HttpRequest SetBody(byte[] body)
+        {
+            // Append content length header
+            SetHeader("Content-Length", body.Length.ToString());
+
+            _cache.Append("\r\n");
+
+            int index = (int)_cache.Size;
+
+            // Append the HTTP request body
+            _cache.Append(body);
+            _bodyIndex = index;
+            _bodySize = body.Length;
+            _bodyLength = body.Length;
+            _bodyLengthProvided = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP request body
+        /// </summary>
+        /// <param name="body">Body buffer content</param>
+        public HttpRequest SetBody(Buffer body)
+        {
+            // Append content length header
+            SetHeader("Content-Length", body.Size.ToString());
+
+            _cache.Append("\r\n");
+
+            int index = (int)_cache.Size;
+
+            // Append the HTTP request body
+            _cache.Append(body.Data, body.Offset, body.Size);
+            _bodyIndex = index;
+            _bodySize = (int)body.Size;
+            _bodyLength = (int)body.Size;
             _bodyLengthProvided = true;
             return this;
         }
@@ -351,8 +395,34 @@ namespace NetCoreServer
         /// Make POST request
         /// </summary>
         /// <param name="url">URL to request</param>
-        /// <param name="content">Content</param>
+        /// <param name="content">String content</param>
         public HttpRequest MakePostRequest(string url, string content)
+        {
+            Clear();
+            SetBegin("POST", url);
+            SetBody(content);
+            return this;
+        }
+
+        /// <summary>
+        /// Make POST request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Binary content</param>
+        public HttpRequest MakePostRequest(string url, byte[] content)
+        {
+            Clear();
+            SetBegin("POST", url);
+            SetBody(content);
+            return this;
+        }
+
+        /// <summary>
+        /// Make POST request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Buffer content</param>
+        public HttpRequest MakePostRequest(string url, Buffer content)
         {
             Clear();
             SetBegin("POST", url);
@@ -364,8 +434,34 @@ namespace NetCoreServer
         /// Make PUT request
         /// </summary>
         /// <param name="url">URL to request</param>
-        /// <param name="content">Content</param>
+        /// <param name="content">String content</param>
         public HttpRequest MakePutRequest(string url, string content)
+        {
+            Clear();
+            SetBegin("PUT", url);
+            SetBody(content);
+            return this;
+        }
+
+        /// <summary>
+        /// Make PUT request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Binary content</param>
+        public HttpRequest MakePutRequest(string url, byte[] content)
+        {
+            Clear();
+            SetBegin("PUT", url);
+            SetBody(content);
+            return this;
+        }
+
+        /// <summary>
+        /// Make PUT request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Buffer content</param>
+        public HttpRequest MakePutRequest(string url, Buffer content)
         {
             Clear();
             SetBegin("PUT", url);

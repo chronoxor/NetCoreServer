@@ -54,7 +54,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="request">HTTP request</param>
         /// <returns>Size of sent data</returns>
-        public long SendRequest(HttpRequest request) { return Send(request.Cache); }
+        public long SendRequest(HttpRequest request) { return Send(request.Cache.Data, request.Cache.Offset, request.Cache.Size); }
 
         /// <summary>
         /// Send the HTTP request body (synchronous)
@@ -87,7 +87,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="request">HTTP request</param>
         /// <returns>'true' if the current HTTP request was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendRequestAsync(HttpRequest request) { return SendAsync(request.Cache); }
+        public bool SendRequestAsync(HttpRequest request) { return SendAsync(request.Cache.Data, request.Cache.Offset, request.Cache.Size); }
 
         /// <summary>
         /// Send the HTTP request body (asynchronous)
@@ -264,7 +264,7 @@ namespace NetCoreServer
 
             void TimeoutHandler(object canceled)
             {
-                if ((bool)canceled) 
+                if ((bool)canceled)
                     return;
 
                 // Disconnect on timeout

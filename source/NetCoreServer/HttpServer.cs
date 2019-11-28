@@ -50,7 +50,7 @@ namespace NetCoreServer
                 header.SetContentType(Path.GetExtension(key));
                 header.SetHeader("Cache-Control", $"max-age={timespan.Seconds}");
                 header.SetBody(value);
-                return cache.Add(key, header.Cache, timespan);
+                return cache.Add(key, header.Cache.Data, timespan);
             }
 
             Cache.InsertPath(path, prefix, timeout.Value, Handler);

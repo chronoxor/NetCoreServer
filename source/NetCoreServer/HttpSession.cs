@@ -40,7 +40,7 @@
         /// </summary>
         /// <param name="response">HTTP response</param>
         /// <returns>Size of sent data</returns>
-        public long SendResponse(HttpResponse response) { return Send(response.Cache); }
+        public long SendResponse(HttpResponse response) { return Send(response.Cache.Data, response.Cache.Offset, response.Cache.Size); }
 
         /// <summary>
         /// Send the HTTP response body (synchronous)
@@ -73,7 +73,7 @@
         /// </summary>
         /// <param name="response">HTTP response</param>
         /// <returns>'true' if the current HTTP response was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendResponseAsync(HttpResponse response) { return SendAsync(response.Cache); }
+        public bool SendResponseAsync(HttpResponse response) { return SendAsync(response.Cache.Data, response.Cache.Offset, response.Cache.Size); }
 
         /// <summary>
         /// Send the HTTP response body (asynchronous)
@@ -100,7 +100,7 @@
 
         #region Session handlers
 
-        protected override void OnReceived(byte[] buffer, long offset, long size) 
+        protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             // Receive HTTP request header
             if (Request.IsPendingHeader())
