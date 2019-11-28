@@ -60,7 +60,7 @@ namespace HttpsServer
         protected override void OnReceivedRequest(HttpRequest request)
         {
             // Show HTTP request content
-            Console.WriteLine(request.GetString());
+            Console.WriteLine(request);
 
             // Process HTTP request methods
             if (request.Method == "HEAD")
@@ -82,7 +82,7 @@ namespace HttpsServer
                 // Set the cache value
                 CommonCache.GetInstance().SetCache(request.Url, request.Body);
                 // Response with the cache value
-                SendResponseAsync(Response.MakeOKResponse());
+                SendResponseAsync(Response.MakeOkResponse());
             }
             else if (request.Method == "DELETE")
             {
@@ -161,10 +161,10 @@ namespace HttpsServer
             Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
 
             // Perform text input
-            for (; ; )
+            for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server

@@ -15,23 +15,23 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public HttpServer(IPAddress address, int port) : base(address, port) {}
+        public HttpServer(IPAddress address, int port) : base(address, port) { Cache = new FileCache(); }
         /// <summary>
         /// Initialize HTTP server with a given IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public HttpServer(string address, int port) : base(address, port) {}
+        public HttpServer(string address, int port) : base(address, port) { Cache = new FileCache(); }
         /// <summary>
         /// Initialize HTTP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public HttpServer(IPEndPoint endpoint) : base(endpoint) {}
+        public HttpServer(IPEndPoint endpoint) : base(endpoint) { Cache = new FileCache(); }
 
         /// <summary>
         /// Get the static content cache
         /// </summary>
-        public FileCache Cache { get { return cache; } }
+        public FileCache Cache { get; }
 
         /// <summary>
         /// Add static content cache
@@ -43,7 +43,7 @@ namespace NetCoreServer
         {
             timeout ??= TimeSpan.FromHours(1);
 
-            NetCoreServer.FileCache.InsertHandler handler = delegate (FileCache cache, string key, string value, TimeSpan timespan)
+            bool Handler(FileCache cache, string key, byte[] value, TimeSpan timespan)
             {
                 HttpResponse header = new HttpResponse();
                 header.SetBegin(200);
@@ -51,29 +51,25 @@ namespace NetCoreServer
                 header.SetHeader("Cache-Control", $"max-age={timespan.Seconds}");
                 header.SetBody(value);
                 return cache.Add(key, header.Cache, timespan);
-            };
+            }
 
-            Cache.InsertPath(path, prefix, timeout.Value, handler);
+            Cache.InsertPath(path, prefix, timeout.Value, Handler);
         }
         /// <summary>
         /// Remove static content cache
         /// </summary>
         /// <param name="path">Static content path</param>
-        public void RemoveStaticContent(string path) { cache.RemovePath(path); }
+        public void RemoveStaticContent(string path) { Cache.RemovePath(path); }
         /// <summary>
         /// Clear static content cache
         /// </summary>
-        public void ClearStaticContent() { cache.Clear(); }
+        public void ClearStaticContent() { Cache.Clear(); }
 
         /// <summary>
         /// Watchdog the static content cache
         /// </summary>
-        public void Watchdog(DateTime? utc = null) { utc ??= DateTime.UtcNow; cache.Watchdog(utc.Value); }
+        public void Watchdog(DateTime utc) { Cache.Watchdog(utc); }
 
         protected override TcpSession CreateSession() { return new HttpSession(this); }
-
-        // Static content cache
-        internal FileCache cache = new FileCache();
     }
-
 }

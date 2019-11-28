@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
 
 namespace NetCoreServer
@@ -17,7 +16,7 @@ namespace NetCoreServer
         /// </summary>
         public HttpResponse()
         {
-            _cache = new StringBuilder();
+            _cache = new Buffer();
             _headers = new List<Tuple<int, int, int, int>>();
             Clear();
         }
@@ -28,7 +27,7 @@ namespace NetCoreServer
         /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
         public HttpResponse(int status, string protocol = "HTTP/1.1")
         {
-            _cache = new StringBuilder();
+            _cache = new Buffer();
             _headers = new List<Tuple<int, int, int, int>>();
             SetBegin(status, protocol);
         }
@@ -36,7 +35,7 @@ namespace NetCoreServer
         /// <summary>
         /// Is the HTTP response empty?
         /// </summary>
-        public bool IsEmpty { get { return (_cache.Length > 0); } }
+        public bool IsEmpty { get { return (_cache.Size > 0); } }
         /// <summary>
         /// Is the HTTP response error flag set?
         /// </summary>
@@ -50,11 +49,11 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP response status phrase
         /// </summary>
-        public string StatusPhrase { get { return _cache.ToString(_statusPhraseIndex, _statusPhraseSize); } }
+        public string StatusPhrase { get { return _cache.ExtractString(_statusPhraseIndex, _statusPhraseSize); } }
         /// <summary>
         /// Get the HTTP response protocol version
         /// </summary>
-        public string Protocol { get { return _cache.ToString(_protocolIndex, _protocolSize); } }
+        public string Protocol { get { return _cache.ExtractString(_protocolIndex, _protocolSize); } }
         /// <summary>
         /// Get the HTTP response headers count
         /// </summary>
@@ -69,12 +68,12 @@ namespace NetCoreServer
                 return new Tuple<string, string>("", "");
 
             var item = _headers[i];
-            return new Tuple<string, string>(_cache.ToString(item.Item1, item.Item2), _cache.ToString(item.Item3, item.Item4));
+            return new Tuple<string, string>(_cache.ExtractString(item.Item1, item.Item2), _cache.ExtractString(item.Item3, item.Item4));
         }
         /// <summary>
         /// Get the HTTP response body
         /// </summary>
-        public string Body { get { return _cache.ToString(_bodyIndex, _bodySize); } }
+        public string Body { get { return _cache.ExtractString(_bodyIndex, _bodySize); } }
         /// <summary>
         /// Get the HTTP response body length
         /// </summary>
@@ -83,12 +82,12 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP response cache content
         /// </summary>
-        public string Cache { get { return _cache.ToString(); } }
+        public byte[] Cache { get { return _cache.Data; } }
 
         /// <summary>
         /// Get string from the current HTTP response
         /// </summary>
-        public string GetString()
+        public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Status: {Status}");
@@ -132,7 +131,6 @@ namespace NetCoreServer
         /// Set the HTTP response begin with a given status and protocol
         /// </summary>
         /// <param name="status">HTTP status</param>
-        /// <param name="statusPhrase"> HTTP status phrase</param>
         /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
         public HttpResponse SetBegin(int status, string protocol = "HTTP/1.1")
         {
@@ -225,7 +223,7 @@ namespace NetCoreServer
         /// <param name="status">HTTP status</param>
         /// <param name="statusPhrase"> HTTP status phrase</param>
         /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
-        public HttpResponse SetBegin(int status, string statusPhrase, string protocol = "HTTP/1.1")
+        public HttpResponse SetBegin(int status, string statusPhrase, string protocol)
         {
             // Clear the HTTP response cache
             Clear();
@@ -238,14 +236,14 @@ namespace NetCoreServer
             _protocolSize = protocol.Length;
 
             _cache.Append(" ");
-            index = _cache.Length;
+            index = (int)_cache.Size;
 
             // Append the HTTP response status
             _cache.Append(status.ToString());
             Status = status;
 
             _cache.Append(" ");
-            index = _cache.Length;
+            index = (int)_cache.Size;
 
             // Append the HTTP response status phrase
             _cache.Append(statusPhrase);
@@ -390,7 +388,7 @@ namespace NetCoreServer
         /// <param name="value">Header value</param>
         public HttpResponse SetHeader(string key, string value)
         {
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
 
             // Append the HTTP response header's key
             _cache.Append(key);
@@ -398,7 +396,7 @@ namespace NetCoreServer
             int keySize = key.Length;
 
             _cache.Append(": ");
-            index = _cache.Length;
+            index = (int)_cache.Size;
 
             // Append the HTTP response header's value
             _cache.Append(value);
@@ -424,7 +422,7 @@ namespace NetCoreServer
         /// <param name="httpOnly">Cookie HTTP-only flag (default is false)</param>
         public HttpResponse SetCookie(string name, string value, int maxAge = 86400, string path = "", string domain = "", bool secure = true, bool httpOnly = false)
         {
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
 
             // Append the HTTP response header's key
             _cache.Append("Set-Cookie");
@@ -432,7 +430,7 @@ namespace NetCoreServer
             int keySize = 10;
 
             _cache.Append(": ");
-            index = _cache.Length;
+            index = (int)_cache.Size;
 
             // Append the HTTP response header's value
             int valueIndex = index;
@@ -458,12 +456,34 @@ namespace NetCoreServer
             if (httpOnly)
                 _cache.Append("; HttpOnly");
 
-            int valueSize = _cache.Length - valueIndex;
+            int valueSize = (int)_cache.Size - valueIndex;
 
             _cache.Append("\r\n");
 
             // Add the header to the corresponding collection
             _headers.Add(new Tuple<int, int, int, int>(keyIndex, keySize, valueIndex, valueSize));
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP response body
+        /// </summary>
+        /// <param name="body">Body binary content</param>
+        public HttpResponse SetBody(byte[] body)
+        {
+            // Append content length header
+            SetHeader("Content-Length", body.Length.ToString());
+
+            _cache.Append("\r\n");
+
+            int index = (int)_cache.Size;
+
+            // Append the HTTP response body
+            _cache.Append(body);
+            _bodyIndex = index;
+            _bodySize = body.Length;
+            _bodyLength = body.Length;
+            _bodyLengthProvided = true;
             return this;
         }
 
@@ -478,7 +498,7 @@ namespace NetCoreServer
 
             _cache.Append("\r\n");
 
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
 
             // Append the HTTP response body
             _cache.Append(body);
@@ -500,7 +520,7 @@ namespace NetCoreServer
 
             _cache.Append("\r\n");
 
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
 
             // Clear the HTTP response body
             _bodyIndex = index;
@@ -513,8 +533,8 @@ namespace NetCoreServer
         /// <summary>
         /// Make OK response
         /// </summary>
-        /// <param name="status">OK status (default is 200 (OK))</param>        
-        public HttpResponse MakeOKResponse(int status = 200)
+        /// <param name="status">OK status (default is 200 (OK))</param>
+        public HttpResponse MakeOkResponse(int status = 200)
         {
             Clear();
             SetBegin(status);
@@ -526,7 +546,8 @@ namespace NetCoreServer
         /// <summary>
         /// Make ERROR response
         /// </summary>
-        /// <param name="status">OK status (default is 200 (OK))</param>        
+        /// <param name="error">Error content (default is "")</param>
+        /// <param name="status">OK status (default is 200 (OK))</param>
         public HttpResponse MakeErrorResponse(string error = "", int status = 500)
         {
             Clear();
@@ -538,7 +559,7 @@ namespace NetCoreServer
 
         /// <summary>
         /// Make HEAD response
-        /// </summary>      
+        /// </summary>
         public HttpResponse MakeHeadResponse()
         {
             Clear();
@@ -551,8 +572,8 @@ namespace NetCoreServer
         /// <summary>
         /// Make GET response
         /// </summary>
-        /// <param name="body">Body content (default is "")</param>        
-        public HttpResponse MakeGetResponse(string body)
+        /// <param name="body">Body content (default is "")</param>
+        public HttpResponse MakeGetResponse(string body = "")
         {
             Clear();
             SetBegin(200);
@@ -564,7 +585,7 @@ namespace NetCoreServer
         /// <summary>
         /// Make OPTIONS response
         /// </summary>
-        /// <param name="allow">Allow methods (default is "HEAD,GET,POST,PUT,DELETE,OPTIONS,TRACE")</param>              
+        /// <param name="allow">Allow methods (default is "HEAD,GET,POST,PUT,DELETE,OPTIONS,TRACE")</param>
         public HttpResponse MakeOptionsResponse(string allow = "HEAD,GET,POST,PUT,DELETE,OPTIONS,TRACE")
         {
             Clear();
@@ -577,7 +598,7 @@ namespace NetCoreServer
         /// <summary>
         /// Make TRACE response
         /// </summary>
-        /// <param name="request">Request content</param>              
+        /// <param name="request">Request content</param>
         public HttpResponse MakeTraceResponse(string request)
         {
             Clear();
@@ -585,34 +606,6 @@ namespace NetCoreServer
             SetHeader("Content-Type", "message/http");
             SetBody(request);
             return this;
-        }
-
-        /// <summary>
-        /// Swap two instances
-        /// </summary>
-        public void Swap(HttpResponse response)
-        {
-            (IsErrorSet, response.IsErrorSet) = (response.IsErrorSet, IsErrorSet);
-            (Status, response.Status) = (response.Status, Status);
-            (_statusPhraseIndex, response._statusPhraseIndex) = (response._statusPhraseIndex, _statusPhraseIndex);
-            (_statusPhraseSize, response._statusPhraseSize) = (response._statusPhraseSize, _statusPhraseSize);
-            (_protocolIndex, response._protocolIndex) = (response._protocolIndex, _protocolIndex);
-            (_protocolSize, response._protocolSize) = (response._protocolSize, _protocolSize);
-            (_headers, response._headers) = (response._headers, _headers);
-            (_bodyIndex, response._bodyIndex) = (response._bodyIndex, _bodyIndex);
-            (_bodySize, response._bodySize) = (response._bodySize, _bodySize);
-            (_bodyLength, response._bodyLength) = (response._bodyLength, _bodyLength);
-            (_bodyLengthProvided, response._bodyLengthProvided) = (response._bodyLengthProvided, _bodyLengthProvided);
-            (_cache, response._cache) = (response._cache, _cache);
-            (_cacheSize, response._cacheSize) = (response._cacheSize, _cacheSize);
-        }
-
-        /// <summary>
-        /// Swap two instances
-        /// </summary>
-        public void Swap(HttpResponse response1, HttpResponse response2)
-        {
-            response1.Swap(response2);
         }
 
         // HTTP response status phrase
@@ -630,7 +623,7 @@ namespace NetCoreServer
         private bool _bodyLengthProvided;
 
         // HTTP response cache
-        private StringBuilder _cache;
+        private Buffer _cache;
         private int _cacheSize;
 
         // Is pending parts of HTTP response
@@ -650,10 +643,10 @@ namespace NetCoreServer
             _cache.Append(Encoding.UTF8.GetString(buffer, offset, size));
 
             // Try to seek for HTTP header separator
-            for (int i = _cacheSize; i < _cache.Length; ++i)
+            for (int i = _cacheSize; i < (int)_cache.Size; ++i)
             {
                 // Check for the request cache out of bounds
-                if ((i + 3) >= _cache.Length)
+                if ((i + 3) >= (int)_cache.Size)
                     break;
 
                 // Check for the header separator
@@ -671,11 +664,11 @@ namespace NetCoreServer
                     {
                         ++_protocolSize;
                         ++index;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
                     }
                     ++index;
-                    if ((index >= _cache.Length))
+                    if ((index >= (int)_cache.Size))
                         return false;
 
                     // Parse status code
@@ -687,7 +680,7 @@ namespace NetCoreServer
                             return false;
                         ++statusSize;
                         ++index;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
                     }
                     Status = 0;
@@ -697,7 +690,7 @@ namespace NetCoreServer
                         Status += _cache[j] - '0';
                     }
                     ++index;
-                    if (index >= _cache.Length)
+                    if (index >= (int)_cache.Size)
                         return false;
 
                     // Parse status phrase
@@ -707,18 +700,18 @@ namespace NetCoreServer
                     {
                         ++_statusPhraseSize;
                         ++index;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
                     }
                     ++index;
-                    if ((index >= _cache.Length) || (_cache[index] != '\n'))
+                    if ((index >= (int)_cache.Size) || (_cache[index] != '\n'))
                         return false;
                     ++index;
-                    if (index >= _cache.Length)
+                    if (index >= (int)_cache.Size)
                         return false;
 
                     // Parse headers
-                    while ((index < _cache.Length) && (index < i))
+                    while ((index < (int)_cache.Size) && (index < i))
                     {
                         // Parse header name
                         int headerNameIndex = index;
@@ -729,22 +722,22 @@ namespace NetCoreServer
                             ++index;
                             if (index >= i)
                                 break;
-                            if (index >= _cache.Length)
+                            if (index >= (int)_cache.Size)
                                 return false;
                         }
                         ++index;
                         if (index >= i)
                             break;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
 
                         // Skip all prefix space characters
-                        while (char.IsWhiteSpace(_cache[index]))
+                        while (char.IsWhiteSpace((char)_cache[index]))
                         {
                             ++index;
                             if (index >= i)
                                 break;
-                            if (index >= _cache.Length)
+                            if (index >= (int)_cache.Size)
                                 return false;
                         }
 
@@ -757,14 +750,14 @@ namespace NetCoreServer
                             ++index;
                             if (index >= i)
                                 break;
-                            if (index >= _cache.Length)
+                            if (index >= (int)_cache.Size)
                                 return false;
                         }
                         ++index;
-                        if ((index >= _cache.Length) || (_cache[index] != '\n'))
+                        if ((index >= (int)_cache.Size) || (_cache[index] != '\n'))
                             return false;
                         ++index;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
 
                         // Validate header name and value
@@ -775,7 +768,7 @@ namespace NetCoreServer
                         _headers.Add(new Tuple<int, int, int, int>(headerNameIndex, headerNameSize, headerValueIndex, headerValueSize));
 
                         // Try to find the body content length
-                        if (_cache.ToString(headerNameIndex, headerNameSize) == "Content-Length")
+                        if (_cache.ExtractString(headerNameIndex, headerNameSize) == "Content-Length")
                         {
                             _bodyLength = 0;
                             for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)
@@ -794,17 +787,17 @@ namespace NetCoreServer
 
                     // Update the body index and size
                     _bodyIndex = i + 4;
-                    _bodySize = _cache.Length - i - 4;
+                    _bodySize = (int)_cache.Size - i - 4;
 
                     // Update the parsed cache size
-                    _cacheSize = _cache.Length;
+                    _cacheSize = (int)_cache.Size;
 
                     return true;
                 }
             }
 
             // Update the parsed cache size
-            _cacheSize = (_cache.Length >= 3) ? (_cache.Length - 3) : 0;
+            _cacheSize = ((int)_cache.Size >= 3) ? ((int)_cache.Size - 3) : 0;
 
             return false;
         }
@@ -815,7 +808,7 @@ namespace NetCoreServer
             _cache.Append(Encoding.UTF8.GetString(buffer, offset, size));
 
             // Update the parsed cache size
-            _cacheSize = _cache.Length;
+            _cacheSize = (int)_cache.Size;
 
             // Update body size
             _bodySize += size;

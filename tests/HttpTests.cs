@@ -60,7 +60,7 @@ namespace tests
         protected override void OnReceivedRequest(HttpRequest request)
         {
             // Show HTTP request content
-            Console.WriteLine(request.GetString());
+            Console.WriteLine(request);
 
             // Process HTTP request methods
             if (request.Method == "HEAD")
@@ -82,7 +82,7 @@ namespace tests
                 // Set the cache value
                 CommonCache.GetInstance().SetCache(request.Url, request.Body);
                 // Response with the cache value
-                SendResponseAsync(Response.MakeOKResponse());
+                SendResponseAsync(Response.MakeOkResponse());
             }
             else if (request.Method == "DELETE")
             {

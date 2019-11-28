@@ -100,7 +100,7 @@ namespace UdpMulticastClient
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Disconnect the client

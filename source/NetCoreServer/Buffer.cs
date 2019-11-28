@@ -35,6 +35,11 @@ namespace NetCoreServer
         public long Offset => _offset;
 
         /// <summary>
+        /// Buffer indexer operator
+        /// </summary>
+        public byte this[int index] => _data[index];
+
+        /// <summary>
         /// Initialize a new expandable buffer with zero capacity
         /// </summary>
         public Buffer() { _data = new byte[0]; _size = 0; _offset = 0; }
@@ -42,6 +47,10 @@ namespace NetCoreServer
         /// Initialize a new expandable buffer with the given capacity
         /// </summary>
         public Buffer(long capacity) { _data = new byte[capacity]; _size = 0; _offset = 0; }
+        /// <summary>
+        /// Initialize a new expandable buffer with the given data
+        /// </summary>
+        public Buffer(byte[] data) { _data = data; _size = data.Length; _offset = 0; }
 
         #region Memory buffer methods
 
@@ -50,6 +59,18 @@ namespace NetCoreServer
         {
             _size = 0;
             _offset = 0;
+        }
+
+        /// <summary>
+        /// Extract the string from buffer of the given offset and size
+        /// </summary>
+        public string ExtractString(long offset, long size)
+        {
+            Debug.Assert(((offset + size) <= Size), "Invalid offset & size!");
+            if ((offset + size) > Size)
+                throw new ArgumentException("Invalid offset & size!", nameof(offset));
+
+            return Encoding.UTF8.GetString(_data, (int)offset, (int)size);
         }
 
         /// <summary>

@@ -8,18 +8,25 @@
     {
         public HttpSession(HttpServer server) : base(server)
         {
-            cache = server.cache;
+            Cache = server.Cache;
+            Request = new HttpRequest();
+            Response = new HttpResponse();
         }
 
         /// <summary>
         /// Get the static content cache
         /// </summary>
-        public FileCache Cache { get { return cache; } }
+        public FileCache Cache { get; }
+
+        /// <summary>
+        /// Get the HTTP request
+        /// </summary>
+        protected HttpRequest Request { get; }
 
         /// <summary>
         /// Get the HTTP response
         /// </summary>
-        public HttpResponse Response { get { return _response; } }
+        public HttpResponse Response { get; }
 
         #region Send response / Send response body
 
@@ -27,7 +34,7 @@
         /// Send the current HTTP response (synchronous)
         /// </summary>
         /// <returns>Size of sent data</returns>
-        public long SendResponse() { return SendResponse(_response); }
+        public long SendResponse() { return SendResponse(Response); }
         /// <summary>
         /// Send the HTTP response (synchronous)
         /// </summary>
@@ -59,9 +66,8 @@
         /// <summary>
         /// Send the current HTTP response (asynchronous)
         /// </summary>
-        /// <param name="response">HTTP response</param>
         /// <returns>'true' if the current HTTP response was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendResponseAsync() { return SendResponseAsync(_response); }
+        public bool SendResponseAsync() { return SendResponseAsync(Response); }
         /// <summary>
         /// Send the HTTP response (asynchronous)
         /// </summary>
@@ -97,36 +103,36 @@
         protected override void OnReceived(byte[] buffer, long offset, long size) 
         {
             // Receive HTTP request header
-            if (_request.IsPendingHeader())
+            if (Request.IsPendingHeader())
             {
-                if (_request.ReceiveHeader(buffer, (int)offset, (int)size))
-                    OnReceivedRequestHeader(_request);
+                if (Request.ReceiveHeader(buffer, (int)offset, (int)size))
+                    OnReceivedRequestHeader(Request);
 
                 size = 0;
             }
 
             // Check for HTTP request error
-            if (_request.IsErrorSet)
+            if (Request.IsErrorSet)
             {
-                OnReceivedRequestError(_request, "Invalid HTTP request!");
-                _request.Clear();
+                OnReceivedRequestError(Request, "Invalid HTTP request!");
+                Request.Clear();
                 Disconnect();
                 return;
             }
 
             // Receive HTTP request body
-            if (_request.ReceiveBody(buffer, (int)offset, (int)size))
+            if (Request.ReceiveBody(buffer, (int)offset, (int)size))
             {
-                OnReceivedRequestInternal(_request);
-                _request.Clear();
+                OnReceivedRequestInternal(Request);
+                Request.Clear();
                 return;
             }
 
             // Check for HTTP request error
-            if (_request.IsErrorSet)
+            if (Request.IsErrorSet)
             {
-                OnReceivedRequestError(_request, "Invalid HTTP request!");
-                _request.Clear();
+                OnReceivedRequestError(Request, "Invalid HTTP request!");
+                Request.Clear();
                 Disconnect();
                 return;
             }
@@ -135,10 +141,10 @@
         protected override void OnDisconnected()
         {
             // Receive HTTP request body
-            if (_request.IsPendingBody())
+            if (Request.IsPendingBody())
             {
-                OnReceivedRequestInternal(_request);
-                _request.Clear();
+                OnReceivedRequestInternal(Request);
+                Request.Clear();
                 return;
             }
         }
@@ -166,18 +172,6 @@
         protected virtual void OnReceivedRequestError(HttpRequest request, string error) {}
 
         #endregion
-
-        /// <summary>
-        /// HTTP request
-        /// </summary>
-        protected HttpRequest _request = new HttpRequest();
-        /// <summary>
-        /// HTTP request
-        /// </summary>
-        protected HttpResponse _response = new HttpResponse();
-
-        // Static content cache
-        internal FileCache cache = new FileCache();
 
         private void OnReceivedRequestInternal(HttpRequest request)
         {

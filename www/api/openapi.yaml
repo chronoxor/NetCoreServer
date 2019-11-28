@@ -16,7 +16,7 @@ servers:
 tags:
 - name: Cache
   description: Cache methods
-  
+
 paths:
   /cache:
     get:
@@ -34,7 +34,7 @@ paths:
         500:
           description: Internal server error
           content: {}
-    put:
+    post:
       tags:
       - Cache
       summary: Create the cache value
@@ -53,7 +53,7 @@ paths:
         500:
           description: Internal server error
           content: {}
-    post:
+    put:
       tags:
       - Cache
       summary: Modify the cache value

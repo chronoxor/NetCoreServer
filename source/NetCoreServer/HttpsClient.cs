@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,25 +17,30 @@ namespace NetCoreServer
         /// <param name="context">SSL context</param>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public HttpsClient(SslContext context, IPAddress address, int port) : base(context, address, port) { }
+        public HttpsClient(SslContext context, IPAddress address, int port) : base(context, address, port) { Request = new HttpRequest(); Response = new HttpResponse(); }
         /// <summary>
         /// Initialize HTTPS client with a given IP address and port number
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public HttpsClient(SslContext context, string address, int port) : base(context, address, port) { }
+        public HttpsClient(SslContext context, string address, int port) : base(context, address, port) { Request = new HttpRequest(); Response = new HttpResponse(); }
         /// <summary>
         /// Initialize HTTPS client with a given IP endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">IP endpoint</param>
-        public HttpsClient(SslContext context, IPEndPoint endpoint) : base(context, endpoint) { }
+        public HttpsClient(SslContext context, IPEndPoint endpoint) : base(context, endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
 
         /// <summary>
         /// Get the HTTP request
         /// </summary>
-        public HttpRequest Request { get { return _request; } }
+        public HttpRequest Request { get; protected set; }
+
+        /// <summary>
+        /// Get the HTTP response
+        /// </summary>
+        protected HttpResponse Response { get; set; }
 
         #region Send request / Send request body
 
@@ -45,7 +48,7 @@ namespace NetCoreServer
         /// Send the current HTTP request (synchronous)
         /// </summary>
         /// <returns>Size of sent data</returns>
-        public long SendRequest() { return SendRequest(_request); }
+        public long SendRequest() { return SendRequest(Request); }
         /// <summary>
         /// Send the HTTP request (synchronous)
         /// </summary>
@@ -77,9 +80,8 @@ namespace NetCoreServer
         /// <summary>
         /// Send the current HTTP request (asynchronous)
         /// </summary>
-        /// <param name="request">HTTP request</param>
         /// <returns>'true' if the current HTTP request was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendRequestAsync() { return SendRequestAsync(_request); }
+        public bool SendRequestAsync() { return SendRequestAsync(Request); }
         /// <summary>
         /// Send the HTTP request (asynchronous)
         /// </summary>
@@ -115,36 +117,36 @@ namespace NetCoreServer
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             // Receive HTTP response header
-            if (_response.IsPendingHeader())
+            if (Response.IsPendingHeader())
             {
-                if (_response.ReceiveHeader(buffer, (int)offset, (int)size))
-                    OnReceivedResponseHeader(_response);
+                if (Response.ReceiveHeader(buffer, (int)offset, (int)size))
+                    OnReceivedResponseHeader(Response);
 
                 size = 0;
             }
 
             // Check for HTTP response error
-            if (_response.IsErrorSet)
+            if (Response.IsErrorSet)
             {
-                OnReceivedResponseError(_response, "Invalid HTTP response!");
-                _response.Clear();
+                OnReceivedResponseError(Response, "Invalid HTTP response!");
+                Response.Clear();
                 Disconnect();
                 return;
             }
 
             // Receive HTTP response body
-            if (_response.ReceiveBody(buffer, (int)offset, (int)size))
+            if (Response.ReceiveBody(buffer, (int)offset, (int)size))
             {
-                OnReceivedResponse(_response);
-                _response.Clear();
+                OnReceivedResponse(Response);
+                Response.Clear();
                 return;
             }
 
             // Check for HTTP response error
-            if (_response.IsErrorSet)
+            if (Response.IsErrorSet)
             {
-                OnReceivedResponseError(_response, "Invalid HTTP response!");
-                _response.Clear();
+                OnReceivedResponseError(Response, "Invalid HTTP response!");
+                Response.Clear();
                 Disconnect();
                 return;
             }
@@ -153,10 +155,10 @@ namespace NetCoreServer
         protected override void OnDisconnected()
         {
             // Receive HTTP response body
-            if (_response.IsPendingBody())
+            if (Response.IsPendingBody())
             {
-                OnReceivedResponse(_response);
-                _response.Clear();
+                OnReceivedResponse(Response);
+                Response.Clear();
                 return;
             }
         }
@@ -165,34 +167,25 @@ namespace NetCoreServer
         /// Handle HTTP response header received notification
         /// </summary>
         /// <remarks>Notification is called when HTTP response header was received from the server.</remarks>
-        /// <param name="request">HTTP request</param>
+        /// <param name="response">HTTP request</param>
         protected virtual void OnReceivedResponseHeader(HttpResponse response) { }
 
         /// <summary>
         /// Handle HTTP response received notification
         /// </summary>
         /// <remarks>Notification is called when HTTP response was received from the server.</remarks>
-        /// <param name="request">HTTP response</param>
+        /// <param name="response">HTTP response</param>
         protected virtual void OnReceivedResponse(HttpResponse response) { }
 
         /// <summary>
         /// Handle HTTP response error notification
         /// </summary>
         /// <remarks>Notification is called when HTTP response error was received from the server.</remarks>
-        /// <param name="request">HTTP response</param>
+        /// <param name="response">HTTP response</param>
         /// <param name="error">HTTP response error</param>
         protected virtual void OnReceivedResponseError(HttpResponse response, string error) { }
 
         #endregion
-
-        /// <summary>
-        /// HTTP request
-        /// </summary>
-        protected HttpRequest _request = new HttpRequest();
-        /// <summary>
-        /// HTTP response
-        /// </summary>
-        protected HttpResponse _response = new HttpResponse();
     }
 
     /// <summary>
@@ -229,7 +222,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendRequest(TimeSpan? timeout = null) { return SendRequest(_request, timeout); }
+        public Task<HttpResponse> SendRequest(TimeSpan? timeout = null) { return SendRequest(Request, timeout); }
         /// <summary>
         /// Send HTTP request
         /// </summary>
@@ -241,12 +234,12 @@ namespace NetCoreServer
             timeout ??= TimeSpan.FromMinutes(1);
 
             _tcs = new TaskCompletionSource<HttpResponse>();
-            _request = request;
+            Request = request;
 
             // Check if the HTTP request is valid
-            if (_request.IsEmpty || _request.IsErrorSet)
+            if (Request.IsEmpty || Request.IsErrorSet)
             {
-                SetTCSError("Invalid HTTP request!");
+                SetResultError("Invalid HTTP request!");
                 return _tcs.Task;
             }
 
@@ -255,7 +248,7 @@ namespace NetCoreServer
                 // Connect to the Web server
                 if (!ConnectAsync())
                 {
-                    SetTCSError("Connection failed!");
+                    SetResultError("Connection failed!");
                     return _tcs.Task;
                 }
             }
@@ -264,24 +257,24 @@ namespace NetCoreServer
                 // Send prepared HTTP request
                 if (!SendRequestAsync())
                 {
-                    SetTCSError("Failed to send HTTP request!");
+                    SetResultError("Failed to send HTTP request!");
                     return _tcs.Task;
                 }
             }
 
-            TimerCallback timeoutHandler = delegate (object canceled)
+            void TimeoutHandler(object canceled)
             {
-                if ((bool)canceled)
+                if ((bool)canceled) 
                     return;
 
                 // Disconnect on timeout
-                OnReceivedResponseError(_response, "Timeout!");
-                _response.Clear();
+                OnReceivedResponseError(Response, "Timeout!");
+                Response.Clear();
                 DisconnectAsync();
-            };
+            }
 
             if (_timer == null)
-                _timer = new Timer(timeoutHandler, false, (int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
+                _timer = new Timer(TimeoutHandler, false, (int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
             else
                 _timer.Change((int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
 
@@ -294,14 +287,14 @@ namespace NetCoreServer
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendHeadRequest(string url, TimeSpan? timeout = null) { return SendRequest(_request.MakeHeadRequest(url), timeout); }
+        public Task<HttpResponse> SendHeadRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeHeadRequest(url), timeout); }
         /// <summary>
         /// Send GET request
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendGetRequest(string url, TimeSpan? timeout = null) { return SendRequest(_request.MakeGetRequest(url), timeout); }
+        public Task<HttpResponse> SendGetRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeGetRequest(url), timeout); }
         /// <summary>
         /// Send POST request
         /// </summary>
@@ -309,7 +302,7 @@ namespace NetCoreServer
         /// <param name="content">Content</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendPostRequest(string url, string content, TimeSpan? timeout = null) { return SendRequest(_request.MakePostRequest(url, content), timeout); }
+        public Task<HttpResponse> SendPostRequest(string url, string content, TimeSpan? timeout = null) { return SendRequest(Request.MakePostRequest(url, content), timeout); }
         /// <summary>
         /// Send PUT request
         /// </summary>
@@ -317,28 +310,28 @@ namespace NetCoreServer
         /// <param name="content">Content</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendPutRequest(string url, string content, TimeSpan? timeout = null) { return SendRequest(_request.MakePutRequest(url, content), timeout); }
+        public Task<HttpResponse> SendPutRequest(string url, string content, TimeSpan? timeout = null) { return SendRequest(Request.MakePutRequest(url, content), timeout); }
         /// <summary>
         /// Send DELETE request
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendDeleteRequest(string url, TimeSpan? timeout = null) { return SendRequest(_request.MakeDeleteRequest(url), timeout); }
+        public Task<HttpResponse> SendDeleteRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeDeleteRequest(url), timeout); }
         /// <summary>
         /// Send OPTIONS request
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendOptionsRequest(string url, TimeSpan? timeout = null) { return SendRequest(_request.MakeOptionsRequest(url), timeout); }
+        public Task<HttpResponse> SendOptionsRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeOptionsRequest(url), timeout); }
         /// <summary>
         /// Send TRACE request
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendTraceRequest(string url, TimeSpan? timeout = null) { return SendRequest(_request.MakeTraceRequest(url), timeout); }
+        public Task<HttpResponse> SendTraceRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeTraceRequest(url), timeout); }
 
         #endregion
 
@@ -347,16 +340,15 @@ namespace NetCoreServer
         protected override void OnHandshaked()
         {
             // Send prepared HTTP request on connect
-            if (!_request.IsEmpty && !_request.IsErrorSet)
+            if (!Request.IsEmpty && !Request.IsErrorSet)
                 if (!SendRequestAsync())
-                    SetTCSError("Failed to send HTTP request!");
+                    SetResultError("Failed to send HTTP request!");
         }
 
         protected override void OnDisconnected()
         {
             // Cancel timeout check timer
-            if (_timer != null)
-                _timer.Dispose();
+            _timer?.Dispose();
             _timer = null;
 
             base.OnDisconnected();
@@ -368,7 +360,7 @@ namespace NetCoreServer
             _timer.Dispose();
             _timer = null;
 
-            SetTCSValue(response);
+            SetResultValue(response);
         }
 
         protected override void OnReceivedResponseError(HttpResponse response, string error)
@@ -377,7 +369,7 @@ namespace NetCoreServer
             _timer.Dispose();
             _timer = null;
 
-            SetTCSError(error);
+            SetResultError(error);
         }
 
         #endregion
@@ -385,18 +377,17 @@ namespace NetCoreServer
         private TaskCompletionSource<HttpResponse> _tcs = new TaskCompletionSource<HttpResponse>();
         private Timer _timer;
 
-        private void SetTCSValue(HttpResponse response)
+        private void SetResultValue(HttpResponse response)
         {
-            var newResponse = new HttpResponse();
-            newResponse.Swap(response);
-            _tcs.SetResult(newResponse);
-            _request.Clear();
+            Response = new HttpResponse();
+            _tcs.SetResult(response);
+            Request.Clear();
         }
 
-        private void SetTCSError(string error)
+        private void SetResultError(string error)
         {
             _tcs.SetException(new Exception(error));
-            _request.Clear();
+            Request.Clear();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace NetCoreServer
     /// <remarks>Thread-safe.</remarks>
     public class FileCache
     {
-        public delegate bool InsertHandler(FileCache cache, string key, string value, TimeSpan timeout);
+        public delegate bool InsertHandler(FileCache cache, string key, byte[] value, TimeSpan timeout);
 
         /// <summary>
         /// Is the file cache empty?
@@ -32,9 +32,38 @@ namespace NetCoreServer
         /// <param name="value">Value to add</param>
         /// <param name="timeout">Cache timeout (default is 0 - no timeout)</param>
         /// <returns>'true' if the cache value was added, 'false' if the given key was not added</returns>
-        public bool Add(string key, string value, TimeSpan timeout = new TimeSpan())
+        public bool Add(string key, byte[] value, TimeSpan timeout = new TimeSpan())
         {
             lock(_lock)
+            {
+                // Try to find and remove the previous key
+                RemoveInternal(key);
+
+                // Update the cache entry
+                if (timeout.Ticks > 0)
+                {
+                    DateTime current = DateTime.UtcNow;
+                    _timestamp = (current <= _timestamp) ? new DateTime(_timestamp.Ticks + 1) : current;
+                    _entriesByKey.Add(key, new MemCacheEntry(value, _timestamp, timeout));
+                    _entriesByTimestamp.Add(_timestamp, key);
+                }
+                else
+                    _entriesByKey.Add(key, new MemCacheEntry(value));
+
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Add a new cache value with the given timeout into the file cache
+        /// </summary>
+        /// <param name="key">Key to add</param>
+        /// <param name="value">Value to add</param>
+        /// <param name="timeout">Cache timeout (default is 0 - no timeout)</param>
+        /// <returns>'true' if the cache value was added, 'false' if the given key was not added</returns>
+        public bool Add(string key, string value, TimeSpan timeout = new TimeSpan())
+        {
+            lock (_lock)
             {
                 // Try to find and remove the previous key
                 RemoveInternal(key);
@@ -59,15 +88,15 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>'true' and cache value if the cache value was found, 'false' if the given key was not found</returns>
-        public Tuple<bool, string> Find(string key)
+        public Tuple<bool, byte[]> Find(string key)
         {
             lock(_lock)
             {
                 // Try to find the given key
                 if (!_entriesByKey.TryGetValue(key, out var cacheValue))
-                    return new Tuple<bool, string>(false, "");
+                    return new Tuple<bool, byte[]>(false, new byte[0]);
 
-                return new Tuple<bool, string>(true, cacheValue.value);
+                return new Tuple<bool, byte[]>(true, cacheValue.Value);
             }
         }
 
@@ -77,7 +106,7 @@ namespace NetCoreServer
         /// <param name="key">Key to find</param>
         /// <param name="timeout">Cache timeout value</param>
         /// <returns>'true' and cache value if the cache value was found, 'false' if the given key was not found</returns>
-        public Tuple<bool, string> Find(string key, out DateTime timeout)
+        public Tuple<bool, byte[]> Find(string key, out DateTime timeout)
         {
             lock (_lock)
             {
@@ -85,11 +114,11 @@ namespace NetCoreServer
                 if (!_entriesByKey.TryGetValue(key, out var cacheValue))
                 {
                     timeout = new DateTime(0);
-                    return new Tuple<bool, string>(false, "");
+                    return new Tuple<bool, byte[]>(false, new byte[0]);
                 }
 
-                timeout = cacheValue.timestamp + cacheValue.timespan;
-                return new Tuple<bool, string>(true, cacheValue.value);
+                timeout = cacheValue.Timestamp + cacheValue.Timespan;
+                return new Tuple<bool, byte[]>(true, cacheValue.Value);
             }
         }
 
@@ -114,7 +143,7 @@ namespace NetCoreServer
         /// <returns>'true' if the cache path was setup, 'false' if failed to setup the cache path</returns>
         public bool InsertPath(string path, string prefix = "/", TimeSpan timeout = new TimeSpan(), InsertHandler handler = null)
         {
-            handler ??= delegate (FileCache cache, string key, string value, TimeSpan timeout) { return cache.Add(key, value, timeout); };
+            handler ??= (FileCache cache, string key, byte[] value, TimeSpan timespan) => cache.Add(key, value, timespan);
 
             // Try to find and remove the previous path
             RemovePathInternal(path);
@@ -150,10 +179,7 @@ namespace NetCoreServer
             lock (_lock)
             {
                 // Try to find the given key
-                if (!_pathsByKey.TryGetValue(path, out var cacheValue))
-                    return false;
-
-                return true;
+                return _pathsByKey.ContainsKey(path);
             }
         }
 
@@ -174,7 +200,7 @@ namespace NetCoreServer
                     return false;
                 }
 
-                timeout = cacheValue.timestamp + cacheValue.timespan;
+                timeout = cacheValue.Timestamp + cacheValue.Timespan;
                 return true;
             }
         }
@@ -207,10 +233,8 @@ namespace NetCoreServer
         /// <summary>
         /// Watchdog the file cache
         /// </summary>
-        public void Watchdog(DateTime utc = new DateTime())
+        public void Watchdog(DateTime utc)
         {
-            utc = (utc.Ticks == 0) ? DateTime.UtcNow : utc;
-
             Monitor.Enter(_lock);
 
             // Watchdog for cache entries
@@ -220,7 +244,7 @@ namespace NetCoreServer
                 if (!_entriesByKey.TryGetValue(entry.Value, out var cachedValue))
                     break;
 
-                if (cachedValue.timestamp + cachedValue.timespan <= utc)
+                if (cachedValue.Timestamp + cachedValue.Timespan <= utc)
                 {
                     // Erase the cache entry with timeout
                     _entriesByKey.Remove(entry.Value);
@@ -238,13 +262,13 @@ namespace NetCoreServer
                 if (!_pathsByKey.TryGetValue(entry.Value, out var cachedValue))
                     break;
 
-                if (cachedValue.timestamp + cachedValue.timespan <= utc)
+                if (cachedValue.Timestamp + cachedValue.Timespan <= utc)
                 {
                     // Update the cache path with timeout
                     var path = entry.Value;
-                    var prefix = cachedValue.prefix;
-                    var timespan = cachedValue.timespan;
-                    var handler = cachedValue.handler;
+                    var prefix = cachedValue.Prefix;
+                    var timespan = cachedValue.Timespan;
+                    var handler = cachedValue.Handler;
                     _pathsByTimestamp.Remove(entry.Key);
                     Monitor.Exit(_lock);
                     InsertPath(path, prefix, timespan, handler);
@@ -253,65 +277,46 @@ namespace NetCoreServer
                 }
                 else
                     break;
-            } 
-        }
-
-        /// <summary>
-        /// Swap two instances
-        /// </summary>
-        public void Swap(ref FileCache cache)
-        {
-            lock(_lock)
-            {
-                lock(cache._lock)
-                {
-                    (_timestamp, cache._timestamp) = (cache._timestamp, _timestamp);
-                    (_entriesByKey, cache._entriesByKey) = (cache._entriesByKey, _entriesByKey);
-                    (_entriesByTimestamp, cache._entriesByTimestamp) = (cache._entriesByTimestamp, _entriesByTimestamp);
-                    (_pathsByKey, cache._pathsByKey) = (cache._pathsByKey, _pathsByKey);
-                    (_pathsByTimestamp, cache._pathsByTimestamp) = (cache._pathsByTimestamp, _pathsByTimestamp);
-                }
             }
         }
 
-        /// <summary>
-        /// Swap two instances
-        /// </summary>
-        public void Swap(ref FileCache cache1, ref FileCache cache2)
-        {
-            cache1.Swap(ref cache2);
-        }
-
         private readonly object _lock = new object();
-        private DateTime _timestamp = new DateTime();
+        private DateTime _timestamp = DateTime.UtcNow;
 
         private struct MemCacheEntry
         {
-            public string value;
-            public DateTime timestamp;
-            public TimeSpan timespan;
+            public readonly byte[] Value;
+            public readonly DateTime Timestamp;
+            public readonly TimeSpan Timespan;
+
+            public MemCacheEntry(byte[] v, DateTime ts = new DateTime(), TimeSpan tp = new TimeSpan())
+            {
+                Value = v;
+                Timestamp = ts;
+                Timespan = tp;
+            }
 
             public MemCacheEntry(string v, DateTime ts = new DateTime(), TimeSpan tp = new TimeSpan())
             {
-                value = v;
-                timestamp = ts;
-                timespan = tp;
+                Value = Encoding.UTF8.GetBytes(v);
+                Timestamp = ts;
+                Timespan = tp;
             }
         };
 
         private struct FileCacheEntry
         {
-            public string prefix;
-            public InsertHandler handler;
-            public DateTime timestamp;
-            public TimeSpan timespan;
+            public readonly string Prefix;
+            public readonly InsertHandler Handler;
+            public readonly DateTime Timestamp;
+            public readonly TimeSpan Timespan;
 
             public FileCacheEntry(string pfx, InsertHandler h, DateTime ts = new DateTime(), TimeSpan tp = new TimeSpan())
             {
-                prefix = pfx;
-                handler = h;
-                timestamp = ts;
-                timespan = tp;
+                Prefix = pfx;
+                Handler = h;
+                Timestamp = ts;
+                Timespan = tp;
             }
         };
 
@@ -327,8 +332,8 @@ namespace NetCoreServer
                 return false;
 
             // Try to erase cache entry by timestamp
-            if (cacheValue.timestamp.Ticks > 0)
-                _entriesByTimestamp.Remove(cacheValue.timestamp);
+            if (cacheValue.Timestamp.Ticks > 0)
+                _entriesByTimestamp.Remove(cacheValue.Timestamp);
 
             // Erase cache entry
             _entriesByKey.Remove(key);
@@ -360,8 +365,7 @@ namespace NetCoreServer
                     {
                         // Load the cache file content
                         var content = File.ReadAllBytes(item);
-                        string value = Encoding.UTF8.GetString(content);
-                        if (!handler(this, key, value, timeout))
+                        if (!handler(this, key, content, timeout))
                             return false;
                     }
                     catch (Exception) { return false; }
@@ -381,8 +385,8 @@ namespace NetCoreServer
                     return false;
 
                 // Try to erase cache path by timestamp
-                if (cacheValue.timestamp.Ticks > 0)
-                    _pathsByTimestamp.Remove(cacheValue.timestamp);
+                if (cacheValue.Timestamp.Ticks > 0)
+                    _pathsByTimestamp.Remove(cacheValue.Timestamp);
 
                 // Erase cache path
                 _pathsByKey.Remove(path);

@@ -34,10 +34,10 @@ namespace HttpsClient
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
 
             // Perform text input
-            for (; ; )
+            for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Reconnect the client
@@ -62,12 +62,12 @@ namespace HttpsClient
                 if (commands[0].ToUpper() == "HEAD")
                 {
                     var response = client.SendHeadRequest(commands[1]).Result;
-                    Console.WriteLine(response.GetString());
+                    Console.WriteLine(response);
                 }
                 else if (commands[0].ToUpper() == "GET")
                 {
                     var response = client.SendGetRequest(commands[1]).Result;
-                    Console.WriteLine(response.GetString());
+                    Console.WriteLine(response);
                 }
                 else if (commands[0].ToUpper() == "POST")
                 {
@@ -78,7 +78,7 @@ namespace HttpsClient
                     }
 
                     var response = client.SendPostRequest(commands[1], commands[2]).Result;
-                    Console.WriteLine(response.GetString());
+                    Console.WriteLine(response);
                 }
                 else if (commands[0].ToUpper() == "PUT")
                 {
@@ -89,22 +89,22 @@ namespace HttpsClient
                     }
 
                     var response = client.SendPutRequest(commands[1], commands[2]).Result;
-                    Console.WriteLine(response.GetString());
+                    Console.WriteLine(response);
                 }
                 else if (commands[0].ToUpper() == "DELETE")
                 {
                     var response = client.SendDeleteRequest(commands[1]).Result;
-                    Console.WriteLine(response.GetString());
+                    Console.WriteLine(response);
                 }
                 else if (commands[0].ToUpper() == "OPTIONS")
                 {
                     var response = client.SendOptionsRequest(commands[1]).Result;
-                    Console.WriteLine(response.GetString());
+                    Console.WriteLine(response);
                 }
                 else if (commands[0].ToUpper() == "TRACE")
                 {
                     var response = client.SendTraceRequest(commands[1]).Result;
-                    Console.WriteLine(response.GetString());
+                    Console.WriteLine(response);
                 }
                 else
                     Console.WriteLine("Unknown HTTP method");

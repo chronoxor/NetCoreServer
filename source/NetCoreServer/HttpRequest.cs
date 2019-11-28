@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
 
 namespace NetCoreServer
@@ -17,7 +16,7 @@ namespace NetCoreServer
         /// </summary>
         public HttpRequest()
         {
-            _cache = new StringBuilder();
+            _cache = new Buffer();
             _headers = new List<Tuple<int, int, int, int>>();
             _cookies = new List<Tuple<int, int, int, int>>();
             Clear();
@@ -30,7 +29,7 @@ namespace NetCoreServer
         /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
         public HttpRequest(string method, string url, string protocol = "HTTP/1.1")
         {
-            _cache = new StringBuilder();
+            _cache = new Buffer();
             _headers = new List<Tuple<int, int, int, int>>();
             _cookies = new List<Tuple<int, int, int, int>>();
             SetBegin(method, url, protocol);
@@ -39,7 +38,7 @@ namespace NetCoreServer
         /// <summary>
         /// Is the HTTP request empty?
         /// </summary>
-        public bool IsEmpty { get { return (_cache.Length == 0); } }
+        public bool IsEmpty { get { return (_cache.Size == 0); } }
         /// <summary>
         /// Is the HTTP request error flag set?
         /// </summary>
@@ -48,15 +47,15 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request method
         /// </summary>
-        public string Method { get { return _cache.ToString(_methodIndex, _methodSize); } }
+        public string Method { get { return _cache.ExtractString(_methodIndex, _methodSize); } }
         /// <summary>
         /// Get the HTTP request URL
         /// </summary>
-        public string Url { get { return _cache.ToString(_urlIndex, _urlSize); } }
+        public string Url { get { return _cache.ExtractString(_urlIndex, _urlSize); } }
         /// <summary>
         /// Get the HTTP request protocol version
         /// </summary>
-        public string Protocol { get { return _cache.ToString(_protocolIndex, _protocolSize); } }
+        public string Protocol { get { return _cache.ExtractString(_protocolIndex, _protocolSize); } }
         /// <summary>
         /// Get the HTTP request headers count
         /// </summary>
@@ -71,7 +70,7 @@ namespace NetCoreServer
                 return new Tuple<string, string>("", "");
 
             var item = _headers[i];
-            return new Tuple<string, string>(_cache.ToString(item.Item1, item.Item2), _cache.ToString(item.Item3, item.Item4));
+            return new Tuple<string, string>(_cache.ExtractString(item.Item1, item.Item2), _cache.ExtractString(item.Item3, item.Item4));
         }
         /// <summary>
         /// Get the HTTP request cookies count
@@ -87,12 +86,12 @@ namespace NetCoreServer
                 return new Tuple<string, string>("", "");
 
             var item = _cookies[i];
-            return new Tuple<string, string>(_cache.ToString(item.Item1, item.Item2), _cache.ToString(item.Item3, item.Item4));
+            return new Tuple<string, string>(_cache.ExtractString(item.Item1, item.Item2), _cache.ExtractString(item.Item3, item.Item4));
         }
         /// <summary>
         /// Get the HTTP request body
         /// </summary>
-        public string Body { get { return _cache.ToString(_bodyIndex, _bodySize); } }
+        public string Body { get { return _cache.ExtractString(_bodyIndex, _bodySize); } }
         /// <summary>
         /// Get the HTTP request body length
         /// </summary>
@@ -106,7 +105,7 @@ namespace NetCoreServer
         /// <summary>
         /// Get string from the current HTTP request
         /// </summary>
-        public string GetString()
+        public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Request method: {Method}");
@@ -167,7 +166,7 @@ namespace NetCoreServer
             _methodSize = method.Length;
 
             _cache.Append(" ");
-            index = _cache.Length;
+            index = (int)_cache.Size;
 
             // Append the HTTP request URL
             _cache.Append(url);
@@ -175,7 +174,7 @@ namespace NetCoreServer
             _urlSize = url.Length;
 
             _cache.Append(" ");
-            index = _cache.Length;
+            index = (int)_cache.Size;
 
             // Append the HTTP request protocol version
             _cache.Append(protocol);
@@ -193,7 +192,7 @@ namespace NetCoreServer
         /// <param name="value">Header value</param>
         public HttpRequest SetHeader(string key, string value)
         {
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
 
             // Append the HTTP request header's key
             _cache.Append(key);
@@ -201,7 +200,7 @@ namespace NetCoreServer
             int keySize = key.Length;
 
             _cache.Append(": ");
-            index = _cache.Length;
+            index = (int)_cache.Size;
 
             // Append the HTTP request header's value
             _cache.Append(value);
@@ -222,7 +221,7 @@ namespace NetCoreServer
         /// <param name="value">Cookie value</param>
         public HttpRequest SetCookie(string name, string value)
         {
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
 
             // Append the HTTP request header's key
             _cache.Append("Cookie");
@@ -230,23 +229,23 @@ namespace NetCoreServer
             int keySize = 6;
 
             _cache.Append(": ");
-            index = _cache.Length;
+            index = (int)_cache.Size;
 
             // Append the HTTP request header's value
             int valueIndex = index;
 
             // Append Cookie
-            index = _cache.Length;
+            index = (int)_cache.Size;
             _cache.Append(name);
             int nameIndex = index;
             int nameSize = name.Length;
             _cache.Append("=");
-            index = _cache.Length;
+            index = (int)_cache.Size;
             _cache.Append(value);
             int cookieIndex = index;
             int cookieSize = value.Length;
 
-            int valueSize = _cache.Length - valueIndex;
+            int valueSize = (int)_cache.Size - valueIndex;
 
             _cache.Append("\r\n");
 
@@ -266,12 +265,12 @@ namespace NetCoreServer
         {
             // Append Cookie
             _cache.Append("; ");
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
             _cache.Append(name);
             int nameIndex = index;
             int nameSize = name.Length;
             _cache.Append("=");
-            index = _cache.Length;
+            index = (int)_cache.Size;
             _cache.Append(value);
             int cookieIndex = index;
             int cookieSize = value.Length;
@@ -292,7 +291,7 @@ namespace NetCoreServer
 
             _cache.Append("\r\n");
 
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
 
             // Append the HTTP request body
             _cache.Append(body);
@@ -314,7 +313,7 @@ namespace NetCoreServer
 
             _cache.Append("\r\n");
 
-            int index = _cache.Length;
+            int index = (int)_cache.Size;
 
             // Clear the HTTP request body
             _bodyIndex = index;
@@ -327,7 +326,7 @@ namespace NetCoreServer
         /// <summary>
         /// Make HEAD request
         /// </summary>
-        /// <param name="url">URL to request</param>        
+        /// <param name="url">URL to request</param>
         public HttpRequest MakeHeadRequest(string url)
         {
             Clear();
@@ -339,7 +338,7 @@ namespace NetCoreServer
         /// <summary>
         /// Make GET request
         /// </summary>
-        /// <param name="url">URL to request</param>        
+        /// <param name="url">URL to request</param>
         public HttpRequest MakeGetRequest(string url)
         {
             Clear();
@@ -351,8 +350,8 @@ namespace NetCoreServer
         /// <summary>
         /// Make POST request
         /// </summary>
-        /// <param name="url">URL to request</param>        
-        /// <param name="content">Content</param>       
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Content</param>
         public HttpRequest MakePostRequest(string url, string content)
         {
             Clear();
@@ -364,8 +363,8 @@ namespace NetCoreServer
         /// <summary>
         /// Make PUT request
         /// </summary>
-        /// <param name="url">URL to request</param>        
-        /// <param name="content">Content</param>       
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Content</param>
         public HttpRequest MakePutRequest(string url, string content)
         {
             Clear();
@@ -377,7 +376,7 @@ namespace NetCoreServer
         /// <summary>
         /// Make DELETE request
         /// </summary>
-        /// <param name="url">URL to request</param>              
+        /// <param name="url">URL to request</param>
         public HttpRequest MakeDeleteRequest(string url)
         {
             Clear();
@@ -389,7 +388,7 @@ namespace NetCoreServer
         /// <summary>
         /// Make OPTIONS request
         /// </summary>
-        /// <param name="url">URL to request</param>              
+        /// <param name="url">URL to request</param>
         public HttpRequest MakeOptionsRequest(string url)
         {
             Clear();
@@ -401,43 +400,13 @@ namespace NetCoreServer
         /// <summary>
         /// Make TRACE request
         /// </summary>
-        /// <param name="url">URL to request</param>              
+        /// <param name="url">URL to request</param>
         public HttpRequest MakeTraceRequest(string url)
         {
             Clear();
             SetBegin("TRACE", url);
             SetBody();
             return this;
-        }
-
-        /// <summary>
-        /// Swap two instances
-        /// </summary>
-        public void Swap(HttpRequest request)
-        {
-            (IsErrorSet, request.IsErrorSet) = (request.IsErrorSet, IsErrorSet);
-            (_methodIndex, request._methodIndex) = (request._methodIndex, _methodIndex);
-            (_methodSize, request._methodSize) = (request._methodSize, _methodSize);
-            (_urlIndex, request._urlIndex) = (request._urlIndex, _urlIndex);
-            (_urlSize, request._urlSize) = (request._urlSize, _urlSize);
-            (_protocolIndex, request._protocolIndex) = (request._protocolIndex, _protocolIndex);
-            (_protocolSize, request._protocolSize) = (request._protocolSize, _protocolSize);
-            (_headers, request._headers) = (request._headers, _headers);
-            (_cookies, request._cookies) = (request._cookies, _cookies);
-            (_bodyIndex, request._bodyIndex) = (request._bodyIndex, _bodyIndex);
-            (_bodySize, request._bodySize) = (request._bodySize, _bodySize);
-            (_bodyLength, request._bodyLength) = (request._bodyLength, _bodyLength);
-            (_bodyLengthProvided, request._bodyLengthProvided) = (request._bodyLengthProvided, _bodyLengthProvided);
-            (_cache, request._cache) = (request._cache, _cache);
-            (_cacheSize, request._cacheSize) = (request._cacheSize, _cacheSize);
-        }
-
-        /// <summary>
-        /// Swap two instances
-        /// </summary>
-        public void Swap(HttpRequest request1, HttpRequest request2)
-        {
-            request1.Swap(request2);
         }
 
         // HTTP request method
@@ -460,7 +429,7 @@ namespace NetCoreServer
         private bool _bodyLengthProvided;
 
         // HTTP request cache
-        private StringBuilder _cache;
+        private Buffer _cache;
         private int _cacheSize;
 
         // Is pending parts of HTTP request
@@ -479,10 +448,10 @@ namespace NetCoreServer
             _cache.Append(Encoding.UTF8.GetString(buffer, offset, size));
 
             // Try to seek for HTTP header separator
-            for (int i = _cacheSize; i < _cache.Length; ++i)
+            for (int i = _cacheSize; i < (int)_cache.Size; ++i)
             {
                 // Check for the request cache out of bounds
-                if ((i + 3) >= _cache.Length)
+                if ((i + 3) >= (int)_cache.Size)
                     break;
 
                 // Check for the header separator
@@ -500,11 +469,11 @@ namespace NetCoreServer
                     {
                         ++_methodSize;
                         ++index;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
                     }
                     ++index;
-                    if (index >= _cache.Length)
+                    if (index >= (int)_cache.Size)
                         return false;
 
                     // Parse URL
@@ -514,11 +483,11 @@ namespace NetCoreServer
                     {
                         ++_urlSize;
                         ++index;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
                     }
                     ++index;
-                    if (index >= _cache.Length)
+                    if (index >= (int)_cache.Size)
                         return false;
 
                     // Parse protocol version
@@ -528,18 +497,18 @@ namespace NetCoreServer
                     {
                         ++_protocolSize;
                         ++index;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
                     }
                     ++index;
-                    if ((index >= _cache.Length) || (_cache[index] != '\n'))
+                    if ((index >= (int)_cache.Size) || (_cache[index] != '\n'))
                         return false;
                     ++index;
-                    if (index >= _cache.Length)
+                    if (index >= (int)_cache.Size)
                         return false;
 
                     // Parse headers
-                    while ((index < _cache.Length) && (index < i))
+                    while ((index < (int)_cache.Size) && (index < i))
                     {
                         // Parse header name
                         int headerNameIndex = index;
@@ -550,22 +519,22 @@ namespace NetCoreServer
                             ++index;
                             if (index >= i)
                                 break;
-                            if (index >= _cache.Length)
+                            if (index >= (int)_cache.Size)
                                 return false;
                         }
                         ++index;
                         if (index >= i)
                             break;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
 
                         // Skip all prefix space characters
-                        while (char.IsWhiteSpace(_cache[index]))
+                        while (char.IsWhiteSpace((char)_cache[index]))
                         {
                             ++index;
                             if (index >= i)
                                 break;
-                            if (index >= _cache.Length)
+                            if (index >= (int)_cache.Size)
                                 return false;
                         }
 
@@ -578,14 +547,14 @@ namespace NetCoreServer
                             ++index;
                             if (index >= i)
                                 break;
-                            if (index >= _cache.Length)
+                            if (index >= (int)_cache.Size)
                                 return false;
                         }
                         ++index;
-                        if ((index >= _cache.Length) || (_cache[index] != '\n'))
+                        if ((index >= (int)_cache.Size) || (_cache[index] != '\n'))
                             return false;
                         ++index;
-                        if (index >= _cache.Length)
+                        if (index >= (int)_cache.Size)
                             return false;
 
                         // Validate header name and value
@@ -596,7 +565,7 @@ namespace NetCoreServer
                         _headers.Add(new Tuple<int, int, int, int>(headerNameIndex, headerNameSize, headerValueIndex, headerValueSize));
 
                         // Try to find the body content length
-                        if (_cache.ToString(headerNameIndex, headerNameSize) == "Content-Length")
+                        if (_cache.ExtractString(headerNameIndex, headerNameSize) == "Content-Length")
                         {
                             _bodyLength = 0;
                             for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)
@@ -610,7 +579,7 @@ namespace NetCoreServer
                         }
 
                         // Try to find Cookies
-                        if (_cache.ToString(headerNameIndex, headerNameSize) == "Cookie")
+                        if (_cache.ExtractString(headerNameIndex, headerNameSize) == "Cookie")
                         {
                             bool name = true;
                             bool token = false;
@@ -726,17 +695,17 @@ namespace NetCoreServer
 
                     // Update the body index and size
                     _bodyIndex = i + 4;
-                    _bodySize = _cache.Length - i - 4;
+                    _bodySize = (int)_cache.Size - i - 4;
 
                     // Update the parsed cache size
-                    _cacheSize = _cache.Length;
+                    _cacheSize = (int)_cache.Size;
 
                     return true;
                 }
             }
 
             // Update the parsed cache size
-            _cacheSize = (_cache.Length >= 3) ? (_cache.Length - 3) : 0;
+            _cacheSize = ((int)_cache.Size >= 3) ? ((int)_cache.Size - 3) : 0;
 
             return false;
         }
@@ -747,7 +716,7 @@ namespace NetCoreServer
             _cache.Append(Encoding.UTF8.GetString(buffer, offset, size));
 
             // Update the parsed cache size
-            _cacheSize = _cache.Length;
+            _cacheSize = (int)_cache.Size;
 
             // Update body size
             _bodySize += size;
