@@ -262,21 +262,20 @@ namespace NetCoreServer
                 }
             }
 
-            void TimeoutHandler(object canceled)
+            void TimeoutHandler(object state)
             {
-                if ((bool)canceled)
-                    return;
-
                 // Disconnect on timeout
                 OnReceivedResponseError(Response, "Timeout!");
                 Response.Clear();
                 DisconnectAsync();
             }
 
+            // Create a new timeout timer
             if (_timer == null)
-                _timer = new Timer(TimeoutHandler, false, (int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
-            else
-                _timer.Change((int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
+                _timer = new Timer(TimeoutHandler, null, Timeout.Infinite, Timeout.Infinite);
+
+            // Start the timeout timer
+            _timer.Change((int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
 
             return _tcs.Task;
         }
@@ -348,8 +347,7 @@ namespace NetCoreServer
         protected override void OnDisconnected()
         {
             // Cancel timeout check timer
-            _timer?.Dispose();
-            _timer = null;
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
             base.OnDisconnected();
         }
@@ -357,8 +355,7 @@ namespace NetCoreServer
         protected override void OnReceivedResponse(HttpResponse response)
         {
             // Cancel timeout check timer
-            _timer.Dispose();
-            _timer = null;
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
             SetResultValue(response);
         }
@@ -366,8 +363,7 @@ namespace NetCoreServer
         protected override void OnReceivedResponseError(HttpResponse response, string error)
         {
             // Cancel timeout check timer
-            _timer.Dispose();
-            _timer = null;
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
             SetResultError(error);
         }
@@ -389,5 +385,38 @@ namespace NetCoreServer
             _tcs.SetException(new Exception(error));
             Request.Clear();
         }
+
+        #region IDisposable implementation
+
+        // Disposed flag.
+        private bool _disposed;
+
+        protected override void Dispose(bool disposingManagedResources)
+        {
+            if (!_disposed)
+            {
+                if (disposingManagedResources)
+                {
+                    // Dispose managed resources here...
+                    _timer.Dispose();
+                }
+
+                // Dispose unmanaged resources here...
+
+                // Set large fields to null here...
+
+                // Mark as disposed.
+                _disposed = true;
+            }
+
+            // Call Dispose in the base class.
+            base.Dispose(disposingManagedResources);
+        }
+
+        // The derived class does not have a Finalize method
+        // or a Dispose method without parameters because it inherits
+        // them from the base class.
+
+        #endregion
     }
 }

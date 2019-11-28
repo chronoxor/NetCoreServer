@@ -110,6 +110,7 @@ namespace NetCoreServer
         #endregion
 
         #region Session handlers
+
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             // Receive HTTP response header
@@ -232,7 +233,7 @@ namespace NetCoreServer
             // Check if the HTTP request is valid
             if (Request.IsEmpty || Request.IsErrorSet)
             {
-                SetResultError("Invalid HTTP request!");
+                SetPromiseError("Invalid HTTP request!");
                 return _tcs.Task;
             }
 
@@ -241,7 +242,7 @@ namespace NetCoreServer
                 // Connect to the Web server
                 if (!ConnectAsync())
                 {
-                    SetResultError("Connection failed!");
+                    SetPromiseError("Connection failed!");
                     return _tcs.Task;
                 }
             }
@@ -250,26 +251,25 @@ namespace NetCoreServer
                 // Send prepared HTTP request
                 if (!SendRequestAsync())
                 {
-                    SetResultError("Failed to send HTTP request!");
+                    SetPromiseError("Failed to send HTTP request!");
                     return _tcs.Task;
                 }
             }
 
-            void TimeoutHandler(object canceled)
+            void TimeoutHandler(object state)
             {
-                if ((bool)canceled)
-                    return;
-
                 // Disconnect on timeout
                 OnReceivedResponseError(Response, "Timeout!");
                 Response.Clear();
                 DisconnectAsync();
             }
 
+            // Create a new timeout timer
             if (_timer == null)
-                _timer = new Timer(TimeoutHandler, false, (int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
-            else
-                _timer.Change((int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
+                _timer = new Timer(TimeoutHandler, null, Timeout.Infinite, Timeout.Infinite);
+
+            // Start the timeout timer
+            _timer.Change((int)timeout.Value.TotalMilliseconds, Timeout.Infinite);
 
             return _tcs.Task;
         }
@@ -335,14 +335,13 @@ namespace NetCoreServer
             // Send prepared HTTP request on connect
             if (!Request.IsEmpty && !Request.IsErrorSet)
                 if (!SendRequestAsync())
-                    SetResultError("Failed to send HTTP request!");
+                    SetPromiseError("Failed to send HTTP request!");
         }
 
         protected override void OnDisconnected()
         {
             // Cancel timeout check timer
-            _timer?.Dispose();
-            _timer = null;
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
             base.OnDisconnected();
         }
@@ -350,19 +349,17 @@ namespace NetCoreServer
         protected override void OnReceivedResponse(HttpResponse response)
         {
             // Cancel timeout check timer
-            _timer.Dispose();
-            _timer = null;
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            SetResultValue(response);
+            SetPromiseValue(response);
         }
 
         protected override void OnReceivedResponseError(HttpResponse response, string error)
         {
             // Cancel timeout check timer
-            _timer.Dispose();
-            _timer = null;
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            SetResultError(error);
+            SetPromiseError(error);
         }
 
         #endregion
@@ -370,17 +367,50 @@ namespace NetCoreServer
         private TaskCompletionSource<HttpResponse> _tcs = new TaskCompletionSource<HttpResponse>();
         private Timer _timer;
 
-        private void SetResultValue(HttpResponse response)
+        private void SetPromiseValue(HttpResponse response)
         {
             Response = new HttpResponse();
             _tcs.SetResult(response);
             Request.Clear();
         }
 
-        private void SetResultError(string error)
+        private void SetPromiseError(string error)
         {
             _tcs.SetException(new Exception(error));
             Request.Clear();
         }
+
+        #region IDisposable implementation
+
+        // Disposed flag.
+        private bool _disposed;
+
+        protected override void Dispose(bool disposingManagedResources)
+        {
+            if (!_disposed)
+            {
+                if (disposingManagedResources)
+                {
+                    // Dispose managed resources here...
+                    _timer.Dispose();
+                }
+
+                // Dispose unmanaged resources here...
+
+                // Set large fields to null here...
+
+                // Mark as disposed.
+                _disposed = true;
+            }
+
+            // Call Dispose in the base class.
+            base.Dispose(disposingManagedResources);
+        }
+
+        // The derived class does not have a Finalize method
+        // or a Dispose method without parameters because it inherits
+        // them from the base class.
+
+        #endregion
     }
 }
