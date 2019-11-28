@@ -1,0 +1,773 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+
+namespace NetCoreServer
+{
+    /// <summary>
+    /// HTTP request is used to create or process parameters of HTTP protocol request(method, URL, headers, etc).
+    /// </summary>
+    /// <remarks>Not thread-safe.</remarks>
+    public class HttpRequest
+    {
+        /// <summary>
+        /// Initialize an empty HTTP request
+        /// </summary>
+        public HttpRequest()
+        {
+            _cache = new StringBuilder();
+            _headers = new List<Tuple<int, int, int, int>>();
+            _cookies = new List<Tuple<int, int, int, int>>();
+            Clear();
+        }
+        /// <summary>
+        /// Initialize a new HTTP request with a given method, URL and protocol
+        /// </summary>
+        /// <param name="method">HTTP method</param>
+        /// <param name="url">Requested URL</param>
+        /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
+        public HttpRequest(string method, string url, string protocol = "HTTP/1.1")
+        {
+            _cache = new StringBuilder();
+            _headers = new List<Tuple<int, int, int, int>>();
+            _cookies = new List<Tuple<int, int, int, int>>();
+            SetBegin(method, url, protocol);
+        }
+
+        /// <summary>
+        /// Is the HTTP request empty?
+        /// </summary>
+        public bool IsEmpty { get { return (_cache.Length == 0); } }
+        /// <summary>
+        /// Is the HTTP request error flag set?
+        /// </summary>
+        public bool IsErrorSet { get; private set; }
+
+        /// <summary>
+        /// Get the HTTP request method
+        /// </summary>
+        public string Method { get { return _cache.ToString(_methodIndex, _methodSize); } }
+        /// <summary>
+        /// Get the HTTP request URL
+        /// </summary>
+        public string Url { get { return _cache.ToString(_urlIndex, _urlSize); } }
+        /// <summary>
+        /// Get the HTTP request protocol version
+        /// </summary>
+        public string Protocol { get { return _cache.ToString(_protocolIndex, _protocolSize); } }
+        /// <summary>
+        /// Get the HTTP request headers count
+        /// </summary>
+        long Headers { get { return _headers.Count; } }
+        /// <summary>
+        /// Get the HTTP request header by index
+        /// </summary>
+        Tuple<string, string> Header(int i)
+        {
+            Debug.Assert((i < _headers.Count), "Index out of bounds!");
+            if (i >= _headers.Count)
+                return new Tuple<string, string>("", "");
+
+            var item = _headers[i];
+            return new Tuple<string, string>(_cache.ToString(item.Item1, item.Item2), _cache.ToString(item.Item3, item.Item4));
+        }
+        /// <summary>
+        /// Get the HTTP request cookies count
+        /// </summary>
+        long Cookies { get { return _cookies.Count; } }
+        /// <summary>
+        /// Get the HTTP request cookie by index
+        /// </summary>
+        Tuple<string, string> Cookie(int i)
+        {
+            Debug.Assert((i < _cookies.Count), "Index out of bounds!");
+            if (i >= _cookies.Count)
+                return new Tuple<string, string>("", "");
+
+            var item = _cookies[i];
+            return new Tuple<string, string>(_cache.ToString(item.Item1, item.Item2), _cache.ToString(item.Item3, item.Item4));
+        }
+        /// <summary>
+        /// Get the HTTP request body
+        /// </summary>
+        public string Body { get { return _cache.ToString(_bodyIndex, _bodySize); } }
+        /// <summary>
+        /// Get the HTTP request body length
+        /// </summary>
+        public long BodyLength { get { return _bodyLength; } }
+
+        /// <summary>
+        /// Get the HTTP request cache content
+        /// </summary>
+        public string Cache { get { return _cache.ToString(); } }
+
+        /// <summary>
+        /// Get string from the current HTTP request
+        /// </summary>
+        public string GetString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Request method: {Method}");
+            sb.AppendLine($"Request URL: {Url}");
+            sb.AppendLine($"Request protocol: {Protocol}");
+            sb.AppendLine($"Request headers: {Headers}");
+            for (int i = 0; i < Headers; ++i)
+            {
+                var header = Header(i);
+                sb.AppendLine($"{header.Item1} : {header.Item2}");
+            }
+            sb.AppendLine($"Request body: {BodyLength}");
+            sb.AppendLine(Body);
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Clear the HTTP request cache
+        /// </summary>
+        public HttpRequest Clear()
+        {
+            IsErrorSet = false;
+            _methodIndex = 0;
+            _methodSize = 0;
+            _urlIndex = 0;
+            _urlSize = 0;
+            _protocolIndex = 0;
+            _protocolSize = 0;
+            _headers.Clear();
+            _cookies.Clear();
+            _bodyIndex = 0;
+            _bodySize = 0;
+            _bodyLength = 0;
+            _bodyLengthProvided = false;
+
+            _cache.Clear();
+            _cacheSize = 0;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP request begin with a given method, URL and protocol
+        /// </summary>
+        /// <param name="method">HTTP method</param>
+        /// <param name="url">Requested URL</param>
+        /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
+        public HttpRequest SetBegin(string method, string url, string protocol = "HTTP/1.1")
+        {
+            // Clear the HTTP request cache
+            Clear();
+
+            int index = 0;
+
+            // Append the HTTP request method
+            _cache.Append(method);
+            _methodIndex = index;
+            _methodSize = method.Length;
+
+            _cache.Append(" ");
+            index = _cache.Length;
+
+            // Append the HTTP request URL
+            _cache.Append(url);
+            _urlIndex = index;
+            _urlSize = url.Length;
+
+            _cache.Append(" ");
+            index = _cache.Length;
+
+            // Append the HTTP request protocol version
+            _cache.Append(protocol);
+            _protocolIndex = index;
+            _protocolSize = protocol.Length;
+
+            _cache.Append("\r\n");
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP request header
+        /// </summary>
+        /// <param name="key">Header key</param>
+        /// <param name="value">Header value</param>
+        public HttpRequest SetHeader(string key, string value)
+        {
+            int index = _cache.Length;
+
+            // Append the HTTP request header's key
+            _cache.Append(key);
+            int keyIndex = index;
+            int keySize = key.Length;
+
+            _cache.Append(": ");
+            index = _cache.Length;
+
+            // Append the HTTP request header's value
+            _cache.Append(value);
+            int valueIndex = index;
+            int valueSize = value.Length;
+
+            _cache.Append("\r\n");
+
+            // Add the header to the corresponding collection
+            _headers.Add(new Tuple<int, int, int, int>(keyIndex, keySize, valueIndex, valueSize));
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP request cookie
+        /// </summary>
+        /// <param name="name">Cookie name</param>
+        /// <param name="value">Cookie value</param>
+        public HttpRequest SetCookie(string name, string value)
+        {
+            int index = _cache.Length;
+
+            // Append the HTTP request header's key
+            _cache.Append("Cookie");
+            int keyIndex = index;
+            int keySize = 6;
+
+            _cache.Append(": ");
+            index = _cache.Length;
+
+            // Append the HTTP request header's value
+            int valueIndex = index;
+
+            // Append Cookie
+            index = _cache.Length;
+            _cache.Append(name);
+            int nameIndex = index;
+            int nameSize = name.Length;
+            _cache.Append("=");
+            index = _cache.Length;
+            _cache.Append(value);
+            int cookieIndex = index;
+            int cookieSize = value.Length;
+
+            int valueSize = _cache.Length - valueIndex;
+
+            _cache.Append("\r\n");
+
+            // Add the header to the corresponding collection
+            _headers.Add(new Tuple<int, int, int, int>(keyIndex, keySize, valueIndex, valueSize));
+            // Add the cookie to the corresponding collection
+            _cookies.Add(new Tuple<int, int, int, int>(nameIndex, nameSize, cookieIndex, cookieSize));
+            return this;
+        }
+
+        /// <summary>
+        /// Add the HTTP request cookie
+        /// </summary>
+        /// <param name="name">Cookie name</param>
+        /// <param name="value">Cookie value</param>
+        public HttpRequest AddCookie(string name, string value)
+        {
+            // Append Cookie
+            _cache.Append("; ");
+            int index = _cache.Length;
+            _cache.Append(name);
+            int nameIndex = index;
+            int nameSize = name.Length;
+            _cache.Append("=");
+            index = _cache.Length;
+            _cache.Append(value);
+            int cookieIndex = index;
+            int cookieSize = value.Length;
+
+            // Add the cookie to the corresponding collection
+            _cookies.Add(new Tuple<int, int, int, int>(nameIndex, nameSize, cookieIndex, cookieSize));
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP request body
+        /// </summary>
+        /// <param name="body">Body content (default is "")</param>
+        public HttpRequest SetBody(string body = "")
+        {
+            // Append content length header
+            SetHeader("Content-Length", body.Length.ToString());
+
+            _cache.Append("\r\n");
+
+            int index = _cache.Length;
+
+            // Append the HTTP request body
+            _cache.Append(body);
+            _bodyIndex = index;
+            _bodySize = body.Length;
+            _bodyLength = body.Length;
+            _bodyLengthProvided = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the HTTP request body length
+        /// </summary>
+        /// <param name="length">Body length</param>
+        public HttpRequest SetBodyLength(int length)
+        {
+            // Append content length header
+            SetHeader("Content-Length", length.ToString());
+
+            _cache.Append("\r\n");
+
+            int index = _cache.Length;
+
+            // Clear the HTTP request body
+            _bodyIndex = index;
+            _bodySize = 0;
+            _bodyLength = length;
+            _bodyLengthProvided = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Make HEAD request
+        /// </summary>
+        /// <param name="url">URL to request</param>        
+        public HttpRequest MakeHeadRequest(string url)
+        {
+            Clear();
+            SetBegin("HEAD", url);
+            SetBody();
+            return this;
+        }
+
+        /// <summary>
+        /// Make GET request
+        /// </summary>
+        /// <param name="url">URL to request</param>        
+        public HttpRequest MakeGetRequest(string url)
+        {
+            Clear();
+            SetBegin("GET", url);
+            SetBody();
+            return this;
+        }
+
+        /// <summary>
+        /// Make POST request
+        /// </summary>
+        /// <param name="url">URL to request</param>        
+        /// <param name="content">Content</param>       
+        public HttpRequest MakePostRequest(string url, string content)
+        {
+            Clear();
+            SetBegin("POST", url);
+            SetBody(content);
+            return this;
+        }
+
+        /// <summary>
+        /// Make PUT request
+        /// </summary>
+        /// <param name="url">URL to request</param>        
+        /// <param name="content">Content</param>       
+        public HttpRequest MakePutRequest(string url, string content)
+        {
+            Clear();
+            SetBegin("PUT", url);
+            SetBody(content);
+            return this;
+        }
+
+        /// <summary>
+        /// Make DELETE request
+        /// </summary>
+        /// <param name="url">URL to request</param>              
+        public HttpRequest MakeDeleteRequest(string url)
+        {
+            Clear();
+            SetBegin("DELETE", url);
+            SetBody();
+            return this;
+        }
+
+        /// <summary>
+        /// Make OPTIONS request
+        /// </summary>
+        /// <param name="url">URL to request</param>              
+        public HttpRequest MakeOptionsRequest(string url)
+        {
+            Clear();
+            SetBegin("OPTIONS", url);
+            SetBody();
+            return this;
+        }
+
+        /// <summary>
+        /// Make TRACE request
+        /// </summary>
+        /// <param name="url">URL to request</param>              
+        public HttpRequest MakeTraceRequest(string url)
+        {
+            Clear();
+            SetBegin("TRACE", url);
+            SetBody();
+            return this;
+        }
+
+        /// <summary>
+        /// Swap two instances
+        /// </summary>
+        public void Swap(HttpRequest request)
+        {
+            (IsErrorSet, request.IsErrorSet) = (request.IsErrorSet, IsErrorSet);
+            (_methodIndex, request._methodIndex) = (request._methodIndex, _methodIndex);
+            (_methodSize, request._methodSize) = (request._methodSize, _methodSize);
+            (_urlIndex, request._urlIndex) = (request._urlIndex, _urlIndex);
+            (_urlSize, request._urlSize) = (request._urlSize, _urlSize);
+            (_protocolIndex, request._protocolIndex) = (request._protocolIndex, _protocolIndex);
+            (_protocolSize, request._protocolSize) = (request._protocolSize, _protocolSize);
+            (_headers, request._headers) = (request._headers, _headers);
+            (_cookies, request._cookies) = (request._cookies, _cookies);
+            (_bodyIndex, request._bodyIndex) = (request._bodyIndex, _bodyIndex);
+            (_bodySize, request._bodySize) = (request._bodySize, _bodySize);
+            (_bodyLength, request._bodyLength) = (request._bodyLength, _bodyLength);
+            (_bodyLengthProvided, request._bodyLengthProvided) = (request._bodyLengthProvided, _bodyLengthProvided);
+            (_cache, request._cache) = (request._cache, _cache);
+            (_cacheSize, request._cacheSize) = (request._cacheSize, _cacheSize);
+        }
+
+        /// <summary>
+        /// Swap two instances
+        /// </summary>
+        public void Swap(HttpRequest request1, HttpRequest request2)
+        {
+            request1.Swap(request2);
+        }
+
+        // HTTP request method
+        private int _methodIndex;
+        private int _methodSize;
+        // HTTP request URL
+        private int _urlIndex;
+        private int _urlSize;
+        // HTTP request protocol
+        private int _protocolIndex;
+        private int _protocolSize;
+        // HTTP request headers
+        private List<Tuple<int, int, int, int>> _headers;
+        // HTTP request cookies
+        private List<Tuple<int, int, int, int>> _cookies;
+        // HTTP request body
+        private int _bodyIndex;
+        private int _bodySize;
+        private int _bodyLength;
+        private bool _bodyLengthProvided;
+
+        // HTTP request cache
+        private StringBuilder _cache;
+        private int _cacheSize;
+
+        // Is pending parts of HTTP request
+        internal bool IsPendingHeader()
+        {
+            return (!IsErrorSet && (_bodyIndex == 0));
+        }
+        internal bool IsPendingBody()
+        {
+            return (!IsErrorSet && (_bodyIndex > 0) && (_bodySize > 0));
+        }
+
+        internal bool ReceiveHeader(byte[] buffer, int offset, int size)
+        {
+            // Update the request cache
+            _cache.Append(Encoding.UTF8.GetString(buffer, offset, size));
+
+            // Try to seek for HTTP header separator
+            for (int i = _cacheSize; i < _cache.Length; ++i)
+            {
+                // Check for the request cache out of bounds
+                if ((i + 3) >= _cache.Length)
+                    break;
+
+                // Check for the header separator
+                if ((_cache[i + 0] == '\r') && (_cache[i + 1] == '\n') && (_cache[i + 2] == '\r') && (_cache[i + 3] == '\n'))
+                {
+                    int index = 0;
+
+                    // Set the error flag for a while...
+                    IsErrorSet = true;
+
+                    // Parse method
+                    _methodIndex = index;
+                    _methodSize = 0;
+                    while (_cache[index] != ' ')
+                    {
+                        ++_methodSize;
+                        ++index;
+                        if (index >= _cache.Length)
+                            return false;
+                    }
+                    ++index;
+                    if (index >= _cache.Length)
+                        return false;
+
+                    // Parse URL
+                    _urlIndex = index;
+                    _urlSize = 0;
+                    while (_cache[index] != ' ')
+                    {
+                        ++_urlSize;
+                        ++index;
+                        if (index >= _cache.Length)
+                            return false;
+                    }
+                    ++index;
+                    if (index >= _cache.Length)
+                        return false;
+
+                    // Parse protocol version
+                    _protocolIndex = index;
+                    _protocolSize = 0;
+                    while (_cache[index] != '\r')
+                    {
+                        ++_protocolSize;
+                        ++index;
+                        if (index >= _cache.Length)
+                            return false;
+                    }
+                    ++index;
+                    if ((index >= _cache.Length) || (_cache[index] != '\n'))
+                        return false;
+                    ++index;
+                    if (index >= _cache.Length)
+                        return false;
+
+                    // Parse headers
+                    while ((index < _cache.Length) && (index < i))
+                    {
+                        // Parse header name
+                        int headerNameIndex = index;
+                        int headerNameSize = 0;
+                        while (_cache[index] != ':')
+                        {
+                            ++headerNameSize;
+                            ++index;
+                            if (index >= i)
+                                break;
+                            if (index >= _cache.Length)
+                                return false;
+                        }
+                        ++index;
+                        if (index >= i)
+                            break;
+                        if (index >= _cache.Length)
+                            return false;
+
+                        // Skip all prefix space characters
+                        while (char.IsWhiteSpace(_cache[index]))
+                        {
+                            ++index;
+                            if (index >= i)
+                                break;
+                            if (index >= _cache.Length)
+                                return false;
+                        }
+
+                        // Parse header value
+                        int headerValueIndex = index;
+                        int headerValueSize = 0;
+                        while (_cache[index] != '\r')
+                        {
+                            ++headerValueSize;
+                            ++index;
+                            if (index >= i)
+                                break;
+                            if (index >= _cache.Length)
+                                return false;
+                        }
+                        ++index;
+                        if ((index >= _cache.Length) || (_cache[index] != '\n'))
+                            return false;
+                        ++index;
+                        if (index >= _cache.Length)
+                            return false;
+
+                        // Validate header name and value
+                        if ((headerNameSize == 0) || (headerValueSize == 0))
+                            return false;
+
+                        // Add a new header
+                        _headers.Add(new Tuple<int, int, int, int>(headerNameIndex, headerNameSize, headerValueIndex, headerValueSize));
+
+                        // Try to find the body content length
+                        if (_cache.ToString(headerNameIndex, headerNameSize) == "Content-Length")
+                        {
+                            _bodyLength = 0;
+                            for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)
+                            {
+                                if ((_cache[j] < '0') || (_cache[j] > '9'))
+                                    return false;
+                                _bodyLength *= 10;
+                                _bodyLength += _cache[j] - '0';
+                                _bodyLengthProvided = true;
+                            }
+                        }
+
+                        // Try to find Cookies
+                        if (_cache.ToString(headerNameIndex, headerNameSize) == "Cookie")
+                        {
+                            bool name = true;
+                            bool token = false;
+                            int current = headerValueIndex;
+                            int nameIndex = index;
+                            int nameSize = 0;
+                            int cookieIndex = index;
+                            int cookieSize = 0;
+                            for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)
+                            {
+                                if (_cache[j] == ' ')
+                                {
+                                    if (token)
+                                    {
+                                        if (name)
+                                        {
+                                            nameIndex = current;
+                                            nameSize = j - current;
+                                        }
+                                        else
+                                        {
+                                            cookieIndex = current;
+                                            cookieSize = j - current;
+                                        }
+                                    }
+                                    token = false;
+                                    continue;
+                                }
+                                if (_cache[j] == '=')
+                                {
+                                    if (token)
+                                    {
+                                        if (name)
+                                        {
+                                            nameIndex = current;
+                                            nameSize = j - current;
+                                        }
+                                        else
+                                        {
+                                            cookieIndex = current;
+                                            cookieSize = j - current;
+                                        }
+                                    }
+                                    token = false;
+                                    name = false;
+                                    continue;
+                                }
+                                if (_cache[j] == ';')
+                                {
+                                    if (token)
+                                    {
+                                        if (name)
+                                        {
+                                            nameIndex = current;
+                                            nameSize = j - current;
+                                        }
+                                        else
+                                        {
+                                            cookieIndex = current;
+                                            cookieSize = j - current;
+                                        }
+
+                                        // Validate the cookie
+                                        if ((nameSize > 0) && (cookieSize > 0))
+                                        {
+                                            // Add the cookie to the corresponding collection
+                                            _cookies.Add(new Tuple<int, int, int, int>(nameIndex, nameSize, cookieIndex, cookieSize));
+
+                                            // Resset the current cookie values
+                                            nameIndex = j;
+                                            nameSize = 0;
+                                            cookieIndex = j;
+                                            cookieSize = 0;
+                                        }
+                                    }
+                                    token = false;
+                                    name = true;
+                                    continue;
+                                }
+                                if (!token)
+                                {
+                                    current = j;
+                                    token = true;
+                                }
+                            }
+
+                            // Process the last cookie
+                            if (token)
+                            {
+                                if (name)
+                                {
+                                    nameIndex = current;
+                                    nameSize = headerValueIndex + headerValueSize - current;
+                                }
+                                else
+                                {
+                                    cookieIndex = current;
+                                    cookieSize = headerValueIndex + headerValueSize - current;
+                                }
+
+                                // Validate the cookie
+                                if ((nameSize > 0) && (cookieSize > 0))
+                                {
+                                    // Add the cookie to the corresponding collection
+                                    _cookies.Add(new Tuple<int, int, int, int>(nameIndex, nameSize, cookieIndex, cookieSize));
+                                }
+                            }
+                        }
+                    }
+
+                    // Reset the error flag
+                    IsErrorSet = false;
+
+                    // Update the body index and size
+                    _bodyIndex = i + 4;
+                    _bodySize = _cache.Length - i - 4;
+
+                    // Update the parsed cache size
+                    _cacheSize = _cache.Length;
+
+                    return true;
+                }
+            }
+
+            // Update the parsed cache size
+            _cacheSize = (_cache.Length >= 3) ? (_cache.Length - 3) : 0;
+
+            return false;
+        }
+
+        internal bool ReceiveBody(byte[] buffer, int offset, int size)
+        {
+            // Update the request cache
+            _cache.Append(Encoding.UTF8.GetString(buffer, offset, size));
+
+            // Update the parsed cache size
+            _cacheSize = _cache.Length;
+
+            // Update body size
+            _bodySize += size;
+
+            // GET request has no body
+            if ((Method == "HEAD") || (Method == "GET") || (Method == "OPTIONS") || (Method == "TRACE"))
+            {
+                _bodyLength = 0;
+                _bodySize = 0;
+                return true;
+            }
+
+            // Check if the body was fully parsed
+            if (_bodyLengthProvided && (_bodySize >= _bodyLength))
+            {
+                _bodySize = _bodyLength;
+                return true;
+            }
+
+            return false;
+        }
+    }
+}
