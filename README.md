@@ -1970,18 +1970,19 @@ Message throughput: 9587 msg/s
 ```
 Server address: 127.0.0.1
 Server port: 8080
+Working threads: 4
 Working clients: 100
 Working messages: 1
 Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 11.851 s
-Total data: 34.015 MiB
-Total messages: 337463
-Data throughput: 2.890 MiB/s
-Message latency: 35.119 mcs
-Message throughput: 28473 msg/s
+Total time: 10.928 s
+Total data: 32.644 MiB
+Total messages: 322782
+Data throughput: 2.1009 MiB/s
+Message latency: 33.855 mcs
+Message throughput: 29537 msg/s
 ```
 
 ### HTTPS Trace server
@@ -2012,18 +2013,19 @@ Message throughput: 22359 msg/s
 ```
 Server address: 127.0.0.1
 Server port: 8443
+Working threads: 4
 Working clients: 100
 Working messages: 1
 Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.017 s
-Total data: 89.488 MiB
-Total messages: 885128
-Data throughput: 8.954 MiB/s
-Message latency: 11.317 mcs
-Message throughput: 88362 msg/s
+Total time: 10.162 s
+Total data: 92.492 MiB
+Total messages: 914845
+Data throughput: 9.103 MiB/s
+Message latency: 11.107 mcs
+Message throughput: 90025 msg/s
 ```
 
 # OpenSSL certificates

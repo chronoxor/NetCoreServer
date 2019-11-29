@@ -16,9 +16,6 @@ namespace NetCoreServer
         /// </summary>
         public HttpRequest()
         {
-            _cache = new Buffer();
-            _headers = new List<Tuple<int, int, int, int>>();
-            _cookies = new List<Tuple<int, int, int, int>>();
             Clear();
         }
         /// <summary>
@@ -29,9 +26,6 @@ namespace NetCoreServer
         /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
         public HttpRequest(string method, string url, string protocol = "HTTP/1.1")
         {
-            _cache = new Buffer();
-            _headers = new List<Tuple<int, int, int, int>>();
-            _cookies = new List<Tuple<int, int, int, int>>();
             SetBegin(method, url, protocol);
         }
 
@@ -47,15 +41,15 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request method
         /// </summary>
-        public string Method { get { return _cache.ExtractString(_methodIndex, _methodSize); } }
+        public string Method { get { return _method; } }
         /// <summary>
         /// Get the HTTP request URL
         /// </summary>
-        public string Url { get { return _cache.ExtractString(_urlIndex, _urlSize); } }
+        public string Url { get { return _url; } }
         /// <summary>
         /// Get the HTTP request protocol version
         /// </summary>
-        public string Protocol { get { return _cache.ExtractString(_protocolIndex, _protocolSize); } }
+        public string Protocol { get { return _protocol; } }
         /// <summary>
         /// Get the HTTP request headers count
         /// </summary>
@@ -69,8 +63,7 @@ namespace NetCoreServer
             if (i >= _headers.Count)
                 return new Tuple<string, string>("", "");
 
-            var item = _headers[i];
-            return new Tuple<string, string>(_cache.ExtractString(item.Item1, item.Item2), _cache.ExtractString(item.Item3, item.Item4));
+            return _headers[i];
         }
         /// <summary>
         /// Get the HTTP request cookies count
@@ -85,8 +78,7 @@ namespace NetCoreServer
             if (i >= _cookies.Count)
                 return new Tuple<string, string>("", "");
 
-            var item = _cookies[i];
-            return new Tuple<string, string>(_cache.ExtractString(item.Item1, item.Item2), _cache.ExtractString(item.Item3, item.Item4));
+            return _cookies[i];
         }
         /// <summary>
         /// Get the HTTP request body
@@ -128,12 +120,9 @@ namespace NetCoreServer
         public HttpRequest Clear()
         {
             IsErrorSet = false;
-            _methodIndex = 0;
-            _methodSize = 0;
-            _urlIndex = 0;
-            _urlSize = 0;
-            _protocolIndex = 0;
-            _protocolSize = 0;
+            _method = "";
+            _url = "";
+            _protocol = "";
             _headers.Clear();
             _cookies.Clear();
             _bodyIndex = 0;
@@ -157,28 +146,21 @@ namespace NetCoreServer
             // Clear the HTTP request cache
             Clear();
 
-            int index = 0;
-
             // Append the HTTP request method
             _cache.Append(method);
-            _methodIndex = index;
-            _methodSize = method.Length;
+            _method = method;
 
             _cache.Append(" ");
-            index = (int)_cache.Size;
 
             // Append the HTTP request URL
             _cache.Append(url);
-            _urlIndex = index;
-            _urlSize = url.Length;
+            _url = url;
 
             _cache.Append(" ");
-            index = (int)_cache.Size;
 
             // Append the HTTP request protocol version
             _cache.Append(protocol);
-            _protocolIndex = index;
-            _protocolSize = protocol.Length;
+            _protocol = protocol;
 
             _cache.Append("\r\n");
             return this;
@@ -191,25 +173,18 @@ namespace NetCoreServer
         /// <param name="value">Header value</param>
         public HttpRequest SetHeader(string key, string value)
         {
-            int index = (int)_cache.Size;
-
             // Append the HTTP request header's key
             _cache.Append(key);
-            int keyIndex = index;
-            int keySize = key.Length;
 
             _cache.Append(": ");
-            index = (int)_cache.Size;
 
             // Append the HTTP request header's value
             _cache.Append(value);
-            int valueIndex = index;
-            int valueSize = value.Length;
 
             _cache.Append("\r\n");
 
             // Add the header to the corresponding collection
-            _headers.Add(new Tuple<int, int, int, int>(keyIndex, keySize, valueIndex, valueSize));
+            _headers.Add(new Tuple<string, string>(key, value));
             return this;
         }
 
@@ -220,38 +195,23 @@ namespace NetCoreServer
         /// <param name="value">Cookie value</param>
         public HttpRequest SetCookie(string name, string value)
         {
-            int index = (int)_cache.Size;
+            string key = "Cookie";
+            string cookie = name + "=" + value;
 
             // Append the HTTP request header's key
-            _cache.Append("Cookie");
-            int keyIndex = index;
-            int keySize = 6;
+            _cache.Append(key);
 
             _cache.Append(": ");
-            index = (int)_cache.Size;
-
-            // Append the HTTP request header's value
-            int valueIndex = index;
 
             // Append Cookie
-            index = (int)_cache.Size;
-            _cache.Append(name);
-            int nameIndex = index;
-            int nameSize = name.Length;
-            _cache.Append("=");
-            index = (int)_cache.Size;
-            _cache.Append(value);
-            int cookieIndex = index;
-            int cookieSize = value.Length;
-
-            int valueSize = (int)_cache.Size - valueIndex;
+            _cache.Append(cookie);
 
             _cache.Append("\r\n");
 
             // Add the header to the corresponding collection
-            _headers.Add(new Tuple<int, int, int, int>(keyIndex, keySize, valueIndex, valueSize));
+            _headers.Add(new Tuple<string, string>(key, cookie));
             // Add the cookie to the corresponding collection
-            _cookies.Add(new Tuple<int, int, int, int>(nameIndex, nameSize, cookieIndex, cookieSize));
+            _cookies.Add(new Tuple<string, string>(name, value));
             return this;
         }
 
@@ -264,18 +224,12 @@ namespace NetCoreServer
         {
             // Append Cookie
             _cache.Append("; ");
-            int index = (int)_cache.Size;
             _cache.Append(name);
-            int nameIndex = index;
-            int nameSize = name.Length;
             _cache.Append("=");
-            index = (int)_cache.Size;
             _cache.Append(value);
-            int cookieIndex = index;
-            int cookieSize = value.Length;
 
             // Add the cookie to the corresponding collection
-            _cookies.Add(new Tuple<int, int, int, int>(nameIndex, nameSize, cookieIndex, cookieSize));
+            _cookies.Add(new Tuple<string, string>(name, value));
             return this;
         }
 
@@ -505,18 +459,15 @@ namespace NetCoreServer
         }
 
         // HTTP request method
-        private int _methodIndex;
-        private int _methodSize;
+        private string _method;
         // HTTP request URL
-        private int _urlIndex;
-        private int _urlSize;
+        private string _url;
         // HTTP request protocol
-        private int _protocolIndex;
-        private int _protocolSize;
+        private string _protocol;
         // HTTP request headers
-        private List<Tuple<int, int, int, int>> _headers;
+        private List<Tuple<string, string>> _headers = new List<Tuple<string, string>>();
         // HTTP request cookies
-        private List<Tuple<int, int, int, int>> _cookies;
+        private List<Tuple<string, string>> _cookies = new List<Tuple<string, string>>();
         // HTTP request body
         private int _bodyIndex;
         private int _bodySize;
@@ -524,7 +475,7 @@ namespace NetCoreServer
         private bool _bodyLengthProvided;
 
         // HTTP request cache
-        private Buffer _cache;
+        private Buffer _cache = new Buffer();
         private int _cacheSize;
 
         // Is pending parts of HTTP request
@@ -558,11 +509,11 @@ namespace NetCoreServer
                     IsErrorSet = true;
 
                     // Parse method
-                    _methodIndex = index;
-                    _methodSize = 0;
+                    int methodIndex = index;
+                    int methodSize = 0;
                     while (_cache[index] != ' ')
                     {
-                        ++_methodSize;
+                        ++methodSize;
                         ++index;
                         if (index >= (int)_cache.Size)
                             return false;
@@ -570,13 +521,14 @@ namespace NetCoreServer
                     ++index;
                     if (index >= (int)_cache.Size)
                         return false;
+                    _method = _cache.ExtractString(methodIndex, methodSize);
 
                     // Parse URL
-                    _urlIndex = index;
-                    _urlSize = 0;
+                    int urlIndex = index;
+                    int urlSize = 0;
                     while (_cache[index] != ' ')
                     {
-                        ++_urlSize;
+                        ++urlSize;
                         ++index;
                         if (index >= (int)_cache.Size)
                             return false;
@@ -584,13 +536,14 @@ namespace NetCoreServer
                     ++index;
                     if (index >= (int)_cache.Size)
                         return false;
+                    _url = _cache.ExtractString(urlIndex, urlSize);
 
                     // Parse protocol version
-                    _protocolIndex = index;
-                    _protocolSize = 0;
+                    int protocolIndex = index;
+                    int protocolSize = 0;
                     while (_cache[index] != '\r')
                     {
-                        ++_protocolSize;
+                        ++protocolSize;
                         ++index;
                         if (index >= (int)_cache.Size)
                             return false;
@@ -601,6 +554,7 @@ namespace NetCoreServer
                     ++index;
                     if (index >= (int)_cache.Size)
                         return false;
+                    _protocol = _cache.ExtractString(protocolIndex, protocolSize);
 
                     // Parse headers
                     while ((index < (int)_cache.Size) && (index < i))
@@ -657,7 +611,7 @@ namespace NetCoreServer
                             return false;
 
                         // Add a new header
-                        _headers.Add(new Tuple<int, int, int, int>(headerNameIndex, headerNameSize, headerValueIndex, headerValueSize));
+                        _headers.Add(new Tuple<string, string>(_cache.ExtractString(headerNameIndex, headerNameSize), _cache.ExtractString(headerValueIndex, headerValueSize)));
 
                         // Try to find the body content length
                         if (_cache.ExtractString(headerNameIndex, headerNameSize) == "Content-Length")
@@ -741,7 +695,7 @@ namespace NetCoreServer
                                         if ((nameSize > 0) && (cookieSize > 0))
                                         {
                                             // Add the cookie to the corresponding collection
-                                            _cookies.Add(new Tuple<int, int, int, int>(nameIndex, nameSize, cookieIndex, cookieSize));
+                                            _cookies.Add(new Tuple<string, string>(_cache.ExtractString(nameIndex, nameSize), _cache.ExtractString(cookieIndex, cookieSize)));
 
                                             // Resset the current cookie values
                                             nameIndex = j;
@@ -779,7 +733,7 @@ namespace NetCoreServer
                                 if ((nameSize > 0) && (cookieSize > 0))
                                 {
                                     // Add the cookie to the corresponding collection
-                                    _cookies.Add(new Tuple<int, int, int, int>(nameIndex, nameSize, cookieIndex, cookieSize));
+                                    _cookies.Add(new Tuple<string, string>(_cache.ExtractString(nameIndex, nameSize), _cache.ExtractString(cookieIndex, cookieSize)));
                                 }
                             }
                         }
