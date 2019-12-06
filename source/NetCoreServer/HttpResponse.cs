@@ -22,10 +22,20 @@ namespace NetCoreServer
         /// Initialize a new HTTP response with a given status and protocol
         /// </summary>
         /// <param name="status">HTTP status</param>
-        /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
-        public HttpResponse(int status, string protocol = "HTTP/1.1")
+        /// <param name="protocol">Protocol version (default is "HTTP/2")</param>
+        public HttpResponse(int status, string protocol = "HTTP/2")
         {
             SetBegin(status, protocol);
+        }
+        /// <summary>
+        /// Initialize a new HTTP response with a given status, status phrase and protocol
+        /// </summary>
+        /// <param name="status">HTTP status</param>
+        /// <param name="statusPhrase">HTTP status phrase</param>
+        /// <param name="protocol">Protocol version</param>
+        public HttpResponse(int status, string statusPhrase, string protocol)
+        {
+            SetBegin(status, statusPhrase, protocol);
         }
 
         /// <summary>
@@ -123,8 +133,8 @@ namespace NetCoreServer
         /// Set the HTTP response begin with a given status and protocol
         /// </summary>
         /// <param name="status">HTTP status</param>
-        /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
-        public HttpResponse SetBegin(int status, string protocol = "HTTP/1.1")
+        /// <param name="protocol">Protocol version (default is "HTTP/2")</param>
+        public HttpResponse SetBegin(int status, string protocol = "HTTP/2")
         {
             string statusPhrase;
 
@@ -214,7 +224,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="status">HTTP status</param>
         /// <param name="statusPhrase"> HTTP status phrase</param>
-        /// <param name="protocol">Protocol version (default is "HTTP/1.1")</param>
+        /// <param name="protocol">Protocol version</param>
         public HttpResponse SetBegin(int status, string statusPhrase, string protocol)
         {
             // Clear the HTTP response cache
