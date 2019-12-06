@@ -22,8 +22,8 @@ namespace NetCoreServer
         /// Initialize a new HTTP response with a given status and protocol
         /// </summary>
         /// <param name="status">HTTP status</param>
-        /// <param name="protocol">Protocol version (default is "HTTP/2")</param>
-        public HttpResponse(int status, string protocol = "HTTP/2")
+        /// <param name="protocol">Protocol version (default is "HTTP/2.0")</param>
+        public HttpResponse(int status, string protocol = "HTTP/2.0")
         {
             SetBegin(status, protocol);
         }
@@ -133,8 +133,8 @@ namespace NetCoreServer
         /// Set the HTTP response begin with a given status and protocol
         /// </summary>
         /// <param name="status">HTTP status</param>
-        /// <param name="protocol">Protocol version (default is "HTTP/2")</param>
-        public HttpResponse SetBegin(int status, string protocol = "HTTP/2")
+        /// <param name="protocol">Protocol version (default is "HTTP/2.0")</param>
+        public HttpResponse SetBegin(int status, string protocol = "HTTP/2.0")
         {
             string statusPhrase;
 

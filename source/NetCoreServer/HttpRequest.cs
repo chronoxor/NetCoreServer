@@ -23,8 +23,8 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="method">HTTP method</param>
         /// <param name="url">Requested URL</param>
-        /// <param name="protocol">Protocol version (default is "HTTP/2")</param>
-        public HttpRequest(string method, string url, string protocol = "HTTP/2")
+        /// <param name="protocol">Protocol version (default is "HTTP/2.0")</param>
+        public HttpRequest(string method, string url, string protocol = "HTTP/2.0")
         {
             SetBegin(method, url, protocol);
         }
@@ -140,8 +140,8 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="method">HTTP method</param>
         /// <param name="url">Requested URL</param>
-        /// <param name="protocol">Protocol version (default is "HTTP/2")</param>
-        public HttpRequest SetBegin(string method, string url, string protocol = "HTTP/2")
+        /// <param name="protocol">Protocol version (default is "HTTP/2.0")</param>
+        public HttpRequest SetBegin(string method, string url, string protocol = "HTTP/2.0")
         {
             // Clear the HTTP request cache
             Clear();
