@@ -700,7 +700,7 @@ namespace NetCoreServer
         internal bool ReceiveHeader(byte[] buffer, int offset, int size)
         {
             // Update the request cache
-            _cache.Append(Encoding.UTF8.GetString(buffer, offset, size));
+            _cache.Append(buffer, offset, size);
 
             // Try to seek for HTTP header separator
             for (int i = _cacheSize; i < (int)_cache.Size; ++i)
@@ -867,7 +867,7 @@ namespace NetCoreServer
         internal bool ReceiveBody(byte[] buffer, int offset, int size)
         {
             // Update the request cache
-            _cache.Append(Encoding.UTF8.GetString(buffer, offset, size));
+            _cache.Append(buffer, offset, size);
 
             // Update the parsed cache size
             _cacheSize = (int)_cache.Size;
