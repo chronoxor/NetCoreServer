@@ -47,6 +47,8 @@ namespace WsChatClient
 
         protected override void OnDisconnected()
         {
+            base.OnDisconnected();
+
             Console.WriteLine($"Chat WebSocket client disconnected a session with Id {Id}");
 
             // Wait for a while...
