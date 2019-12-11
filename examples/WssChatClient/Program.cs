@@ -1,10 +1,10 @@
-﻿using NetCoreServer;
-using System;
+﻿using System;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using NetCoreServer;
 
 namespace WssChatClient
 {
