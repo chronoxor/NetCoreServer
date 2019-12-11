@@ -53,11 +53,11 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request headers count
         /// </summary>
-        long Headers { get { return _headers.Count; } }
+        public long Headers { get { return _headers.Count; } }
         /// <summary>
         /// Get the HTTP request header by index
         /// </summary>
-        Tuple<string, string> Header(int i)
+        public Tuple<string, string> Header(int i)
         {
             Debug.Assert((i < _headers.Count), "Index out of bounds!");
             if (i >= _headers.Count)
