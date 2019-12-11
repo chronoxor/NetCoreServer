@@ -164,8 +164,6 @@ namespace HttpTraceClient
                 Console.WriteLine($"Message latency: {Utilities.GenerateTimePeriod((TimestampStop - TimestampStart).TotalMilliseconds / TotalMessages)}");
                 Console.WriteLine($"Message throughput: {(long)(TotalMessages / (TimestampStop - TimestampStart).TotalSeconds)} msg/s");
             }
-
-            Console.ReadLine();
         }
     }
 }

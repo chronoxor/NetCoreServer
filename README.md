@@ -1956,12 +1956,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.029 s
-Total data: 9.737 MiB
-Total messages: 96157
-Data throughput: 992.417 KiB/s
-Message latency: 104.307 mcs
-Message throughput: 9587 msg/s
+Total time: 10.002 s
+Total data: 46.403 MiB
+Total messages: 458939
+Data throughput: 4.653 MiB/s
+Message latency: 21.794 mcs
+Message throughput: 45883 msg/s
 ```
 
 * [HttpTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceServer/Program.cs)
@@ -1970,19 +1970,18 @@ Message throughput: 9587 msg/s
 ```
 Server address: 127.0.0.1
 Server port: 8080
-Working threads: 4
 Working clients: 100
 Working messages: 1
 Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.928 s
-Total data: 32.644 MiB
-Total messages: 322782
-Data throughput: 2.1009 MiB/s
-Message latency: 33.855 mcs
-Message throughput: 29537 msg/s
+Total time: 10.015 s
+Total data: 299.400 MiB
+Total messages: 2961649
+Data throughput: 29.915 MiB/s
+Message latency: 3.381 mcs
+Message throughput: 295717 msg/s
 ```
 
 ### HTTPS Trace server
@@ -2013,7 +2012,6 @@ Message throughput: 22359 msg/s
 ```
 Server address: 127.0.0.1
 Server port: 8443
-Working threads: 4
 Working clients: 100
 Working messages: 1
 Seconds to benchmarking: 10
