@@ -10,9 +10,9 @@
 
   function init()
   {
-	document.myform.url.value = "wss://localhost:8443/"
-	document.myform.inputtext.value = "Hello World!"
-	document.myform.disconnectButton.disabled = true
+    document.myform.url.value = "wss://localhost:8443/"
+    document.myform.inputtext.value = "Hello World!"
+    document.myform.disconnectButton.disabled = true
   }
 
   function doConnect()
@@ -27,15 +27,15 @@
   function onOpen(evt)
   {
     writeToScreen("connected\n")
-	document.myform.connectButton.disabled = true
-	document.myform.disconnectButton.disabled = false
+    document.myform.connectButton.disabled = true
+    document.myform.disconnectButton.disabled = false
   }
 
   function onClose(evt)
   {
     writeToScreen("disconnected\n")
-	document.myform.connectButton.disabled = false
-	document.myform.disconnectButton.disabled = true
+    document.myform.connectButton.disabled = false
+    document.myform.disconnectButton.disabled = true
   }
 
   function onMessage(evt)
@@ -47,10 +47,10 @@
   {
     writeToScreen('error: ' + evt.data + '\n')
 
-	websocket.close()
+    websocket.close()
 
-	document.myform.connectButton.disabled = false
-	document.myform.disconnectButton.disabled = true
+    document.myform.connectButton.disabled = false
+    document.myform.disconnectButton.disabled = true
   }
 
   function doSend(message)
@@ -62,7 +62,7 @@
   function writeToScreen(message)
   {
     document.myform.outputtext.value += message
-	document.myform.outputtext.scrollTop = document.myform.outputtext.scrollHeight
+    document.myform.outputtext.scrollTop = document.myform.outputtext.scrollHeight
   }
 
   window.addEventListener("load", init, false)
