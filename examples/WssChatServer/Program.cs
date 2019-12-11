@@ -12,7 +12,7 @@ namespace WssChatServer
     {
         public ChatSession(WssServer server) : base(server) { }
 
-        public override void OnWSConnected(HttpRequest request)
+        public override void OnWsConnected(HttpRequest request)
         {
             Console.WriteLine($"Chat WebSocket session with Id {Id} connected!");
 
@@ -21,12 +21,12 @@ namespace WssChatServer
             SendTextAsync(message);
         }
 
-        public override void OnWSDisconnected()
+        public override void OnWsDisconnected()
         {
             Console.WriteLine($"Chat WebSocket session with Id {Id} disconnected!");
         }
 
-        public override void OnWSReceived(byte[] buffer, long offset, long size)
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
         {
             string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
             Console.WriteLine("Incoming: " + message);
@@ -72,7 +72,7 @@ namespace WssChatServer
 
             Console.WriteLine($"WebSocket server port: {port}");
             Console.WriteLine($"WebSocket server static content path: {www}");
-            //Console.WriteLine($"WebSocket server website: http://localhost:{port}/api/index.html");
+            Console.WriteLine($"WebSocket server website: https://localhost:{port}/chat/index.html");
 
             Console.WriteLine();
 
@@ -91,7 +91,7 @@ namespace WssChatServer
             Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
 
             // Perform text input
-            for (; ; )
+            for (;;)
             {
                 string line = Console.ReadLine();
                 if (string.IsNullOrEmpty(line))

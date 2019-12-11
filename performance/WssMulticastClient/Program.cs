@@ -16,7 +16,7 @@ namespace WssMulticastClient
         {
         }
 
-        public override void OnWSConnecting(HttpRequest request)
+        public override void OnWsConnecting(HttpRequest request)
         {
             request.SetBegin("GET", "/");
             request.SetHeader("Host", "localhost");
@@ -28,7 +28,7 @@ namespace WssMulticastClient
             request.SetHeader("Sec-WebSocket-Version", "13");
         }
 
-        public override void OnWSReceived(byte[] buffer, long offset, long size)
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
         {
             Program.TotalBytes += size;
         }

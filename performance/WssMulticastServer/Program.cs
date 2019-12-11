@@ -114,7 +114,7 @@ namespace WssMulticastServer
             Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
 
             // Perform text input
-            for (; ; )
+            for (;;)
             {
                 string line = Console.ReadLine();
                 if (string.IsNullOrEmpty(line))

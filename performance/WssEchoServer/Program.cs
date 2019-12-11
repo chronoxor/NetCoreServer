@@ -12,7 +12,7 @@ namespace WssEchoServer
     {
         public EchoSession(WssServer server) : base(server) { }
 
-        public override void OnWSReceived(byte[] buffer, long offset, long size)
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
         {
             // Resend the message back to the client
             SendBinaryAsync(buffer, offset, size);
@@ -88,7 +88,7 @@ namespace WssEchoServer
             Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
 
             // Perform text input
-            for (; ; )
+            for (;;)
             {
                 string line = Console.ReadLine();
                 if (string.IsNullOrEmpty(line))

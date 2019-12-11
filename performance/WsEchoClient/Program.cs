@@ -16,7 +16,7 @@ namespace WsEchoClient
             _messages = messages;
         }
 
-        public override void OnWSConnecting(HttpRequest request)
+        public override void OnWsConnecting(HttpRequest request)
         {
             request.SetBegin("GET", "/");
             request.SetHeader("Host", "localhost");
@@ -28,7 +28,7 @@ namespace WsEchoClient
             request.SetHeader("Sec-WebSocket-Version", "13");
         }
 
-        public override void OnWSConnected(HttpResponse response)
+        public override void OnWsConnected(HttpResponse response)
         {
             for (long i = _messages; i > 0; --i)
                 SendMessage();
@@ -39,7 +39,7 @@ namespace WsEchoClient
             _sent += sent;
         }
 
-        public override void OnWSReceived(byte[] buffer, long offset, long size)
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
         {
             _received += size;
             while (_received >= Program.MessageToSend.Length)

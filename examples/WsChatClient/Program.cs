@@ -18,7 +18,7 @@ namespace WsChatClient
                 Thread.Yield();
         }
 
-        public override void OnWSConnecting(HttpRequest request)
+        public override void OnWsConnecting(HttpRequest request)
         {
             request.SetBegin("GET", "/");
             request.SetHeader("Host", "localhost");
@@ -30,17 +30,17 @@ namespace WsChatClient
             request.SetHeader("Sec-WebSocket-Version", "13");
         }
 
-        public override void OnWSConnected(HttpResponse response) 
+        public override void OnWsConnected(HttpResponse response)
         {
             Console.WriteLine($"Chat WebSocket client connected a new session with Id {Id}");
         }
 
-        public override void OnWSDisconnected()
+        public override void OnWsDisconnected()
         {
             Console.WriteLine($"Chat WebSocket client disconnected a session with Id {Id}");
         }
 
-        public override void OnWSReceived(byte[] buffer, long offset, long size) 
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
         {
             Console.WriteLine($"Incoming: {Encoding.UTF8.GetString(buffer, (int)offset, (int)size)}");
         }
@@ -62,7 +62,7 @@ namespace WsChatClient
             Console.WriteLine($"Chat WebSocket client caught an error with code {error}");
         }
 
-        private bool _stop = false;
+        private bool _stop;
     }
 
     class Program
@@ -95,7 +95,7 @@ namespace WsChatClient
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
 
             // Perform text input
-            for (; ; )
+            for (;;)
             {
                 string line = Console.ReadLine();
                 if (string.IsNullOrEmpty(line))

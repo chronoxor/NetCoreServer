@@ -25,7 +25,7 @@ namespace tests
             return new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
         }
 
-        public override void OnWSConnecting(HttpRequest request)
+        public override void OnWsConnecting(HttpRequest request)
         {
             request.SetBegin("GET", "/");
             request.SetHeader("Host", "localhost");
@@ -36,9 +36,10 @@ namespace tests
             request.SetHeader("Sec-WebSocket-Protocol", "chat, superchat");
             request.SetHeader("Sec-WebSocket-Version", "13");
         }
-        public override void OnWSConnected(HttpResponse response) { Connected = true; }
-        public override void OnWSDisconnected() { Disconnected = true; }
-        public override void OnWSReceived(byte[] buffer, long offset, long size) { Received += (int)size; }
+        public override void OnWsConnected(HttpResponse response) { Connected = true; }
+        public override void OnWsDisconnected() { Disconnected = true; }
+        public override void OnWsReceived(byte[] buffer, long offset, long size) { Received += (int)size; }
+
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -50,9 +51,10 @@ namespace tests
 
         public EchoWssSession(WssServer server) : base(server) { }
 
-        public override void OnWSConnected(HttpResponse response) { Connected = true; }
-        public override void OnWSDisconnected() { Disconnected = true; }
-        public override void OnWSReceived(byte[] buffer, long offset, long size) { SendBinaryAsync(buffer, offset, size); }
+        public override void OnWsConnected(HttpResponse response) { Connected = true; }
+        public override void OnWsDisconnected() { Disconnected = true; }
+        public override void OnWsReceived(byte[] buffer, long offset, long size) { SendBinaryAsync(buffer, offset, size); }
+
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
