@@ -38,10 +38,14 @@ solution.
       * [TCP echo server](#tcp-echo-server)
       * [SSL echo server](#ssl-echo-server)
       * [UDP echo server](#udp-echo-server)
+      * [WebSocket echo server](#websocket-echo-server)
+      * [WebSocket secure echo server](#websocket-secure-echo-server)
     * [Benchmark: Multicast](#benchmark-multicast)
       * [TCP multicast server](#tcp-multicast-server)
       * [SSL multicast server](#ssl-multicast-server)
       * [UDP multicast server](#udp-multicast-server)
+      * [WebSocket multicast server](#websocket-multicast-server)
+      * [WebSocket secure multicast server](#websocket-secure-multicast-server)
     * [Benchmark: Web Server](#benchmark-web-server)
       * [HTTP Trace server](#http-trace-server)
       * [HTTPS Trace server](#https-trace-server)
@@ -2350,6 +2354,96 @@ Message latency: 9.776 mcs
 Message throughput: 102287 msg/s
 ```
 
+### WebSocket echo server
+
+* [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
+* [WsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 1
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.002 s
+Total data: 49.382 MiB
+Total messages: 1617887
+Data throughput: 4.958 MiB/s
+Message latency: 6.182 mcs
+Message throughput: 161742 msg/s
+```
+
+* [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
+* [WsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 100
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.994 s
+Total data: 22.548 MiB
+Total messages: 738454
+Data throughput: 2.051 MiB/s
+Message latency: 14.888 mcs
+Message throughput: 67168 msg/s
+```
+
+### WebSocket secure echo server
+
+* [WssEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoServer/Program.cs)
+* [WssEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 1
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+
+Errors: 0
+
+Total time: 10.003 s
+Total data: 37.1007 MiB
+Total messages: 1244649
+Data throughput: 3.816 MiB/s
+Message latency: 8.036 mcs
+Message throughput: 124426 msg/s
+```
+
+* [WssEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoServer/Program.cs)
+* [WssEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 100
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.134 s
+Total data: 55.534 MiB
+Total messages: 1819335
+Data throughput: 5.489 MiB/s
+Message latency: 5.570 mcs
+Message throughput: 179516 msg/s
+
+```
+
 ## Benchmark: Multicast
 
 ![Multicast](https://github.com/chronoxor/NetCoreServer/raw/master/images/multicast.png)
@@ -2481,6 +2575,90 @@ Total messages: 1821897
 Data throughput: 5.556 MiB/s
 Message latency: 5.504 mcs
 Message throughput: 181656 msg/s
+```
+
+### WebSocket multicast server
+
+* [WsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastServer/Program.cs)
+* [WsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 1
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.002 s
+Total data: 52.907 MiB
+Total messages: 1732985
+Data throughput: 5.294 MiB/s
+Message latency: 5.771 mcs
+Message throughput: 173253 msg/s
+```
+
+* [WsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastServer/Program.cs)
+* [WsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 100
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.023 s
+Total data: 16.098 MiB
+Total messages: 527442
+Data throughput: 1.620 MiB/s
+Message latency: 19.003 mcs
+Message throughput: 52623 msg/s
+```
+
+### WebSocket secure multicast server
+
+* [WssMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastServer/Program.cs)
+* [WssMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 1
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.004 s
+Total data: 20.201 MiB
+Total messages: 661823
+Data throughput: 2.019 MiB/s
+Message latency: 15.115 mcs
+Message throughput: 66155 msg/s
+```
+
+* [WssMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastServer/Program.cs)
+* [WssMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 100
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.014 s
+Total data: 18.815 MiB
+Total messages: 615923
+Data throughput: 1.897 MiB/s
+Message latency: 16.259 mcs
+Message throughput: 61502 msg/s
 ```
 
 ## Benchmark: Web Server
