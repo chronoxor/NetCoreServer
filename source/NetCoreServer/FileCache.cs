@@ -34,7 +34,7 @@ namespace NetCoreServer
         /// <returns>'true' if the cache value was added, 'false' if the given key was not added</returns>
         public bool Add(string key, byte[] value, TimeSpan timeout = new TimeSpan())
         {
-            lock(_lock)
+            lock (_lock)
             {
                 // Try to find and remove the previous key
                 RemoveInternal(key);
@@ -90,7 +90,7 @@ namespace NetCoreServer
         /// <returns>'true' and cache value if the cache value was found, 'false' if the given key was not found</returns>
         public Tuple<bool, byte[]> Find(string key)
         {
-            lock(_lock)
+            lock (_lock)
             {
                 // Try to find the given key
                 if (!_entriesByKey.TryGetValue(key, out var cacheValue))
@@ -129,8 +129,10 @@ namespace NetCoreServer
         /// <returns>'true' if the cache value was removed, 'false' if the given key was not found</returns>
         public bool Remove(string key)
         {
-            lock(_lock)
+            lock (_lock)
+            {
                 return RemoveInternal(key);
+            }
         }
 
         /// <summary>
@@ -152,7 +154,7 @@ namespace NetCoreServer
             if (!InsertPathInternal(path, prefix, timeout, handler))
                 return false;
 
-            lock(_lock)
+            lock (_lock)
             {
                 // Update the cache entry
                 if (timeout.Ticks > 0)
@@ -220,7 +222,7 @@ namespace NetCoreServer
         /// </summary>
         public void Clear()
         {
-            lock(_lock)
+            lock (_lock)
             {
                 // Clear all cache entries
                 _entriesByKey.Clear();
@@ -378,7 +380,7 @@ namespace NetCoreServer
 
         private bool RemovePathInternal(string path)
         {
-            lock(_lock)
+            lock (_lock)
             {
                 // Try to find the given path
                 if (!_pathsByKey.TryGetValue(path, out var cacheValue))

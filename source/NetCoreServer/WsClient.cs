@@ -43,7 +43,7 @@ namespace NetCoreServer
 
         public long SendText(byte[] buffer, long offset, long size)
         {
-            lock(WebSocket.WsSendLock)
+            lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, true, buffer, offset, size);
                 return base.Send(WebSocket.WsSendBuffer.ToArray());
