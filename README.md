@@ -2369,12 +2369,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.002 s
-Total data: 49.382 MiB
-Total messages: 1617887
-Data throughput: 4.958 MiB/s
-Message latency: 6.182 mcs
-Message throughput: 161742 msg/s
+Total time: 10.001 s
+Total data: 73.838 MiB
+Total messages: 2418902
+Data throughput: 7.389 MiB/s
+Message latency: 4.134 mcs
+Message throughput: 241846 msg/s
 ```
 
 * [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
@@ -2390,12 +2390,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.994 s
-Total data: 22.548 MiB
-Total messages: 738454
-Data throughput: 2.051 MiB/s
-Message latency: 14.888 mcs
-Message throughput: 67168 msg/s
+Total time: 12.189 s
+Total data: 111.540 MiB
+Total messages: 3654528
+Data throughput: 9.153 MiB/s
+Message latency: 3.335 mcs
+Message throughput: 299815 msg/s
 ```
 
 ### WebSocket secure echo server
@@ -2414,12 +2414,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.003 s
-Total data: 37.1007 MiB
-Total messages: 1244649
-Data throughput: 3.816 MiB/s
-Message latency: 8.036 mcs
-Message throughput: 124426 msg/s
+Total time: 10.021 s
+Total data: 45.372 MiB
+Total messages: 1486484
+Data throughput: 4.539 MiB/s
+Message latency: 6.742 mcs
+Message throughput: 148323 msg/s
 ```
 
 * [WssEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoServer/Program.cs)
@@ -2592,11 +2592,11 @@ Seconds to benchmarking: 10
 Errors: 0
 
 Total time: 10.002 s
-Total data: 52.907 MiB
-Total messages: 1732985
-Data throughput: 5.294 MiB/s
-Message latency: 5.771 mcs
-Message throughput: 173253 msg/s
+Total data: 20.880 MiB
+Total messages: 683537
+Data throughput: 2.087 MiB/s
+Message latency: 14.633 mcs
+Message throughput: 68335 msg/s
 ```
 
 * [WsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastServer/Program.cs)
@@ -2611,12 +2611,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.023 s
-Total data: 16.098 MiB
-Total messages: 527442
-Data throughput: 1.620 MiB/s
-Message latency: 19.003 mcs
-Message throughput: 52623 msg/s
+Total time: 10.017 s
+Total data: 14.797 MiB
+Total messages: 484275
+Data throughput: 1.486 MiB/s
+Message latency: 20.685 mcs
+Message throughput: 48344 msg/s
 ```
 
 ### WebSocket secure multicast server
@@ -2653,12 +2653,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.014 s
-Total data: 18.815 MiB
-Total messages: 615923
-Data throughput: 1.897 MiB/s
-Message latency: 16.259 mcs
-Message throughput: 61502 msg/s
+Total time: 10.098 s
+Total data: 21.020 MiB
+Total messages: 688799
+Data throughput: 2.083 MiB/s
+Message latency: 14.660 mcs
+Message throughput: 68210 msg/s
 ```
 
 ## Benchmark: Web Server

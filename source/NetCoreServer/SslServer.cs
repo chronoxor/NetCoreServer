@@ -58,7 +58,7 @@ namespace NetCoreServer
         /// <summary>
         /// Number of sessions connected to the server
         /// </summary>
-        public long ConnectedSessions { get { return _sessions.Count; } }
+        public long ConnectedSessions { get { return Sessions.Count; } }
         /// <summary>
         /// Number of bytes pending sent by the server
         /// </summary>
@@ -289,7 +289,7 @@ namespace NetCoreServer
         #region Session management
 
         // Server sessions
-        private readonly ConcurrentDictionary<Guid, SslSession> _sessions = new ConcurrentDictionary<Guid, SslSession>();
+        protected readonly ConcurrentDictionary<Guid, SslSession> Sessions = new ConcurrentDictionary<Guid, SslSession>();
 
         /// <summary>
         /// Disconnect all connected sessions
@@ -301,7 +301,7 @@ namespace NetCoreServer
                 return false;
 
             // Disconnect all sessions
-            foreach (var session in _sessions.Values)
+            foreach (var session in Sessions.Values)
                 session.Disconnect();
 
             return true;
@@ -315,7 +315,7 @@ namespace NetCoreServer
         public SslSession FindSession(Guid id)
         {
             // Try to find the required session
-            return _sessions.TryGetValue(id, out SslSession result) ? result : null;
+            return Sessions.TryGetValue(id, out SslSession result) ? result : null;
         }
 
         /// <summary>
@@ -325,7 +325,7 @@ namespace NetCoreServer
         internal void RegisterSession(SslSession session)
         {
             // Register a new session
-            _sessions.TryAdd(session.Id, session);
+            Sessions.TryAdd(session.Id, session);
         }
 
         /// <summary>
@@ -335,7 +335,7 @@ namespace NetCoreServer
         internal void UnregisterSession(Guid id)
         {
             // Unregister session by Id
-            _sessions.TryRemove(id, out SslSession temp);
+            Sessions.TryRemove(id, out SslSession temp);
         }
 
         #endregion
@@ -365,7 +365,7 @@ namespace NetCoreServer
                 return true;
 
             // Multicast data to all sessions
-            foreach (var session in _sessions.Values)
+            foreach (var session in Sessions.Values)
                 session.SendAsync(buffer, offset, size);
 
             return true;

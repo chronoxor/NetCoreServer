@@ -9,7 +9,7 @@ namespace NetCoreServer
     /// <remarks> WebSocket secure session is used to read and write data from the connected WebSocket client. Thread-safe.</remarks>
     public class WssSession : HttpsSession, IWebSocket
     {
-        protected readonly WebSocket WebSocket;
+        internal readonly WebSocket WebSocket;
 
         public WssSession(WssServer server) : base(server) { WebSocket = new WebSocket(this); }
 

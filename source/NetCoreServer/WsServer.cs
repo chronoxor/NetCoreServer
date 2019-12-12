@@ -9,7 +9,7 @@ namespace NetCoreServer
     /// <remarks> WebSocket server is used to communicate with clients using WebSocket protocol. Thread-safe.</remarks>
     public class WsServer : HttpServer, IWebSocket
     {
-        protected readonly WebSocket WebSocket;
+        internal readonly WebSocket WebSocket;
 
         /// <summary>
         /// Initialize WebSocket server with a given IP address and port number
@@ -34,8 +34,35 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, false, null, 0, 0, status);
+                if (!Multicast(WebSocket.WsSendBuffer.ToArray()))
+                    return false;
+
                 return base.DisconnectAll();
             }
+        }
+
+        public override bool Multicast(byte[] buffer, long offset, long size)
+        {
+            if (!IsStarted)
+                return false;
+
+            if (size == 0)
+                return true;
+
+            // Multicast data to all WebSocket sessions
+            foreach (var session in Sessions.Values)
+            {
+                if (session is WsSession wsSession)
+                {
+                    lock (wsSession.WebSocket.WsSendLock)
+                    {
+                        if (wsSession.WebSocket.WsHandshaked)
+                            wsSession.SendAsync(buffer, offset, size);
+                    }
+                }
+            }
+
+            return true;
         }
 
         #region WebSocket multicast text methods
@@ -45,7 +72,7 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, buffer, offset, size);
-                return base.Multicast(WebSocket.WsSendBuffer.ToArray());
+                return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
 
@@ -54,7 +81,7 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, Encoding.UTF8.GetBytes(text), 0, text.Length);
-                return base.Multicast(WebSocket.WsSendBuffer.ToArray());
+                return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
 
@@ -67,7 +94,7 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, buffer, offset, size);
-                return base.Multicast(WebSocket.WsSendBuffer.ToArray());
+                return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
 
@@ -76,7 +103,7 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, Encoding.UTF8.GetBytes(text), 0, text.Length);
-                return base.Multicast(WebSocket.WsSendBuffer.ToArray());
+                return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
 
@@ -89,7 +116,7 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, buffer, offset, size);
-                return base.Multicast(WebSocket.WsSendBuffer.ToArray());
+                return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
 
@@ -98,7 +125,7 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, Encoding.UTF8.GetBytes(text), 0, text.Length);
-                return base.Multicast(WebSocket.WsSendBuffer.ToArray());
+                return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
 
@@ -111,7 +138,7 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, false, buffer, offset, size);
-                return base.Multicast(WebSocket.WsSendBuffer.ToArray());
+                return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
 
@@ -120,7 +147,7 @@ namespace NetCoreServer
             lock (WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, false, Encoding.UTF8.GetBytes(text), 0, text.Length);
-                return base.Multicast(WebSocket.WsSendBuffer.ToArray());
+                return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
 

@@ -10,7 +10,7 @@ namespace NetCoreServer
     /// <remarks>WebSocket client is used to communicate with WebSocket server. Thread-safe.</remarks>
     public class WsClient : HttpClient, IWebSocket
     {
-        protected readonly WebSocket WebSocket;
+        internal readonly WebSocket WebSocket;
 
         /// <summary>
         /// Initialize WebSocket client with a given IP address and port number
@@ -41,13 +41,13 @@ namespace NetCoreServer
 
         #region WebSocket send text methods
 
-        public long SendText(byte[] buffer, long offset, long size) 
-        { 
+        public long SendText(byte[] buffer, long offset, long size)
+        {
             lock(WebSocket.WsSendLock)
             {
                 WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, true, buffer, offset, size);
                 return base.Send(WebSocket.WsSendBuffer.ToArray());
-            }      
+            }
         }
 
         public long SendText(string text)

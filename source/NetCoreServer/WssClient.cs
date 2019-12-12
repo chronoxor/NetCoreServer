@@ -10,7 +10,7 @@ namespace NetCoreServer
     /// <remarks>WebSocket secure client is used to communicate with secure WebSocket server. Thread-safe.</remarks>
     public class WssClient : HttpsClient, IWebSocket
     {
-        protected readonly WebSocket WebSocket;
+        internal readonly WebSocket WebSocket;
 
         /// <summary>
         /// Initialize WebSocket client with a given IP address and port number
