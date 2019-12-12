@@ -54,11 +54,8 @@ namespace NetCoreServer
             {
                 if (session is WsSession wsSession)
                 {
-                    lock (wsSession.WebSocket.WsSendLock)
-                    {
-                        if (wsSession.WebSocket.WsHandshaked)
-                            wsSession.SendAsync(buffer, offset, size);
-                    }
+                    if (wsSession.WebSocket.WsHandshaked)
+                        wsSession.SendAsync(buffer, offset, size);
                 }
             }
 
