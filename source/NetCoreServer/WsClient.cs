@@ -54,7 +54,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, true, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, true, data, 0, data.Length);
                 return base.Send(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -72,7 +73,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, true, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, true, data, 0, data.Length);
                 return base.SendAsync(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -94,7 +96,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, true, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, true, data, 0, data.Length);
                 return base.Send(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -112,7 +115,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, true, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, true, data, 0, data.Length);
                 return base.SendAsync(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -134,7 +138,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, true, Encoding.UTF8.GetBytes(text), 0, text.Length, status);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, true, data, 0, data.Length, status);
                 return base.Send(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -152,7 +157,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, true, Encoding.UTF8.GetBytes(text), 0, text.Length, status);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, true, data, 0, data.Length, status);
                 return base.SendAsync(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -174,7 +180,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, true, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, true, data, 0, data.Length);
                 return base.Send(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -192,7 +199,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, true, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, true, data, 0, data.Length);
                 return base.SendAsync(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -214,7 +222,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, true, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, true, data, 0, data.Length);
                 return base.Send(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -232,7 +241,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, true, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, true, data, 0, data.Length);
                 return base.SendAsync(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -366,7 +376,8 @@ namespace NetCoreServer
             {
                 // Prepare receive frame from the remaining request body
                 var body = Request.Body;
-                WebSocket.PrepareReceiveFrame(Encoding.UTF8.GetBytes(body), 0, body.Length);
+                var data = Encoding.UTF8.GetBytes(body);
+                WebSocket.PrepareReceiveFrame(data, 0, data.Length);
                 return;
             }
 

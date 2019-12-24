@@ -80,7 +80,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, data, 0, data.Length);
                 return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -102,7 +103,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, data, 0, data.Length);
                 return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -124,7 +126,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, data, 0, data.Length);
                 return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
@@ -146,7 +149,8 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, false, Encoding.UTF8.GetBytes(text), 0, text.Length);
+                var data = Encoding.UTF8.GetBytes(text);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, false, data, 0, data.Length);
                 return Multicast(WebSocket.WsSendBuffer.ToArray());
             }
         }
