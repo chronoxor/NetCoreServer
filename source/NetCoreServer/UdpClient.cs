@@ -320,10 +320,12 @@ namespace NetCoreServer
         private bool _receiving;
         private Buffer _receiveBuffer;
         private SocketAsyncEventArgs _receiveEventArg;
+        private int _receiveThreadId;
         // Send buffer
         private bool _sending;
         private Buffer _sendBuffer;
         private SocketAsyncEventArgs _sendEventArg;
+        private int _sendThreadId;
 
         /// <summary>
         /// Send datagram to the connected server (synchronous)
@@ -465,7 +467,10 @@ namespace NetCoreServer
             _sendEndpoint = endpoint;
 
             // Try to send the main buffer
-            TrySend();
+            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                ThreadPool.QueueUserWorkItem(_ => TrySend());
+            else
+                TrySend();
 
             return true;
         }
@@ -543,7 +548,14 @@ namespace NetCoreServer
         /// <summary>
         /// Receive datagram from the server (asynchronous)
         /// </summary>
-        public virtual void ReceiveAsync() { TryReceive(); }
+        public virtual void ReceiveAsync()
+        {
+            // Try to receive datagram
+            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                ThreadPool.QueueUserWorkItem(_ => TryReceive());
+            else
+                TryReceive();
+        }
 
         /// <summary>
         /// Try to receive new data
@@ -562,6 +574,7 @@ namespace NetCoreServer
                 _receiving = true;
                 _receiveEventArg.RemoteEndPoint = _receiveEndpoint;
                 _receiveEventArg.SetBuffer(_receiveBuffer.Data, 0, (int)_receiveBuffer.Capacity);
+                _receiveThreadId = Thread.CurrentThread.ManagedThreadId;
                 if (!Socket.ReceiveFromAsync(_receiveEventArg))
                     ProcessReceiveFrom(_receiveEventArg);
             }
@@ -585,6 +598,7 @@ namespace NetCoreServer
                 _sending = true;
                 _sendEventArg.RemoteEndPoint = _sendEndpoint;
                 _sendEventArg.SetBuffer(_sendBuffer.Data, 0, (int)(_sendBuffer.Size));
+                _sendThreadId = Thread.CurrentThread.ManagedThreadId;
                 if (!Socket.SendToAsync(_sendEventArg))
                     ProcessSendTo(_sendEventArg);
             }
@@ -658,6 +672,9 @@ namespace NetCoreServer
                 // Call the datagram received handler
                 OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, size);
 
+                // Reset the receive thread Id
+                _receiveThreadId = 0;
+
                 // If the receive buffer is full increase its size
                 if (_receiveBuffer.Capacity == size)
                     _receiveBuffer.Reserve(2 * size);
@@ -696,6 +713,9 @@ namespace NetCoreServer
 
                 // Call the buffer sent handler
                 OnSent(_sendEndpoint, sent);
+
+                // Reset the send thread Id
+                _sendThreadId = 0;
             }
         }
 

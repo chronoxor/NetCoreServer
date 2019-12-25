@@ -401,12 +401,14 @@ namespace NetCoreServer
         // Receive buffer
         private bool _receiving;
         private Buffer _receiveBuffer;
+        private int _receiveThreadId;
         // Send buffer
         private readonly object _sendLock = new object();
         private bool _sending;
         private Buffer _sendBufferMain;
         private Buffer _sendBufferFlush;
         private long _sendBufferFlushOffset;
+        private int _sendThreadId;
 
         /// <summary>
         /// Send data to the server (synchronous)
@@ -497,7 +499,10 @@ namespace NetCoreServer
             }
 
             // Try to send the main buffer
-            TrySend();
+            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                ThreadPool.QueueUserWorkItem(_ => TrySend());
+            else
+                TrySend();
 
             return true;
         }
@@ -569,7 +574,14 @@ namespace NetCoreServer
         /// <summary>
         /// Receive data from the server (asynchronous)
         /// </summary>
-        public virtual void ReceiveAsync() { TryReceive(); }
+        public virtual void ReceiveAsync()
+        {
+            // Try to receive datagram
+            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                ThreadPool.QueueUserWorkItem(_ => TryReceive());
+            else
+                TryReceive();
+        }
 
         /// <summary>
         /// Try to receive new data
@@ -592,6 +604,7 @@ namespace NetCoreServer
                         return;
 
                     _receiving = true;
+                    _receiveThreadId = Thread.CurrentThread.ManagedThreadId;
                     result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, _sslStreamId);
                 } while (result.CompletedSynchronously);
 
@@ -639,6 +652,7 @@ namespace NetCoreServer
             {
                 // Async write with the write handler
                 _sending = true;
+                _sendThreadId = Thread.CurrentThread.ManagedThreadId;
                 _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, _sslStreamId);
             }
             catch (ObjectDisposedException) {}
@@ -809,6 +823,9 @@ namespace NetCoreServer
                     // Call the buffer received handler
                     OnReceived(_receiveBuffer.Data, 0, size);
 
+                    // Reset the receive thread Id
+                    _receiveThreadId = 0;
+
                     // If the receive buffer is full increase its size
                     if (_receiveBuffer.Capacity == size)
                         _receiveBuffer.Reserve(2 * size);
@@ -872,6 +889,9 @@ namespace NetCoreServer
 
                     // Call the buffer sent handler
                     OnSent(size, BytesPending + BytesSending);
+
+                    // Reset the send thread Id
+                    _sendThreadId = 0;
                 }
 
                 // Try to send again if the client is valid
