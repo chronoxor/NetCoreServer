@@ -86,12 +86,12 @@ namespace NetCoreServer
         /// </remarks>
         public bool OptionReuseAddress { get; set; }
         /// <summary>
-        /// Option: reuse port
+        /// Option: enables a socket to be bound for exclusive access
         /// </summary>
         /// <remarks>
-        /// This option will enable/disable SO_REUSEPORT if the OS support this feature
+        /// This option will enable/disable SO_EXCLUSIVEADDRUSE if the OS support this feature
         /// </remarks>
-        public bool OptionReusePort { get; set; }
+        public bool OptionExclusiveAddressUse { get; set; }
         /// <summary>
         /// Option: receive buffer size
         /// </summary>
@@ -107,6 +107,36 @@ namespace NetCoreServer
         {
             get => Socket.SendBufferSize;
             set => Socket.SendBufferSize = value;
+        }
+        /// <summary>
+        /// Option: receive timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionReceiveTimeout
+        {
+            get => Socket.ReceiveTimeout;
+            set => Socket.ReceiveTimeout = value;
+        }
+        /// <summary>
+        /// Option: send timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionSendTimeout
+        {
+            get => Socket.SendTimeout;
+            set => Socket.SendTimeout = value;
+        }
+        /// <summary>
+        /// Option: linger state
+        /// </summary>
+        public LingerOption OptionLingerState
+        {
+            get => Socket.LingerState;
+            set => Socket.LingerState = value;
         }
 
         #region Connect/Disconnect client
@@ -140,13 +170,9 @@ namespace NetCoreServer
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
             // Apply the option: reuse address
-            if (OptionReuseAddress)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            // Apply the option: reuse port
-            /*
-            if (OptionReusePort)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReusePort, true);
-            */
+            Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, OptionReuseAddress);
+            // Apply the option: exclusive address use
+            Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, OptionExclusiveAddressUse);
 
             // Bind the server socket to the IP endpoint
             Socket.Bind(Endpoint);
@@ -266,10 +292,12 @@ namespace NetCoreServer
         private bool _receiving;
         private Buffer _receiveBuffer;
         private SocketAsyncEventArgs _receiveEventArg;
+        private int _receiveThreadId;
         // Send buffer
         private bool _sending;
         private Buffer _sendBuffer;
         private SocketAsyncEventArgs _sendEventArg;
+        private int _sendThreadId;
 
         /// <summary>
         /// Multicast datagram to the prepared mulicast endpoint (synchronous)
@@ -433,7 +461,10 @@ namespace NetCoreServer
             _sendEndpoint = endpoint;
 
             // Try to send the main buffer
-            TrySend();
+            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                ThreadPool.QueueUserWorkItem(_ => TrySend());
+            else
+                TrySend();
 
             return true;
         }
@@ -510,7 +541,14 @@ namespace NetCoreServer
         /// <summary>
         /// Receive datagram from the client (asynchronous)
         /// </summary>
-        public virtual void ReceiveAsync() { TryReceive(); }
+        public virtual void ReceiveAsync()
+        {
+            // Try to receive datagram
+            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                ThreadPool.QueueUserWorkItem(_ => TryReceive());
+            else
+                TryReceive();
+        }
 
         /// <summary>
         /// Try to receive new data
@@ -529,6 +567,7 @@ namespace NetCoreServer
                 _receiving = true;
                 _receiveEventArg.RemoteEndPoint = _receiveEndpoint;
                 _receiveEventArg.SetBuffer(_receiveBuffer.Data, 0, (int)_receiveBuffer.Capacity);
+                _receiveThreadId = Thread.CurrentThread.ManagedThreadId;
                 if (!Socket.ReceiveFromAsync(_receiveEventArg))
                     ProcessReceiveFrom(_receiveEventArg);
             }
@@ -552,6 +591,7 @@ namespace NetCoreServer
                 _sending = true;
                 _sendEventArg.RemoteEndPoint = _sendEndpoint;
                 _sendEventArg.SetBuffer(_sendBuffer.Data, 0, (int)(_sendBuffer.Size));
+                _sendThreadId = Thread.CurrentThread.ManagedThreadId;
                 if (!Socket.SendToAsync(_sendEventArg))
                     ProcessSendTo(_sendEventArg);
             }
@@ -613,6 +653,9 @@ namespace NetCoreServer
                 // Call the datagram received zero handler
                 OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, 0);
 
+                // Reset the receive thread Id
+                _receiveThreadId = 0;
+
                 return;
             }
 
@@ -627,6 +670,9 @@ namespace NetCoreServer
 
                 // Call the datagram received handler
                 OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, size);
+
+                // Reset the receive thread Id
+                _receiveThreadId = 0;
 
                 // If the receive buffer is full increase its size
                 if (_receiveBuffer.Capacity == size)
@@ -652,6 +698,9 @@ namespace NetCoreServer
                 // Call the buffer sent zero handler
                 OnSent(_sendEndpoint, 0);
 
+                // Reset the send thread Id
+                _sendThreadId = 0;
+
                 return;
             }
 
@@ -669,6 +718,9 @@ namespace NetCoreServer
 
                 // Call the buffer sent handler
                 OnSent(_sendEndpoint, sent);
+
+                // Reset the send thread Id
+                _sendThreadId = 0;
             }
         }
 
