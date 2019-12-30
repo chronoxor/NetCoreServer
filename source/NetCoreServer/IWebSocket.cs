@@ -9,13 +9,13 @@ namespace NetCoreServer
         /// </summary>
         /// <remarks>Notification is called when WebSocket client is connecting to the server.You can handle the connection and change WebSocket upgrade HTTP request by providing your own headers.</remarks>
         /// <param name="request">WebSocket upgrade HTTP request</param>
-        void OnWsConnecting(HttpRequest request) {}
+        void OnWsConnecting(HttpRequest request);
 
         /// <summary>
         /// Handle WebSocket client connected notification
         /// </summary>
         /// <param name="response">WebSocket upgrade HTTP response</param>
-        void OnWsConnected(HttpResponse response) {}
+        void OnWsConnected(HttpResponse response);
 
         /// <summary>
         /// Handle WebSocket server session validating notification
@@ -24,18 +24,18 @@ namespace NetCoreServer
         /// <param name="request">WebSocket upgrade HTTP request</param>
         /// <param name="response">WebSocket upgrade HTTP response</param>
         /// <returns>return 'true' if the WebSocket update request is valid, 'false' if the WebSocket update request is not valid</returns>
-        bool OnWsConnecting(HttpRequest request, HttpResponse response) { return true; }
+        bool OnWsConnecting(HttpRequest request, HttpResponse response); // { return true; }
 
         /// <summary>
         /// Handle WebSocket server session connected notification
         /// </summary>
         /// <param name="request">WebSocket upgrade HTTP request</param>
-        void OnWsConnected(HttpRequest request) {}
+        void OnWsConnected(HttpRequest request);
 
         /// <summary>
         /// Handle WebSocket client disconnected notification
         /// </summary>
-        void OnWsDisconnected() {}
+        void OnWsDisconnected();
 
         /// <summary>
         /// Handle WebSocket received notification
@@ -43,7 +43,7 @@ namespace NetCoreServer
         /// <param name="buffer">Received buffer</param>
         /// <param name="offset">Received buffer offset</param>
         /// <param name="size">Received buffer size</param>
-        void OnWsReceived(byte[] buffer, long offset, long size) {}
+        void OnWsReceived(byte[] buffer, long offset, long size);
 
         /// <summary>
         /// Handle WebSocket client close notification
@@ -51,7 +51,7 @@ namespace NetCoreServer
         /// <param name="buffer">Received buffer</param>
         /// <param name="offset">Received buffer offset</param>
         /// <param name="size">Received buffer size</param>
-        void OnWsClose(byte[] buffer, long offset, long size) {}
+        void OnWsClose(byte[] buffer, long offset, long size);
 
         /// <summary>
         /// Handle WebSocket ping notification
@@ -59,7 +59,7 @@ namespace NetCoreServer
         /// <param name="buffer">Received buffer</param>
         /// <param name="offset">Received buffer offset</param>
         /// <param name="size">Received buffer size</param>
-        void OnWsPing(byte[] buffer, long offset, long size) {}
+        void OnWsPing(byte[] buffer, long offset, long size);
 
         /// <summary>
         /// Handle WebSocket pong notification
@@ -67,24 +67,24 @@ namespace NetCoreServer
         /// <param name="buffer">Received buffer</param>
         /// <param name="offset">Received buffer offset</param>
         /// <param name="size">Received buffer size</param>
-        void OnWsPong(byte[] buffer, long offset, long size) {}
+        void OnWsPong(byte[] buffer, long offset, long size);
 
         /// <summary>
         /// Handle WebSocket error notification
         /// </summary>
         /// <param name="error">Error message</param>
-        void OnWsError(string error) {}
+        void OnWsError(string error);
 
         /// <summary>
         /// Handle socket error notification
         /// </summary>
         /// <param name="error">Socket error</param>
-        void OnWsError(SocketError error) {}
+        void OnWsError(SocketError error);
 
         /// <summary>
         /// Send WebSocket server upgrade response
         /// </summary>
         /// <param name="response">WebSocket upgrade HTTP response</param>
-        void SendResponse(HttpResponse response) {}
+        void SendResponse(HttpResponse response);
     }
 }

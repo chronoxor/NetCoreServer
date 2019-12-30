@@ -9,9 +9,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NetCoreServer</RootNamespace>
     <AssemblyName>NetCoreServer</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,7 +36,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Threading.Thread" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,6 +53,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Buffer.cs" />
+    <Compile Include="FileCache.cs" />
+    <Compile Include="HttpClient.cs" />
+    <Compile Include="HttpRequest.cs" />
+    <Compile Include="HttpResponse.cs" />
+    <Compile Include="HttpsClient.cs" />
+    <Compile Include="HttpServer.cs" />
+    <Compile Include="HttpSession.cs" />
+    <Compile Include="HttpsServer.cs" />
+    <Compile Include="HttpsSession.cs" />
+    <Compile Include="IWebSocket.cs" />
+    <Compile Include="Polyfills\Range.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SslClient.cs" />
     <Compile Include="SslContext.cs" />
@@ -53,6 +75,16 @@
     <Compile Include="UdpClient.cs" />
     <Compile Include="UdpServer.cs" />
     <Compile Include="Utilities.cs" />
+    <Compile Include="WebSocket.cs" />
+    <Compile Include="WsClient.cs" />
+    <Compile Include="WssClient.cs" />
+    <Compile Include="WsServer.cs" />
+    <Compile Include="WsSession.cs" />
+    <Compile Include="WssServer.cs" />
+    <Compile Include="WssSession.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

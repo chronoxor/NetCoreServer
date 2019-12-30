@@ -238,7 +238,12 @@ namespace NetCoreServer
 
             // WebSocket successfully handshaked!
             WsHandshaked = true;
-            Array.Fill(WsSendMask, (byte)0);
+
+            // Array.Fill(WsSendMask, (byte)0);  // unsupported in .net framework
+            for (int i = 0; i < WsSendMask.Length; i++)
+            {
+                WsSendMask[i] = (byte)0;
+            }
             _wsHandler.OnWsConnected(request);
 
             return true;
