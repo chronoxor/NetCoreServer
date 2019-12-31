@@ -57,7 +57,6 @@ namespace SslEchoClient
             }
         }
 
-        private Task _sender = Task.CompletedTask;
         private long _sent;
         private long _received;
         private long _messages;

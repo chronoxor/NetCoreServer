@@ -111,20 +111,56 @@ namespace NetCoreServer
             get => Socket.SendBufferSize;
             set => Socket.SendBufferSize = value;
         }
+        /// <summary>
+        /// Option: receive timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionReceiveTimeout
+        {
+            get => Socket.ReceiveTimeout;
+            set => Socket.ReceiveTimeout = value;
+        }
+        /// <summary>
+        /// Option: send timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionSendTimeout
+        {
+            get => Socket.SendTimeout;
+            set => Socket.SendTimeout = value;
+        }
+        /// <summary>
+        /// Option: linger state
+        /// </summary>
+        public LingerOption OptionLingerState
+        {
+            get => Socket.LingerState;
+            set => Socket.LingerState = value;
+        }
 
         #region Connect/Disconnect client
 
-        private bool _connecting;
-        private bool _handshaking;
         private bool _disconnecting;
         private SocketAsyncEventArgs _connectEventArg;
         private SslStream _sslStream;
         private Guid? _sslStreamId;
 
         /// <summary>
+        /// Is the client connecting?
+        /// </summary>
+        public bool IsConnecting { get; private set; }
+        /// <summary>
         /// Is the client connected?
         /// </summary>
         public bool IsConnected { get; private set; }
+        /// <summary>
+        /// Is the client handshaking?
+        /// </summary>
+        public bool IsHandshaking { get; private set; }
         /// <summary>
         /// Is the client handshaked?
         /// </summary>
@@ -136,7 +172,7 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool Connect()
         {
-            if (IsConnected || IsHandshaked || _connecting || _handshaking)
+            if (IsConnected || IsHandshaked || IsConnecting || IsHandshaking)
                 return false;
 
             // Setup buffers
@@ -224,19 +260,19 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
         public virtual bool Disconnect()
         {
-            if (!IsConnected && !_connecting)
+            if (!IsConnected && !IsConnecting)
                 return false;
 
             // Cancel connecting operation
-            if (_connecting)
+            if (IsConnecting)
                 Socket.CancelConnectAsync(_connectEventArg);
 
             if (_disconnecting)
                 return false;
 
             // Reset connecting & handshaking flags
-            _connecting = false;
-            _handshaking = false;
+            IsConnecting = false;
+            IsHandshaking = false;
 
             // Update the disconnecting flag
             _disconnecting = true;
@@ -305,7 +341,7 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool ConnectAsync()
         {
-            if (IsConnected || IsHandshaked || _connecting || _handshaking)
+            if (IsConnected || IsHandshaked || IsConnecting || IsHandshaking)
                 return false;
 
             // Setup buffers
@@ -322,7 +358,7 @@ namespace NetCoreServer
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             // Async connect to the server
-            _connecting = true;
+            IsConnecting = true;
             if (!Socket.ConnectAsync(_connectEventArg))
                 ProcessConnect(_connectEventArg);
 
@@ -357,12 +393,14 @@ namespace NetCoreServer
         // Receive buffer
         private bool _receiving;
         private Buffer _receiveBuffer;
+        private int _receiveThreadId;
         // Send buffer
         private readonly object _sendLock = new object();
         private bool _sending;
         private Buffer _sendBufferMain;
         private Buffer _sendBufferFlush;
         private long _sendBufferFlushOffset;
+        private int _sendThreadId;
 
         /// <summary>
         /// Send data to the server (synchronous)
@@ -453,7 +491,10 @@ namespace NetCoreServer
             }
 
             // Try to send the main buffer
-            TrySend();
+            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                ThreadPool.QueueUserWorkItem(_ => TrySend());
+            else
+                TrySend();
 
             return true;
         }
@@ -525,7 +566,14 @@ namespace NetCoreServer
         /// <summary>
         /// Receive data from the server (asynchronous)
         /// </summary>
-        public virtual void ReceiveAsync() { TryReceive(); }
+        public virtual void ReceiveAsync()
+        {
+            // Try to receive datagram
+            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                ThreadPool.QueueUserWorkItem(_ => TryReceive());
+            else
+                TryReceive();
+        }
 
         /// <summary>
         /// Try to receive new data
@@ -548,6 +596,7 @@ namespace NetCoreServer
                         return;
 
                     _receiving = true;
+                    _receiveThreadId = Thread.CurrentThread.ManagedThreadId;
                     result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, _sslStreamId);
                 } while (result.CompletedSynchronously);
 
@@ -595,6 +644,7 @@ namespace NetCoreServer
             {
                 // Async write with the write handler
                 _sending = true;
+                _sendThreadId = Thread.CurrentThread.ManagedThreadId;
                 _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, _sslStreamId);
             }
             catch (ObjectDisposedException) {}
@@ -644,7 +694,7 @@ namespace NetCoreServer
         /// </summary>
         private void ProcessConnect(SocketAsyncEventArgs e)
         {
-            _connecting = false;
+            IsConnecting = false;
 
             if (e.SocketError == SocketError.Success)
             {
@@ -679,7 +729,7 @@ namespace NetCoreServer
                     _sslStream = (Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
 
                     // Begin the SSL handshake
-                    _handshaking = true;
+                    IsHandshaking = true;
                     _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, _sslStreamId);
                 }
                 catch (Exception)
@@ -703,7 +753,7 @@ namespace NetCoreServer
         {
             try
             {
-                _handshaking = false;
+                IsHandshaking = false;
 
                 if (IsHandshaked)
                     return;
@@ -764,6 +814,9 @@ namespace NetCoreServer
 
                     // Call the buffer received handler
                     OnReceived(_receiveBuffer.Data, 0, size);
+
+                    // Reset the receive thread Id
+                    _receiveThreadId = 0;
 
                     // If the receive buffer is full increase its size
                     if (_receiveBuffer.Capacity == size)
@@ -828,6 +881,9 @@ namespace NetCoreServer
 
                     // Call the buffer sent handler
                     OnSent(size, BytesPending + BytesSending);
+
+                    // Reset the send thread Id
+                    _sendThreadId = 0;
                 }
 
                 // Try to send again if the client is valid

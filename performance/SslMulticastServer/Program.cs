@@ -94,7 +94,6 @@ namespace SslMulticastServer
             var server = new MulticastServer(context, IPAddress.Any, port);
             // server.OptionNoDelay = true;
             server.OptionReuseAddress = true;
-            server.OptionReusePort = true;
 
             // Start the server
             Console.Write("Server starting...");
@@ -131,7 +130,7 @@ namespace SslMulticastServer
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server

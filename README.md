@@ -6,7 +6,7 @@
 [![NuGet](https://img.shields.io/nuget/v/NetCoreServer.svg)](https://www.nuget.org/packages/NetCoreServer/)
 
 Ultra fast and low latency asynchronous socket server & client C# .NET Core
-library with support TCP, SSL, UDP protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)
+library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)
 solution.
 
 [NetCoreServer documentation](https://chronoxor.github.io/NetCoreServer)<br/>
@@ -25,15 +25,30 @@ solution.
     * [Example: UDP echo client](#example-udp-echo-client)
     * [Example: UDP multicast server](#example-udp-multicast-server)
     * [Example: UDP multicast client](#example-udp-multicast-client)
+    * [Example: HTTP server](#example-http-server)
+    * [Example: HTTP client](#example-http-client)
+    * [Example: HTTPS server](#example-https-server)
+    * [Example: HTTPS client](#example-https-client)
+    * [Example: WebSocket chat server](#example-websocket-chat-server)
+    * [Example: WebSocket chat client](#example-websocket-chat-client)
+    * [Example: WebSocket secure chat server](#example-websocket-secure-chat-server)
+    * [Example: WebSocket secure chat client](#example-websocket-secure-chat-client)
   * [Performance](#performance)
     * [Benchmark: Round-Trip](#benchmark-round-trip)
       * [TCP echo server](#tcp-echo-server)
       * [SSL echo server](#ssl-echo-server)
       * [UDP echo server](#udp-echo-server)
+      * [WebSocket echo server](#websocket-echo-server)
+      * [WebSocket secure echo server](#websocket-secure-echo-server)
     * [Benchmark: Multicast](#benchmark-multicast)
       * [TCP multicast server](#tcp-multicast-server)
       * [SSL multicast server](#ssl-multicast-server)
       * [UDP multicast server](#udp-multicast-server)
+      * [WebSocket multicast server](#websocket-multicast-server)
+      * [WebSocket secure multicast server](#websocket-secure-multicast-server)
+    * [Benchmark: Web Server](#benchmark-web-server)
+      * [HTTP Trace server](#http-trace-server)
+      * [HTTPS Trace server](#https-trace-server)
   * [OpenSSL certificates](#openssl-certificates)
     * [Certificate Authority](#certificate-authority)
     * [SSL Server certificate](#ssl-server-certificate)
@@ -45,6 +60,9 @@ solution.
 * Asynchronous communication
 * Supported transport protocols: [TCP](#example-tcp-chat-server), [SSL](#example-ssl-chat-server),
   [UDP](#example-udp-echo-server), [UDP multicast](#example-udp-multicast-server)
+* Supported Web protocols: [HTTP](#example-http-server), [HTTPS](#example-https-server),
+  [WebSocket](#example-websocket-chat-server), [WebSocket secure](#example-websocket-secure-chat-server)
+* Supported [Swagger OpenAPI](https://swagger.io/specification/) iterative documentation
 
 # Requirements
 * Linux
@@ -183,7 +201,7 @@ namespace TcpChatServer
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server
@@ -297,7 +315,7 @@ namespace TcpChatClient
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Disconnect the client
@@ -425,7 +443,7 @@ namespace SslChatServer
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server
@@ -552,7 +570,7 @@ namespace SslChatClient
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Disconnect the client
@@ -647,7 +665,7 @@ namespace UdpEchoServer
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server
@@ -678,10 +696,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UdpClient = NetCoreServer.UdpClient;
 
 namespace UdpEchoClient
 {
-    class EchoClient : NetCoreServer.UdpClient
+    class EchoClient : UdpClient
     {
         public EchoClient(string address, int port) : base(address, port) {}
 
@@ -762,7 +781,7 @@ namespace UdpEchoClient
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Disconnect the client
@@ -843,7 +862,7 @@ namespace UdpMulticastServer
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server
@@ -880,10 +899,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UdpClient = NetCoreServer.UdpClient;
 
 namespace UdpMulticastClient
 {
-    class MulticastClient : NetCoreServer.UdpClient
+    class MulticastClient : UdpClient
     {
         public string Multicast;
 
@@ -977,7 +997,7 @@ namespace UdpMulticastClient
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Disconnect the client
@@ -988,6 +1008,1179 @@ namespace UdpMulticastClient
                     Console.WriteLine("Done!");
                     continue;
                 }
+            }
+
+            // Disconnect the client
+            Console.Write("Client disconnecting...");
+            client.DisconnectAndStop();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: HTTP server
+Here comes the example of the HTTP cache server. It allows to manipulate
+cache data with HTTP methods (GET, POST, PUT and DELETE).
+
+Use the following link to open [Swagger OpenAPI](https://swagger.io/specification/) iterative documentation: http://localhost:8080/api/index.html
+
+![OpenAPI-HTTP](https://github.com/chronoxor/NetCoreServer/raw/master/images/openapi-http.png)
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using NetCoreServer;
+
+namespace HttpServer
+{
+    class CommonCache
+    {
+        public static CommonCache GetInstance()
+        {
+            if (_instance == null)
+                _instance = new CommonCache();
+            return _instance;
+        }
+
+        public bool GetCache(string key, out string value)
+        {
+            lock (_cacheLock)
+            {
+                if (_cache.TryGetValue(key, out value))
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+        public void SetCache(string key, string value)
+        {
+            lock (_cacheLock)
+                _cache[key] = value;
+        }
+
+        public bool DeleteCache(string key, out string value)
+        {
+            lock (_cacheLock)
+            {
+                if (_cache.TryGetValue(key, out value))
+                {
+                    _cache.Remove(key);
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+
+        private readonly object _cacheLock = new object();
+        private SortedDictionary<string, string> _cache = new SortedDictionary<string, string>();
+        private static CommonCache _instance;
+    }
+
+    class HttpCacheSession : HttpSession
+    {
+        public HttpCacheSession(NetCoreServer.HttpServer server) : base(server) {}
+
+        protected override void OnReceivedRequest(HttpRequest request)
+        {
+            // Show HTTP request content
+            Console.WriteLine(request);
+
+            // Process HTTP request methods
+            if (request.Method == "HEAD")
+                SendResponseAsync(Response.MakeHeadResponse());
+            else if (request.Method == "GET")
+            {
+                // Get the cache value
+                string cache;
+                if (CommonCache.GetInstance().GetCache(request.Url, out cache))
+                {
+                    // Response with the cache value
+                    SendResponseAsync(Response.MakeGetResponse(cache));
+                }
+                else
+                    SendResponseAsync(Response.MakeErrorResponse("Required cache value was not found for the key: " + request.Url));
+            }
+            else if ((request.Method == "POST") || (request.Method == "PUT"))
+            {
+                // Set the cache value
+                CommonCache.GetInstance().SetCache(request.Url, request.Body);
+                // Response with the cache value
+                SendResponseAsync(Response.MakeOkResponse());
+            }
+            else if (request.Method == "DELETE")
+            {
+                // Delete the cache value
+                string cache;
+                if (CommonCache.GetInstance().DeleteCache(request.Url, out cache))
+                {
+                    // Response with the cache value
+                    SendResponseAsync(Response.MakeGetResponse(cache));
+                }
+                else
+                    SendResponseAsync(Response.MakeErrorResponse("Deleted cache value was not found for the key: " + request.Url));
+            }
+            else if (request.Method == "OPTIONS")
+                SendResponseAsync(Response.MakeOptionsResponse());
+            else if (request.Method == "TRACE")
+                SendResponseAsync(Response.MakeTraceResponse(request.Cache.Data));
+            else
+                SendResponseAsync(Response.MakeErrorResponse("Unsupported HTTP method: " + request.Method));
+        }
+
+        protected override void OnReceivedRequestError(HttpRequest request, string error)
+        {
+            Console.WriteLine($"Request error: {error}");
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"HTTP session caught an error: {error.ToString()}");
+        }
+    }
+
+    class HttpCacheServer : NetCoreServer.HttpServer
+    {
+        public HttpCacheServer(IPAddress address, int port) : base(address, port) {}
+
+        protected override TcpSession CreateSession() { return new HttpCacheSession(this); }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"HTTP session caught an error: {error.ToString()}");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // HTTP server port
+            int port = 8080;
+            if (args.Length > 0)
+                port = int.Parse(args[0]);
+            // HTTP server content path
+            string www = "../../../../../www/api";
+            if (args.Length > 1)
+                www = args[1];
+
+            Console.WriteLine($"HTTP server port: {port}");
+            Console.WriteLine($"HTTP server static content path: {www}");
+            Console.WriteLine($"HTTP server website: http://localhost:{port}/api/index.html");
+
+            Console.WriteLine();
+
+            // Create a new HTTP server
+            var server = new HttpCacheServer(IPAddress.Any, port);
+            server.AddStaticContent(www, "/api");
+
+            // Start the server
+            Console.Write("Server starting...");
+            server.Start();
+            Console.WriteLine("Done!");
+
+            Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Restart the server
+                if (line == "!")
+                {
+                    Console.Write("Server restarting...");
+                    server.Restart();
+                    Console.WriteLine("Done!");
+                }
+            }
+
+            // Stop the server
+            Console.Write("Server stopping...");
+            server.Stop();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: HTTP client
+Here comes the example of the HTTP client. It allows to send HTTP requests
+(GET, POST, PUT and DELETE) and receive HTTP responses.
+
+```c#
+using System;
+using NetCoreServer;
+
+namespace HttpClient
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // HTTP server address
+            string address = "127.0.0.1";
+            if (args.Length > 0)
+                address = args[0];
+
+            // HTTP server port
+            int port = 8080;
+            if (args.Length > 1)
+                port = int.Parse(args[1]);
+
+            Console.WriteLine($"HTTP server address: {address}");
+            Console.WriteLine($"HTTP server port: {port}");
+
+            Console.WriteLine();
+
+            // Create a new HTTP client
+            var client = new HttpClientEx(address, port);
+
+            Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Reconnect the client
+                if (line == "!")
+                {
+                    Console.Write("Client reconnecting...");
+                    if (client.IsConnected)
+                        client.ReconnectAsync();
+                    else
+                        client.ConnectAsync();
+                    Console.WriteLine("Done!");
+                    continue;
+                }
+
+                var commands = line.Split(' ');
+                if (commands.Length < 2)
+                {
+                    Console.WriteLine("HTTP method and URL must be entered!");
+                    continue;
+                }
+
+                if (commands[0].ToUpper() == "HEAD")
+                {
+                    var response = client.SendHeadRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "GET")
+                {
+                    var response = client.SendGetRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "POST")
+                {
+                    if (commands.Length < 3)
+                    {
+                        Console.WriteLine("HTTP method, URL and body must be entered!");
+                        continue;
+                    }
+
+                    var response = client.SendPostRequest(commands[1], commands[2]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "PUT")
+                {
+                    if (commands.Length < 3)
+                    {
+                        Console.WriteLine("HTTP method, URL and body must be entered!");
+                        continue;
+                    }
+
+                    var response = client.SendPutRequest(commands[1], commands[2]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "DELETE")
+                {
+                    var response = client.SendDeleteRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "OPTIONS")
+                {
+                    var response = client.SendOptionsRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "TRACE")
+                {
+                    var response = client.SendTraceRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else
+                    Console.WriteLine("Unknown HTTP method");
+            }
+
+            // Disconnect the client
+            Console.Write("Client disconnecting...");
+            client.Disconnect();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: HTTPS server
+Here comes the example of the HTTPS cache server. It allows to manipulate
+cache data with HTTP methods (GET, POST, PUT and DELETE) with secured
+transport protocol.
+
+Use the following link to open [Swagger OpenAPI](https://swagger.io/specification/) iterative documentation: https://localhost:8443/api/index.html
+
+![OpenAPI-HTTPS](https://github.com/chronoxor/NetCoreServer/raw/master/images/openapi-https.png)
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using NetCoreServer;
+
+namespace HttpsServer
+{
+    class CommonCache
+    {
+        public static CommonCache GetInstance()
+        {
+            if (_instance == null)
+                _instance = new CommonCache();
+            return _instance;
+        }
+
+        public bool GetCache(string key, out string value)
+        {
+            lock (_cacheLock)
+            {
+                if (_cache.TryGetValue(key, out value))
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+        public void SetCache(string key, string value)
+        {
+            lock (_cacheLock)
+                _cache[key] = value;
+        }
+
+        public bool DeleteCache(string key, out string value)
+        {
+            lock (_cacheLock)
+            {
+                if (_cache.TryGetValue(key, out value))
+                {
+                    _cache.Remove(key);
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+
+        private readonly object _cacheLock = new object();
+        private SortedDictionary<string, string> _cache = new SortedDictionary<string, string>();
+        private static CommonCache _instance;
+    }
+
+    class HttpsCacheSession : HttpsSession
+    {
+        public HttpsCacheSession(NetCoreServer.HttpsServer server) : base(server) { }
+
+        protected override void OnReceivedRequest(HttpRequest request)
+        {
+            // Show HTTP request content
+            Console.WriteLine(request);
+
+            // Process HTTP request methods
+            if (request.Method == "HEAD")
+                SendResponseAsync(Response.MakeHeadResponse());
+            else if (request.Method == "GET")
+            {
+                // Get the cache value
+                string cache;
+                if (CommonCache.GetInstance().GetCache(request.Url, out cache))
+                {
+                    // Response with the cache value
+                    SendResponseAsync(Response.MakeGetResponse(cache));
+                }
+                else
+                    SendResponseAsync(Response.MakeErrorResponse("Required cache value was not found for the key: " + request.Url));
+            }
+            else if ((request.Method == "POST") || (request.Method == "PUT"))
+            {
+                // Set the cache value
+                CommonCache.GetInstance().SetCache(request.Url, request.Body);
+                // Response with the cache value
+                SendResponseAsync(Response.MakeOkResponse());
+            }
+            else if (request.Method == "DELETE")
+            {
+                // Delete the cache value
+                string cache;
+                if (CommonCache.GetInstance().DeleteCache(request.Url, out cache))
+                {
+                    // Response with the cache value
+                    SendResponseAsync(Response.MakeGetResponse(cache));
+                }
+                else
+                    SendResponseAsync(Response.MakeErrorResponse("Deleted cache value was not found for the key: " + request.Url));
+            }
+            else if (request.Method == "OPTIONS")
+                SendResponseAsync(Response.MakeOptionsResponse());
+            else if (request.Method == "TRACE")
+                SendResponseAsync(Response.MakeTraceResponse(request.Cache));
+            else
+                SendResponseAsync(Response.MakeErrorResponse("Unsupported HTTP method: " + request.Method));
+        }
+
+        protected override void OnReceivedRequestError(HttpRequest request, string error)
+        {
+            Console.WriteLine($"Request error: {error}");
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"HTTPS session caught an error: {error.ToString()}");
+        }
+    }
+
+    class HttpsCacheServer : NetCoreServer.HttpsServer
+    {
+        public HttpsCacheServer(SslContext context, IPAddress address, int port) : base(context, address, port) {}
+
+        protected override SslSession CreateSession() { return new HttpsCacheSession(this); }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"HTTPS server caught an error: {error.ToString()}");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // HTTPS server port
+            int port = 8443;
+            if (args.Length > 0)
+                port = int.Parse(args[0]);
+            // HTTPS server content path
+            string www = "../../../../../www/api";
+            if (args.Length > 1)
+                www = args[1];
+
+            Console.WriteLine($"HTTPS server port: {port}");
+            Console.WriteLine($"HTTPS server static content path: {www}");
+            Console.WriteLine($"HTTPS server website: https://localhost:{port}/api/index.html");
+
+            Console.WriteLine();
+
+            // Create and prepare a new SSL server context
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
+
+            // Create a new HTTP server
+            var server = new HttpsCacheServer(context, IPAddress.Any, port);
+            server.AddStaticContent(www, "/api");
+
+            // Start the server
+            Console.Write("Server starting...");
+            server.Start();
+            Console.WriteLine("Done!");
+
+            Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Restart the server
+                if (line == "!")
+                {
+                    Console.Write("Server restarting...");
+                    server.Restart();
+                    Console.WriteLine("Done!");
+                }
+            }
+
+            // Stop the server
+            Console.Write("Server stopping...");
+            server.Stop();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: HTTPS client
+Here comes the example of the HTTPS client. It allows to send HTTP requests
+(GET, POST, PUT and DELETE) and receive HTTP responses with secured
+transport protocol.
+
+```c#
+using System;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using NetCoreServer;
+
+namespace HttpsClient
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // HTTPS server address
+            string address = "127.0.0.1";
+            if (args.Length > 0)
+                address = args[0];
+
+            // HTTPS server port
+            int port = 8443;
+            if (args.Length > 1)
+                port = int.Parse(args[1]);
+
+            Console.WriteLine($"HTTPS server address: {address}");
+            Console.WriteLine($"HTTPS server port: {port}");
+
+            Console.WriteLine();
+
+            // Create and prepare a new SSL client context
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+
+            // Create a new HTTPS client
+            var client = new HttpsClientEx(context, address, port);
+
+            Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Reconnect the client
+                if (line == "!")
+                {
+                    Console.Write("Client reconnecting...");
+                    if (client.IsConnected)
+                        client.ReconnectAsync();
+                    else
+                        client.ConnectAsync();
+                    Console.WriteLine("Done!");
+                    continue;
+                }
+
+                var commands = line.Split(' ');
+                if (commands.Length < 2)
+                {
+                    Console.WriteLine("HTTP method and URL must be entered!");
+                    continue;
+                }
+
+                if (commands[0].ToUpper() == "HEAD")
+                {
+                    var response = client.SendHeadRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "GET")
+                {
+                    var response = client.SendGetRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "POST")
+                {
+                    if (commands.Length < 3)
+                    {
+                        Console.WriteLine("HTTP method, URL and body must be entered!");
+                        continue;
+                    }
+
+                    var response = client.SendPostRequest(commands[1], commands[2]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "PUT")
+                {
+                    if (commands.Length < 3)
+                    {
+                        Console.WriteLine("HTTP method, URL and body must be entered!");
+                        continue;
+                    }
+
+                    var response = client.SendPutRequest(commands[1], commands[2]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "DELETE")
+                {
+                    var response = client.SendDeleteRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "OPTIONS")
+                {
+                    var response = client.SendOptionsRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "TRACE")
+                {
+                    var response = client.SendTraceRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else
+                    Console.WriteLine("Unknown HTTP method");
+            }
+
+            // Disconnect the client
+            Console.Write("Client disconnecting...");
+            client.Disconnect();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: WebSocket chat server
+Here comes the example of the WebSocket chat server. It handles multiple
+WebSocket client sessions and multicast received message from any session
+to all ones. Also it is possible to send admin message directly from the
+server.
+
+Use the following link to open WebSocket chat server example: http://localhost:8080/chat/index.html
+
+![ws-chat](https://github.com/chronoxor/NetCoreServer/raw/master/images/ws-chat.png)
+
+```c#
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using NetCoreServer;
+
+namespace WsChatServer
+{
+    class ChatSession : WsSession
+    {
+        public ChatSession(WsServer server) : base(server) { }
+
+        public override void OnWsConnected(HttpRequest request)
+        {
+            Console.WriteLine($"Chat WebSocket session with Id {Id} connected!");
+
+            // Send invite message
+            string message = "Hello from WebSocket chat! Please send a message or '!' to disconnect the client!";
+            SendTextAsync(message);
+        }
+
+        public override void OnWsDisconnected()
+        {
+            Console.WriteLine($"Chat WebSocket session with Id {Id} disconnected!");
+        }
+
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
+        {
+            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+            Console.WriteLine("Incoming: " + message);
+
+            // Multicast message to all connected sessions
+            ((WsServer)Server).MulticastText(message);
+
+            // If the buffer starts with '!' the disconnect the current session
+            if (message == "!")
+                Close(1000);
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat WebSocket session caught an error with code {error}");
+        }
+    }
+
+    class ChatServer : WsServer
+    {
+        public ChatServer(IPAddress address, int port) : base(address, port) { }
+
+        protected override TcpSession CreateSession() { return new ChatSession(this); }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat WebSocket server caught an error with code {error}");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // WebSocket server port
+            int port = 8080;
+            if (args.Length > 0)
+                port = int.Parse(args[0]);
+            // WebSocket server content path
+            string www = "../../../../../www/ws";
+            if (args.Length > 1)
+                www = args[1];
+
+            Console.WriteLine($"WebSocket server port: {port}");
+            Console.WriteLine($"WebSocket server static content path: {www}");
+            Console.WriteLine($"WebSocket server website: http://localhost:{port}/chat/index.html");
+
+            Console.WriteLine();
+
+            // Create a new WebSocket server
+            var server = new ChatServer(IPAddress.Any, port);
+            server.AddStaticContent(www, "/chat");
+
+            // Start the server
+            Console.Write("Server starting...");
+            server.Start();
+            Console.WriteLine("Done!");
+
+            Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Restart the server
+                if (line == "!")
+                {
+                    Console.Write("Server restarting...");
+                    server.Restart();
+                    Console.WriteLine("Done!");
+                }
+
+                // Multicast admin message to all sessions
+                line = "(admin) " + line;
+                server.MulticastText(line);
+            }
+
+            // Stop the server
+            Console.Write("Server stopping...");
+            server.Stop();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: WebSocket chat client
+Here comes the example of the WebSocket chat client. It connects to the
+WebSocket chat server and allows to send message to it and receive new
+messages.
+
+```c#
+using System;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using NetCoreServer;
+
+namespace WsChatClient
+{
+    class ChatClient : WsClient
+    {
+        public ChatClient(string address, int port) : base(address, port) { }
+
+        public void DisconnectAndStop()
+        {
+            _stop = true;
+            CloseAsync(1000);
+            while (IsConnected)
+                Thread.Yield();
+        }
+
+        public override void OnWsConnecting(HttpRequest request)
+        {
+            request.SetBegin("GET", "/");
+            request.SetHeader("Host", "localhost");
+            request.SetHeader("Origin", "http://localhost");
+            request.SetHeader("Upgrade", "websocket");
+            request.SetHeader("Connection", "Upgrade");
+            request.SetHeader("Sec-WebSocket-Key", Convert.ToBase64String(Encoding.UTF8.GetBytes(Id.ToString())));
+            request.SetHeader("Sec-WebSocket-Protocol", "chat, superchat");
+            request.SetHeader("Sec-WebSocket-Version", "13");
+        }
+
+        public override void OnWsConnected(HttpResponse response)
+        {
+            Console.WriteLine($"Chat WebSocket client connected a new session with Id {Id}");
+        }
+
+        public override void OnWsDisconnected()
+        {
+            Console.WriteLine($"Chat WebSocket client disconnected a session with Id {Id}");
+        }
+
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
+        {
+            Console.WriteLine($"Incoming: {Encoding.UTF8.GetString(buffer, (int)offset, (int)size)}");
+        }
+
+        protected override void OnDisconnected()
+        {
+            base.OnDisconnected();
+
+            Console.WriteLine($"Chat WebSocket client disconnected a session with Id {Id}");
+
+            // Wait for a while...
+            Thread.Sleep(1000);
+
+            // Try to connect again
+            if (!_stop)
+                ConnectAsync();
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat WebSocket client caught an error with code {error}");
+        }
+
+        private bool _stop;
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // WebSocket server address
+            string address = "127.0.0.1";
+            if (args.Length > 0)
+                address = args[0];
+
+            // WebSocket server port
+            int port = 8080;
+            if (args.Length > 1)
+                port = int.Parse(args[1]);
+
+            Console.WriteLine($"WebSocket server address: {address}");
+            Console.WriteLine($"WebSocket server port: {port}");
+
+            Console.WriteLine();
+
+            // Create a new TCP chat client
+            var client = new ChatClient(address, port);
+
+            // Connect the client
+            Console.Write("Client connecting...");
+            client.ConnectAsync();
+            Console.WriteLine("Done!");
+
+            Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Disconnect the client
+                if (line == "!")
+                {
+                    Console.Write("Client disconnecting...");
+                    client.DisconnectAsync();
+                    Console.WriteLine("Done!");
+                    continue;
+                }
+
+                // Send the entered text to the chat server
+                client.SendTextAsync(line);
+            }
+
+            // Disconnect the client
+            Console.Write("Client disconnecting...");
+            client.DisconnectAndStop();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: WebSocket secure chat server
+Here comes the example of the WebSocket secure chat server. It handles
+multiple WebSocket secure client sessions and multicast received message
+from any session to all ones. Also it is possible to send admin message
+directly from the server.
+
+This example is very similar to the WebSocket one except the code that
+prepares WebSocket secure context and handshake handler.
+
+Use the following link to open WebSocket secure chat server example: https://localhost:8443/chat/index.html
+
+![wss-chat](https://github.com/chronoxor/NetCoreServer/raw/master/images/wss-chat.png)
+
+```c#
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using NetCoreServer;
+
+namespace WssChatServer
+{
+    class ChatSession : WssSession
+    {
+        public ChatSession(WssServer server) : base(server) { }
+
+        public override void OnWsConnected(HttpRequest request)
+        {
+            Console.WriteLine($"Chat WebSocket session with Id {Id} connected!");
+
+            // Send invite message
+            string message = "Hello from WebSocket chat! Please send a message or '!' to disconnect the client!";
+            SendTextAsync(message);
+        }
+
+        public override void OnWsDisconnected()
+        {
+            Console.WriteLine($"Chat WebSocket session with Id {Id} disconnected!");
+        }
+
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
+        {
+            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+            Console.WriteLine("Incoming: " + message);
+
+            // Multicast message to all connected sessions
+            ((WssServer)Server).MulticastText(message);
+
+            // If the buffer starts with '!' the disconnect the current session
+            if (message == "!")
+                Close(1000);
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat WebSocket session caught an error with code {error}");
+        }
+    }
+
+    class ChatServer : WssServer
+    {
+        public ChatServer(SslContext context, IPAddress address, int port) : base(context, address, port) { }
+
+        protected override SslSession CreateSession() { return new ChatSession(this); }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat WebSocket server caught an error with code {error}");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // WebSocket server port
+            int port = 8443;
+            if (args.Length > 0)
+                port = int.Parse(args[0]);
+            // WebSocket server content path
+            string www = "../../../../../www/wss";
+            if (args.Length > 1)
+                www = args[1];
+
+            Console.WriteLine($"WebSocket server port: {port}");
+            Console.WriteLine($"WebSocket server static content path: {www}");
+            Console.WriteLine($"WebSocket server website: https://localhost:{port}/chat/index.html");
+
+            Console.WriteLine();
+
+            // Create and prepare a new SSL server context
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
+
+            // Create a new WebSocket server
+            var server = new ChatServer(context, IPAddress.Any, port);
+            server.AddStaticContent(www, "/chat");
+
+            // Start the server
+            Console.Write("Server starting...");
+            server.Start();
+            Console.WriteLine("Done!");
+
+            Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Restart the server
+                if (line == "!")
+                {
+                    Console.Write("Server restarting...");
+                    server.Restart();
+                    Console.WriteLine("Done!");
+                }
+
+                // Multicast admin message to all sessions
+                line = "(admin) " + line;
+                server.MulticastText(line);
+            }
+
+            // Stop the server
+            Console.Write("Server stopping...");
+            server.Stop();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: WebSocket secure chat client
+Here comes the example of the WebSocket secure chat client. It connects to
+the WebSocket secure chat server and allows to send message to it and receive
+new messages.
+
+This example is very similar to the WebSocket one except the code that
+prepares WebSocket secure context and handshake handler.
+
+```c#
+using System;
+using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading;
+using NetCoreServer;
+
+namespace WssChatClient
+{
+    class ChatClient : WssClient
+    {
+        public ChatClient(SslContext context, string address, int port) : base(context, address, port) { }
+
+        public void DisconnectAndStop()
+        {
+            _stop = true;
+            CloseAsync(1000);
+            while (IsConnected)
+                Thread.Yield();
+        }
+
+        public override void OnWsConnecting(HttpRequest request)
+        {
+            request.SetBegin("GET", "/");
+            request.SetHeader("Host", "localhost");
+            request.SetHeader("Origin", "http://localhost");
+            request.SetHeader("Upgrade", "websocket");
+            request.SetHeader("Connection", "Upgrade");
+            request.SetHeader("Sec-WebSocket-Key", Convert.ToBase64String(Encoding.UTF8.GetBytes(Id.ToString())));
+            request.SetHeader("Sec-WebSocket-Protocol", "chat, superchat");
+            request.SetHeader("Sec-WebSocket-Version", "13");
+        }
+
+        public override void OnWsConnected(HttpResponse response)
+        {
+            Console.WriteLine($"Chat WebSocket client connected a new session with Id {Id}");
+        }
+
+        public override void OnWsDisconnected()
+        {
+            Console.WriteLine($"Chat WebSocket client disconnected a session with Id {Id}");
+        }
+
+        public override void OnWsReceived(byte[] buffer, long offset, long size)
+        {
+            Console.WriteLine($"Incoming: {Encoding.UTF8.GetString(buffer, (int)offset, (int)size)}");
+        }
+
+        protected override void OnDisconnected()
+        {
+            base.OnDisconnected();
+
+            Console.WriteLine($"Chat WebSocket client disconnected a session with Id {Id}");
+
+            // Wait for a while...
+            Thread.Sleep(1000);
+
+            // Try to connect again
+            if (!_stop)
+                ConnectAsync();
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat WebSocket client caught an error with code {error}");
+        }
+
+        private bool _stop;
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // WebSocket server address
+            string address = "127.0.0.1";
+            if (args.Length > 0)
+                address = args[0];
+
+            // WebSocket server port
+            int port = 8443;
+            if (args.Length > 1)
+                port = int.Parse(args[1]);
+
+            Console.WriteLine($"WebSocket server address: {address}");
+            Console.WriteLine($"WebSocket server port: {port}");
+
+            Console.WriteLine();
+
+            // Create and prepare a new SSL client context
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+
+            // Create a new TCP chat client
+            var client = new ChatClient(context, address, port);
+
+            // Connect the client
+            Console.Write("Client connecting...");
+            client.ConnectAsync();
+            Console.WriteLine("Done!");
+
+            Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Reconnect the client
+                if (line == "!")
+                {
+                    Console.Write("Client reconnecting...");
+                    if (client.IsConnected)
+                        client.ReconnectAsync();
+                    else
+                        client.ConnectAsync();
+                    Console.WriteLine("Done!");
+                    continue;
+                }
+
+                // Send the entered text to the chat server
+                client.SendTextAsync(line);
             }
 
             // Disconnect the client
@@ -1161,6 +2354,96 @@ Message latency: 9.776 mcs
 Message throughput: 102287 msg/s
 ```
 
+### WebSocket echo server
+
+* [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
+* [WsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 1
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.001 s
+Total data: 73.838 MiB
+Total messages: 2418902
+Data throughput: 7.389 MiB/s
+Message latency: 4.134 mcs
+Message throughput: 241846 msg/s
+```
+
+* [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
+* [WsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 100
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 12.189 s
+Total data: 111.540 MiB
+Total messages: 3654528
+Data throughput: 9.153 MiB/s
+Message latency: 3.335 mcs
+Message throughput: 299815 msg/s
+```
+
+### WebSocket secure echo server
+
+* [WssEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoServer/Program.cs)
+* [WssEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 1
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+
+Errors: 0
+
+Total time: 10.021 s
+Total data: 45.372 MiB
+Total messages: 1486484
+Data throughput: 4.539 MiB/s
+Message latency: 6.742 mcs
+Message throughput: 148323 msg/s
+```
+
+* [WssEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoServer/Program.cs)
+* [WssEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 100
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.134 s
+Total data: 55.534 MiB
+Total messages: 1819335
+Data throughput: 5.489 MiB/s
+Message latency: 5.570 mcs
+Message throughput: 179516 msg/s
+
+```
+
 ## Benchmark: Multicast
 
 ![Multicast](https://github.com/chronoxor/NetCoreServer/raw/master/images/multicast.png)
@@ -1292,6 +2575,176 @@ Total messages: 1821897
 Data throughput: 5.556 MiB/s
 Message latency: 5.504 mcs
 Message throughput: 181656 msg/s
+```
+
+### WebSocket multicast server
+
+* [WsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastServer/Program.cs)
+* [WsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 1
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.002 s
+Total data: 20.880 MiB
+Total messages: 683537
+Data throughput: 2.087 MiB/s
+Message latency: 14.633 mcs
+Message throughput: 68335 msg/s
+```
+
+* [WsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastServer/Program.cs)
+* [WsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 100
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.017 s
+Total data: 14.797 MiB
+Total messages: 484275
+Data throughput: 1.486 MiB/s
+Message latency: 20.685 mcs
+Message throughput: 48344 msg/s
+```
+
+### WebSocket secure multicast server
+
+* [WssMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastServer/Program.cs)
+* [WssMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 1
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.004 s
+Total data: 20.201 MiB
+Total messages: 661823
+Data throughput: 2.019 MiB/s
+Message latency: 15.115 mcs
+Message throughput: 66155 msg/s
+```
+
+* [WssMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastServer/Program.cs)
+* [WssMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 100
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.098 s
+Total data: 21.020 MiB
+Total messages: 688799
+Data throughput: 2.083 MiB/s
+Message latency: 14.660 mcs
+Message throughput: 68210 msg/s
+```
+
+## Benchmark: Web Server
+
+### HTTP Trace server
+
+* [HttpTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceServer/Program.cs)
+* [HttpTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 1
+Working messages: 1
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.002 s
+Total data: 46.403 MiB
+Total messages: 458939
+Data throughput: 4.653 MiB/s
+Message latency: 21.794 mcs
+Message throughput: 45883 msg/s
+```
+
+* [HttpTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceServer/Program.cs)
+* [HttpTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8080
+Working clients: 100
+Working messages: 1
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.015 s
+Total data: 299.400 MiB
+Total messages: 2961649
+Data throughput: 29.915 MiB/s
+Message latency: 3.381 mcs
+Message throughput: 295717 msg/s
+```
+
+### HTTPS Trace server
+
+* [HttpsTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceServer/Program.cs)
+* [HttpsTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceClient/Program.cs) -c 1
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 1
+Working messages: 1
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.003 s
+Total data: 22.625 MiB
+Total messages: 223672
+Data throughput: 2.266 MiB/s
+Message latency: 44.724 mcs
+Message throughput: 22359 msg/s
+```
+
+* [HttpsTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceServer/Program.cs)
+* [HttpsTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceClient/Program.cs) -c 100
+
+```
+Server address: 127.0.0.1
+Server port: 8443
+Working clients: 100
+Working messages: 1
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.162 s
+Total data: 92.492 MiB
+Total messages: 914845
+Data throughput: 9.103 MiB/s
+Message latency: 11.107 mcs
+Message throughput: 90025 msg/s
 ```
 
 # OpenSSL certificates

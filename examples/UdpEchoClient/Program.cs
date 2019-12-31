@@ -3,10 +3,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UdpClient = NetCoreServer.UdpClient;
 
 namespace UdpEchoClient
 {
-    class EchoClient : NetCoreServer.UdpClient
+    class EchoClient : UdpClient
     {
         public EchoClient(string address, int port) : base(address, port) {}
 
@@ -87,7 +88,7 @@ namespace UdpEchoClient
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Disconnect the client

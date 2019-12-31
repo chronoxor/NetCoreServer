@@ -74,7 +74,6 @@ namespace TcpEchoServer
             var server = new EchoServer(IPAddress.Any, port);
             // server.OptionNoDelay = true;
             server.OptionReuseAddress = true;
-            server.OptionReusePort = true;
 
             // Start the server
             Console.Write("Server starting...");
@@ -87,7 +86,7 @@ namespace TcpEchoServer
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server

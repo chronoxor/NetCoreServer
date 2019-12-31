@@ -89,7 +89,6 @@ namespace TcpMulticastServer
             var server = new MulticastServer(IPAddress.Any, port);
             // server.OptionNoDelay = true;
             server.OptionReuseAddress = true;
-            server.OptionReusePort = true;
 
             // Start the server
             Console.Write("Server starting...");
@@ -126,7 +125,7 @@ namespace TcpMulticastServer
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server

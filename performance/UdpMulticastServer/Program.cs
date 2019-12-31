@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NetCoreServer;
 using NDesk.Options;
-using System.Net.Sockets;
 
 namespace UdpMulticastServer
 {
@@ -66,7 +66,6 @@ namespace UdpMulticastServer
             // Create a new echo server
             var server = new MulticastServer(IPAddress.Any, 0);
             server.OptionReuseAddress = true;
-            server.OptionReusePort = true;
 
             // Start the server
             Console.Write("Server starting...");
@@ -103,7 +102,7 @@ namespace UdpMulticastServer
             for (;;)
             {
                 string line = Console.ReadLine();
-                if (line == string.Empty)
+                if (string.IsNullOrEmpty(line))
                     break;
 
                 // Restart the server
