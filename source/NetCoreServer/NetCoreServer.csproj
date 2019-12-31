@@ -10,6 +10,7 @@
     <RootNamespace>NetCoreServer</RootNamespace>
     <AssemblyName>NetCoreServer</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <RuntimeIdentifiers>win</RuntimeIdentifiers>
     <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
