@@ -2,6 +2,8 @@
 // https://github.com/dotnet/corefx/blob/1597b894a2e9cac668ce6e484506eca778a85197/src/Common/src/CoreLib/System/Index.cs
 // https://github.com/dotnet/corefx/blob/1597b894a2e9cac668ce6e484506eca778a85197/src/Common/src/CoreLib/System/Range.cs
 
+#nullable enable
+
 using System.Runtime.CompilerServices;
 
 namespace System
@@ -250,6 +252,7 @@ namespace System.Runtime.CompilerServices
 
             (int offset, int length) = range.GetOffsetAndLength(array.Length);
 
+            // TODO: default(T) == null warning (https://github.com/dotnet/roslyn/issues/34757)
             if (default(T) != null || typeof(T[]) == array.GetType())
             {
                 // We know the type of the array to be exactly T[].
