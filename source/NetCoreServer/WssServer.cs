@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace NetCoreServer
@@ -158,5 +159,65 @@ namespace NetCoreServer
         #endregion
 
         protected override SslSession CreateSession() { return new WssSession(this); }
+
+        public void OnWsConnecting(HttpRequest request)
+        {
+            WebSocket.OnWsConnecting(request);
+        }
+
+        public void OnWsConnected(HttpResponse response)
+        {
+            WebSocket.OnWsConnected(response);
+        }
+
+        public bool OnWsConnecting(HttpRequest request, HttpResponse response)
+        {
+            return WebSocket.OnWsConnecting(request, response);
+        }
+
+        public void OnWsConnected(HttpRequest request)
+        {
+            WebSocket.OnWsConnected(request);
+        }
+
+        public void OnWsDisconnected()
+        {
+            WebSocket.OnWsDisconnected();
+        }
+
+        public void OnWsReceived(byte[] buffer, long offset, long size)
+        {
+            WebSocket.OnWsReceived(buffer, offset, size);
+        }
+
+        public void OnWsClose(byte[] buffer, long offset, long size)
+        {
+            WebSocket.OnWsClose(buffer, offset, size);
+        }
+
+        public void OnWsPing(byte[] buffer, long offset, long size)
+        {
+            WebSocket.OnWsPing(buffer, offset, size);
+        }
+
+        public void OnWsPong(byte[] buffer, long offset, long size)
+        {
+            WebSocket.OnWsPong(buffer, offset, size);
+        }
+
+        public void OnWsError(string error)
+        {
+            WebSocket.OnWsError(error);
+        }
+
+        public void OnWsError(SocketError error)
+        {
+            WebSocket.OnWsError(error);
+        }
+
+        public void SendResponse(HttpResponse response)
+        {
+            WebSocket.SendResponse(response);
+        }
     }
 }
