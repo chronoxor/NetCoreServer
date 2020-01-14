@@ -827,10 +827,12 @@ namespace NetCoreServer
                             return false;
 
                         // Add a new header
-                        _headers.Add(new Tuple<string, string>(_cache.ExtractString(headerNameIndex, headerNameSize), _cache.ExtractString(headerValueIndex, headerValueSize)));
+                        string headerName = _cache.ExtractString(headerNameIndex, headerNameSize);
+                        string headerValue = _cache.ExtractString(headerValueIndex, headerValueSize);
+                        _headers.Add(new Tuple<string, string>(headerName, headerValue));
 
                         // Try to find the body content length
-                        if (_cache.ExtractString(headerNameIndex, headerNameSize) == "Content-Length")
+                        if (headerName == "Content-Length")
                         {
                             _bodyLength = 0;
                             for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)
