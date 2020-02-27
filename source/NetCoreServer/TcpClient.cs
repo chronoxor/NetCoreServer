@@ -142,6 +142,10 @@ namespace NetCoreServer
         /// <summary>
         /// Connect the client (synchronous)
         /// </summary>
+        /// <remarks>
+        /// Please note that synchronous connect will not receive data automatically!
+        /// You should use Receive() or ReceiveAsync() methods manually after successful connection.
+        /// </remarks>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool Connect()
         {
