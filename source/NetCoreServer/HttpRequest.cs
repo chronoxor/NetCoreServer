@@ -239,8 +239,10 @@ namespace NetCoreServer
         /// <param name="body">Body string content (default is "")</param>
         public HttpRequest SetBody(string body = "")
         {
+            int length = string.IsNullOrEmpty(body) ? 0 : Encoding.UTF8.GetByteCount(body);
+
             // Append content length header
-            SetHeader("Content-Length", body.Length.ToString());
+            SetHeader("Content-Length", length.ToString());
 
             _cache.Append("\r\n");
 
@@ -249,8 +251,8 @@ namespace NetCoreServer
             // Append the HTTP request body
             _cache.Append(body);
             _bodyIndex = index;
-            _bodySize = body.Length;
-            _bodyLength = body.Length;
+            _bodySize = length;
+            _bodyLength = length;
             _bodyLengthProvided = true;
             return this;
         }
