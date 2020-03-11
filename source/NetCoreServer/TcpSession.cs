@@ -551,7 +551,12 @@ namespace NetCoreServer
             {
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
-                    TryReceive();
+                {
+                    if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                        ThreadPool.QueueUserWorkItem(_ => TryReceive());
+                    else
+                        TryReceive();
+                }
                 else
                     Disconnect();
             }
@@ -602,7 +607,12 @@ namespace NetCoreServer
 
             // Try to send again if the session is valid
             if (e.SocketError == SocketError.Success)
-                TrySend();
+            {
+                if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                    ThreadPool.QueueUserWorkItem(_ => TrySend());
+                else
+                    TrySend();
+            }
             else
             {
                 SendError(e.SocketError);
