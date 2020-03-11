@@ -544,7 +544,7 @@ namespace NetCoreServer
         public virtual void ReceiveAsync()
         {
             // Try to receive datagram
-            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+            if (Thread.CurrentThread.ManagedThreadId == _receiveThreadId)
                 ThreadPool.QueueUserWorkItem(_ => TryReceive());
             else
                 TryReceive();

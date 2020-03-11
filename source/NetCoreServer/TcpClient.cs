@@ -514,7 +514,7 @@ namespace NetCoreServer
         public virtual void ReceiveAsync()
         {
             // Try to receive datagram
-            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+            if (Thread.CurrentThread.ManagedThreadId == _receiveThreadId)
                 ThreadPool.QueueUserWorkItem(_ => TryReceive());
             else
                 TryReceive();
@@ -694,6 +694,7 @@ namespace NetCoreServer
             if (!IsConnected)
                 return;
 
+            bool recursive = (Thread.CurrentThread.ManagedThreadId == _receiveThreadId);
             long size = e.BytesTransferred;
 
             // Received some data from the server
@@ -719,7 +720,7 @@ namespace NetCoreServer
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
                 {
-                    if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                    if (recursive)
                         ThreadPool.QueueUserWorkItem(_ => TryReceive());
                     else
                         TryReceive();
@@ -744,6 +745,7 @@ namespace NetCoreServer
             if (!IsConnected)
                 return;
 
+            bool recursive = (Thread.CurrentThread.ManagedThreadId == _sendThreadId);
             long size = e.BytesTransferred;
 
             // Send some data to the server
@@ -774,7 +776,7 @@ namespace NetCoreServer
             // Try to send again if the client is valid
             if (e.SocketError == SocketError.Success)
             {
-                if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
+                if (recursive)
                     ThreadPool.QueueUserWorkItem(_ => TrySend());
                 else
                     TrySend();
