@@ -220,7 +220,6 @@ namespace NetCoreServer
         private bool _receiving;
         private Buffer _receiveBuffer;
         private SocketAsyncEventArgs _receiveEventArg;
-        private int _receiveThreadId;
         // Send buffer
         private readonly object _sendLock = new object();
         private bool _sending;
@@ -228,7 +227,6 @@ namespace NetCoreServer
         private Buffer _sendBufferFlush;
         private SocketAsyncEventArgs _sendEventArg;
         private long _sendBufferFlushOffset;
-        private int _sendThreadId;
 
         /// <summary>
         /// Send data to the client (synchronous)
@@ -320,10 +318,7 @@ namespace NetCoreServer
             }
 
             // Try to send the main buffer
-            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
-                ThreadPool.QueueUserWorkItem(_ => TrySend());
-            else
-                TrySend();
+            TrySend();
 
             return true;
         }
@@ -397,10 +392,7 @@ namespace NetCoreServer
         public virtual void ReceiveAsync()
         {
             // Try to receive datagram
-            if (Thread.CurrentThread.ManagedThreadId == _receiveThreadId)
-                ThreadPool.QueueUserWorkItem(_ => TryReceive());
-            else
-                TryReceive();
+            TryReceive();
         }
 
         /// <summary>
@@ -419,7 +411,6 @@ namespace NetCoreServer
                 // Async receive with the receive handler
                 _receiving = true;
                 _receiveEventArg.SetBuffer(_receiveBuffer.Data, 0, (int)_receiveBuffer.Capacity);
-                _receiveThreadId = Thread.CurrentThread.ManagedThreadId;
                 if (!Socket.ReceiveAsync(_receiveEventArg))
                     ProcessReceive(_receiveEventArg);
             }
@@ -467,7 +458,6 @@ namespace NetCoreServer
                 // Async write with the write handler
                 _sending = true;
                 _sendEventArg.SetBuffer(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset));
-                _sendThreadId = Thread.CurrentThread.ManagedThreadId;
                 if (!Socket.SendAsync(_sendEventArg))
                     ProcessSend(_sendEventArg);
             }
@@ -526,7 +516,6 @@ namespace NetCoreServer
             if (!IsConnected)
                 return;
 
-            bool recursive = (Thread.CurrentThread.ManagedThreadId == _receiveThreadId);
             long size = e.BytesTransferred;
 
             // Received some data from the client
@@ -539,9 +528,6 @@ namespace NetCoreServer
                 // Call the buffer received handler
                 OnReceived(_receiveBuffer.Data, 0, size);
 
-                // Reset the receive thread Id
-                _receiveThreadId = 0;
-
                 // If the receive buffer is full increase its size
                 if (_receiveBuffer.Capacity == size)
                     _receiveBuffer.Reserve(2 * size);
@@ -552,12 +538,7 @@ namespace NetCoreServer
             {
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
-                {
-                    if (recursive)
-                        ThreadPool.QueueUserWorkItem(_ => TryReceive());
-                    else
-                        TryReceive();
-                }
+                    TryReceive();
                 else
                     Disconnect();
             }
@@ -578,7 +559,6 @@ namespace NetCoreServer
             if (!IsConnected)
                 return;
 
-            bool recursive = (Thread.CurrentThread.ManagedThreadId == _sendThreadId);
             long size = e.BytesTransferred;
 
             // Send some data to the client
@@ -602,19 +582,11 @@ namespace NetCoreServer
 
                 // Call the buffer sent handler
                 OnSent(size, BytesPending + BytesSending);
-
-                // Reset the send thread Id
-                _sendThreadId = 0;
             }
 
             // Try to send again if the session is valid
             if (e.SocketError == SocketError.Success)
-            {
-                if (recursive)
-                    ThreadPool.QueueUserWorkItem(_ => TrySend());
-                else
-                    TrySend();
-            }
+                TrySend();
             else
             {
                 SendError(e.SocketError);
