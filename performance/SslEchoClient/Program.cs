@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using System.Threading.Tasks;
 using NetCoreServer;
 using NDesk.Options;
 
@@ -47,14 +46,9 @@ namespace SslEchoClient
             ++Program.TotalErrors;
         }
 
-        private object _locker = new object();
-
         private void SendMessage()
         {
-            lock (_locker)
-            {
-                SendAsync(Program.MessageToSend);
-            }
+            SendAsync(Program.MessageToSend);
         }
 
         private long _sent;
@@ -142,10 +136,12 @@ namespace SslEchoClient
             foreach (var client in echoClients)
                 client.ConnectAsync();
             Console.WriteLine("Done!");
+            /*
             foreach (var client in echoClients)
                 while (!client.IsHandshaked)
                     Thread.Yield();
             Console.WriteLine("All clients connected!");
+            */
 
             // Wait for benchmarking
             Console.Write("Benchmarking...");

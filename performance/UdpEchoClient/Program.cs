@@ -43,14 +43,9 @@ namespace UdpEchoClient
             ++Program.TotalErrors;
         }
 
-        private object _locker = new object();
-
         private void SendMessage()
         {
-            lock (_locker)
-            {
-                SendAsync(Program.MessageToSend);
-            }
+            SendAsync(Program.MessageToSend);
         }
 
         private long _messages;
@@ -132,10 +127,12 @@ namespace UdpEchoClient
             foreach (var client in echoClients)
                 client.Connect();
             Console.WriteLine("Done!");
+            /*
             foreach (var client in echoClients)
                 while (!client.IsConnected)
                     Thread.Yield();
             Console.WriteLine("All clients connected!");
+            */
 
             // Wait for benchmarking
             Console.Write("Benchmarking...");

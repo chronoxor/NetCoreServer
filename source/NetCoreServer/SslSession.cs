@@ -196,6 +196,7 @@ namespace NetCoreServer
                 }
                 catch (AggregateException) {}
                 catch (IOException) {}
+                catch (NullReferenceException) {}
 
                 // Dispose the SSL stream & buffer
                 _sslStream.Dispose();
@@ -448,7 +449,7 @@ namespace NetCoreServer
                         return;
 
                     _receiving = true;
-                    result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, _sslStreamId);
+                    result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int)_receiveBuffer.Capacity, ProcessReceive, _sslStreamId);
                 } while (result.CompletedSynchronously);
             }
             catch (ObjectDisposedException) {}
@@ -465,22 +466,30 @@ namespace NetCoreServer
             if (!IsHandshaked)
                 return;
 
-            // Swap send buffers
-            if (_sendBufferFlush.IsEmpty)
+            lock (_sendLock)
             {
-                lock (_sendLock)
-                {
-                    // Swap flush and main buffers
-                    _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
-                    _sendBufferFlushOffset = 0;
+                if (_sending)
+                    return;
 
-                    // Update statistic
-                    BytesPending = 0;
-                    BytesSending += _sendBufferFlush.Size;
+                // Swap send buffers
+                if (_sendBufferFlush.IsEmpty)
+                {
+                    lock (_sendLock)
+                    {
+                        // Swap flush and main buffers
+                        _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
+                        _sendBufferFlushOffset = 0;
+
+                        // Update statistic
+                        BytesPending = 0;
+                        BytesSending += _sendBufferFlush.Size;
+
+                        _sending = !_sendBufferFlush.IsEmpty;
+                    }
                 }
+                else
+                    return;
             }
-            else
-                return;
 
             // Check if the flush buffer is empty
             if (_sendBufferFlush.IsEmpty)
@@ -493,7 +502,6 @@ namespace NetCoreServer
             try
             {
                 // Async write with the write handler
-                _sending = true;
                 _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, _sslStreamId);
             }
             catch (ObjectDisposedException) {}
@@ -569,8 +577,6 @@ namespace NetCoreServer
         {
             try
             {
-                _receiving = false;
-
                 if (!IsHandshaked)
                     return;
 
@@ -597,6 +603,8 @@ namespace NetCoreServer
                         _receiveBuffer.Reserve(2 * size);
                 }
 
+                _receiving = false;
+
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
                 {
@@ -620,8 +628,6 @@ namespace NetCoreServer
         {
             try
             {
-                _sending = false;
-
                 // Validate SSL stream Id
                 var sslStreamId = result.AsyncState as Guid?;
                 if (_sslStreamId != sslStreamId)
@@ -657,6 +663,8 @@ namespace NetCoreServer
                     // Call the buffer sent handler
                     OnSent(size, BytesPending + BytesSending);
                 }
+
+                _sending = false;
 
                 // Try to send again if the session is valid
                 if (!result.CompletedSynchronously)

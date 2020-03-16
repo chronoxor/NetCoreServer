@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NDesk.Options;
 using NetCoreServer;
 
@@ -58,15 +57,9 @@ namespace WsEchoClient
             ++Program.TotalErrors;
         }
 
-        private object _locker = new object();
-
         public void SendMessage()
         {
-            lock (_locker)
-            {
-                SendBinaryAsync(Program.MessageToSend, 0, Program.MessageToSend.Length);
-            }
-
+            SendBinaryAsync(Program.MessageToSend, 0, Program.MessageToSend.Length);
         }
 
         private long _sent;
@@ -151,10 +144,12 @@ namespace WsEchoClient
             foreach (var client in echoClients)
                 client.ConnectAsync();
             Console.WriteLine("Done!");
+            /*
             foreach (var client in echoClients)
                 while (!client.IsConnected)
                     Thread.Yield();
             Console.WriteLine("All clients connected!");
+            */
 
             // Wait for benchmarking
             Console.Write("Benchmarking...");

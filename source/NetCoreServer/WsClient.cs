@@ -265,7 +265,7 @@ namespace NetCoreServer
             {
                 int required = WebSocket.RequiredReceiveFrameSize();
                 cache.Resize(required);
-                int received = (int) base.Receive(cache.Data, 0, required);
+                int received = (int)base.Receive(cache.Data, 0, required);
                 if (received != required)
                     return result.ExtractString(0, result.Data.Length);
                 WebSocket.PrepareReceiveFrame(cache.Data, 0, received);
