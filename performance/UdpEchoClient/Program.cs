@@ -45,7 +45,7 @@ namespace UdpEchoClient
 
         private void SendMessage()
         {
-            SendAsync(Program.MessageToSend);
+            Send(Program.MessageToSend);
         }
 
         private long _messages;

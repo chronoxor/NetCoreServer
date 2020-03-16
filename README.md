@@ -2291,12 +2291,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.023 s
-Total data: 38.614 MiB
-Total messages: 1264835
-Data throughput: 3.871 MiB/s
-Message latency: 7.924 mcs
-Message throughput: 126187 msg/s
+Total time: 10.033 s
+Total data: 18.779 MiB
+Total messages: 614775
+Data throughput: 1.890 MiB/s
+Message latency: 16.320 mcs
+Message throughput: 61273 msg/s
 ```
 
 * [UdpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
@@ -2312,12 +2312,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.465 s
-Total data: 32.683 MiB
-Total messages: 1070523
-Data throughput: 3.124 MiB/s
-Message latency: 9.776 mcs
-Message throughput: 102287 msg/s
+Total time: 10.637 s
+Total data: 20.1000 MiB
+Total messages: 687481
+Data throughput: 1.995 MiB/s
+Message latency: 15.472 mcs
+Message throughput: 64630 msg/s
 ```
 
 ### WebSocket echo server
@@ -2515,12 +2515,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.020 s
-Total data: 15.961 MiB
-Total messages: 522293
-Data throughput: 1.604 MiB/s
-Message latency: 19.185 mcs
-Message throughput: 52123 msg/s
+Total time: 10.024 s
+Total data: 14.942 MiB
+Total messages: 488896
+Data throughput: 1.500 MiB/s
+Message latency: 20.505 mcs
+Message throughput: 48768 msg/s
 ```
 
 * [UdpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
@@ -2535,12 +2535,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.029 s
-Total data: 55.614 MiB
-Total messages: 1821897
-Data throughput: 5.556 MiB/s
-Message latency: 5.504 mcs
-Message throughput: 181656 msg/s
+Total time: 10.040 s
+Total data: 27.1010 MiB
+Total messages: 917062
+Data throughput: 2.806 MiB/s
+Message latency: 10.948 mcs
+Message throughput: 91333 msg/s
 ```
 
 ### WebSocket multicast server
