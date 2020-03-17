@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -459,7 +460,7 @@ namespace NetCoreServer
             _sendEndpoint = endpoint;
 
             // Try to send the main buffer
-            TrySend();
+            Task.Factory.StartNew(TrySend);
 
             return true;
         }
