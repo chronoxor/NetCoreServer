@@ -291,9 +291,7 @@ namespace NetCoreServer
                     // Shutdown the SSL stream
                     _sslStream.ShutdownAsync().Wait();
                 }
-                catch (AggregateException) {}
-                catch (IOException) {}
-                catch (NullReferenceException) {}
+                catch (Exception) {}
 
                 // Dispose the SSL stream & buffer
                 _sslStream.Dispose();
