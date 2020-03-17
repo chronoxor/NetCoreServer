@@ -108,7 +108,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client.DisconnectAsync());
-            while (client.IsConnected || client.IsHandshaked || (server.Clients != 0))
+            while (client.IsConnected || client.IsHandshaked || (server.Clients > 0))
                 Thread.Yield();
 
             // Stop the Echo server
@@ -218,7 +218,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client3.DisconnectAsync());
-            while (client3.IsConnected || client3.IsHandshaked || (server.Clients != 0))
+            while (client3.IsConnected || client3.IsHandshaked || (server.Clients > 0))
                 Thread.Yield();
 
             // Stop the Echo server

@@ -2203,12 +2203,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.023 s
-Total data: 92.1007 MiB
-Total messages: 3046895
-Data throughput: 9.283 MiB/s
-Message latency: 3.289 mcs
-Message throughput: 303975 msg/s
+Total time: 10.024 s
+Total data: 2.831 GiB
+Total messages: 94369133
+Data throughput: 287.299 MiB/s
+Message latency: 106 ns
+Message throughput: 9413997 msg/s
 ```
 
 * [TcpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
@@ -2224,12 +2224,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 12.391 s
-Total data: 304.533 MiB
-Total messages: 9978530
-Data throughput: 24.587 MiB/s
-Message latency: 1.241 mcs
-Message throughput: 805245 msg/s
+Total time: 10.189 s
+Total data: 1.794 GiB
+Total messages: 59585544
+Data throughput: 178.463 MiB/s
+Message latency: 171 ns
+Message throughput: 5847523 msg/s
 ```
 
 ### SSL echo server
@@ -2247,12 +2247,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.025 s
-Total data: 41.819 MiB
-Total messages: 1369713
-Data throughput: 4.173 MiB/s
-Message latency: 7.319 mcs
-Message throughput: 136624 msg/s
+Total time: 2.645 s
+Total data: 373.329 MiB
+Total messages: 12233021
+Data throughput: 141.095 MiB/s
+Message latency: 216 ns
+Message throughput: 4623352 msg/s
 ```
 
 * [SslEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoServer/Program.cs)
@@ -2268,12 +2268,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.501 s
-Total data: 72.719 MiB
-Total messages: 2382316
-Data throughput: 6.945 MiB/s
-Message latency: 4.407 mcs
-Message throughput: 226861 msg/s
+Total time: 10.060 s
+Total data: 1.472 GiB
+Total messages: 49029133
+Data throughput: 148.741 MiB/s
+Message latency: 205 ns
+Message throughput: 4873398 msg/s
 ```
 
 ### UDP echo server
@@ -2291,12 +2291,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.033 s
-Total data: 18.779 MiB
-Total messages: 614775
-Data throughput: 1.890 MiB/s
-Message latency: 16.320 mcs
-Message throughput: 61273 msg/s
+Total time: 10.032 s
+Total data: 33.994 MiB
+Total messages: 1113182
+Data throughput: 3.395 MiB/s
+Message latency: 9.012 mcs
+Message throughput: 110960 msg/s
 ```
 
 * [UdpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
@@ -2312,12 +2312,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.637 s
-Total data: 20.1000 MiB
-Total messages: 687481
-Data throughput: 1.995 MiB/s
-Message latency: 15.472 mcs
-Message throughput: 64630 msg/s
+Total time: 10.635 s
+Total data: 20.355 MiB
+Total messages: 666791
+Data throughput: 1.934 MiB/s
+Message latency: 15.950 mcs
+Message throughput: 62693 msg/s
 ```
 
 ### WebSocket echo server
@@ -2335,12 +2335,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.025 s
-Total data: 43.799 MiB
-Total messages: 1434609
-Data throughput: 4.375 MiB/s
-Message latency: 6.988 mcs
-Message throughput: 143101 msg/s
+Total time: 3.037 s
+Total data: 105.499 MiB
+Total messages: 3456618
+Data throughput: 34.742 MiB/s
+Message latency: 878 ns
+Message throughput: 1137864 msg/s
 ```
 
 * [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
@@ -2356,12 +2356,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 14.625 s
-Total data: 47.533 MiB
-Total messages: 1557172
-Data throughput: 3.255 MiB/s
-Message latency: 9.392 mcs
-Message throughput: 106471 msg/s
+Total time: 10.078 s
+Total data: 426.803 MiB
+Total messages: 13984888
+Data throughput: 42.353 MiB/s
+Message latency: 720 ns
+Message throughput: 1387555 msg/s
 ```
 
 ### WebSocket secure echo server
@@ -2379,12 +2379,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.029 s
-Total data: 36.274 MiB
-Total messages: 1188443
-Data throughput: 3.631 MiB/s
-Message latency: 8.438 mcs
-Message throughput: 118497 msg/s
+Total time: 10.030 s
+Total data: 198.103 MiB
+Total messages: 6491390
+Data throughput: 19.767 MiB/s
+Message latency: 1.545 mcs
+Message throughput: 647153 msg/s
 ```
 
 * [WssEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoServer/Program.cs)
@@ -2400,12 +2400,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.381 s
-Total data: 59.936 MiB
-Total messages: 1963276
-Data throughput: 5.789 MiB/s
-Message latency: 5.288 mcs
-Message throughput: 189103 msg/s
+Total time: 10.112 s
+Total data: 405.286 MiB
+Total messages: 13280221
+Data throughput: 40.078 MiB/s
+Message latency: 761 ns
+Message throughput: 1313228 msg/s
 ```
 
 ## Benchmark: Multicast
@@ -2431,12 +2431,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.029 s
-Total data: 25.021 MiB
-Total messages: 819888
-Data throughput: 2.506 MiB/s
-Message latency: 12.233 mcs
-Message throughput: 81744 msg/s
+Total time: 10.022 s
+Total data: 407.023 MiB
+Total messages: 13337326
+Data throughput: 40.625 MiB/s
+Message latency: 751 ns
+Message throughput: 1330734 msg/s
 ```
 
 * [TcpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
@@ -2451,12 +2451,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.045 s
-Total data: 22.980 MiB
-Total messages: 752279
-Data throughput: 2.292 MiB/s
-Message latency: 13.353 mcs
-Message throughput: 74889 msg/s
+Total time: 10.112 s
+Total data: 421.348 MiB
+Total messages: 13806493
+Data throughput: 41.681 MiB/s
+Message latency: 732 ns
+Message throughput: 1365280 msg/s
 ```
 
 ### SSL multicast server
@@ -2473,12 +2473,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.138 s
-Total data: 20.370 MiB
-Total messages: 667214
-Data throughput: 2.008 MiB/s
-Message latency: 15.195 mcs
-Message throughput: 65809 msg/s
+Total time: 10.024 s
+Total data: 325.225 MiB
+Total messages: 10656801
+Data throughput: 32.453 MiB/s
+Message latency: 940 ns
+Message throughput: 1063075 msg/s
 ```
 
 * [SslMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastServer/Program.cs)
@@ -2493,12 +2493,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.417 s
-Total data: 19.600 MiB
-Total messages: 641823
-Data throughput: 1.901 MiB/s
-Message latency: 16.230 mcs
-Message throughput: 61612 msg/s
+Total time: 10.144 s
+Total data: 343.460 MiB
+Total messages: 11254173
+Data throughput: 33.876 MiB/s
+Message latency: 901 ns
+Message throughput: 1109393 msg/s
 ```
 
 ### UDP multicast server
@@ -2515,12 +2515,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.024 s
-Total data: 14.942 MiB
-Total messages: 488896
-Data throughput: 1.500 MiB/s
-Message latency: 20.505 mcs
-Message throughput: 48768 msg/s
+Total time: 10.026 s
+Total data: 13.225 MiB
+Total messages: 433202
+Data throughput: 1.326 MiB/s
+Message latency: 23.145 mcs
+Message throughput: 43205 msg/s
 ```
 
 * [UdpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
@@ -2535,12 +2535,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.040 s
-Total data: 27.1010 MiB
-Total messages: 917062
-Data throughput: 2.806 MiB/s
-Message latency: 10.948 mcs
-Message throughput: 91333 msg/s
+Total time: 10.035 s
+Total data: 28.684 MiB
+Total messages: 939408
+Data throughput: 2.877 MiB/s
+Message latency: 10.682 mcs
+Message throughput: 93606 msg/s
 ```
 
 ### WebSocket multicast server
@@ -2557,12 +2557,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.034 s
-Total data: 53.338 MiB
-Total messages: 1747523
-Data throughput: 5.322 MiB/s
-Message latency: 5.742 mcs
-Message throughput: 174145 msg/s
+Total time: 10.048 s
+Total data: 183.108 MiB
+Total messages: 6000000
+Data throughput: 18.228 MiB/s
+Message latency: 1.674 mcs
+Message throughput: 597121 msg/s
 ```
 
 * [WsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastServer/Program.cs)
@@ -2577,12 +2577,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.083 s
-Total data: 23.541 MiB
-Total messages: 770984
-Data throughput: 2.341 MiB/s
-Message latency: 13.078 mcs
-Message throughput: 76459 msg/s
+Total time: 10.227 s
+Total data: 125.957 MiB
+Total messages: 4126627
+Data throughput: 12.320 MiB/s
+Message latency: 2.478 mcs
+Message throughput: 403466 msg/s
 ```
 
 ### WebSocket secure multicast server
@@ -2600,11 +2600,11 @@ Seconds to benchmarking: 10
 Errors: 0
 
 Total time: 10.034 s
-Total data: 19.315 MiB
-Total messages: 632689
-Data throughput: 1.946 MiB/s
-Message latency: 15.859 mcs
-Message throughput: 63052 msg/s
+Total data: 184.159 MiB
+Total messages: 6034421
+Data throughput: 18.359 MiB/s
+Message latency: 1.662 mcs
+Message throughput: 601338 msg/s
 ```
 
 * [WssMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastServer/Program.cs)
@@ -2619,12 +2619,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.249 s
-Total data: 19.434 MiB
-Total messages: 636502
-Data throughput: 1.916 MiB/s
-Message latency: 16.103 mcs
-Message throughput: 62098 msg/s
+Total time: 10.171 s
+Total data: 315.306 MiB
+Total messages: 10331721
+Data throughput: 30.1022 MiB/s
+Message latency: 984 ns
+Message throughput: 1015763 msg/s
 ```
 
 ## Benchmark: Web Server
@@ -2644,11 +2644,11 @@ Seconds to benchmarking: 10
 Errors: 0
 
 Total time: 10.023 s
-Total data: 13.1015 MiB
-Total messages: 138409
-Data throughput: 1.405 MiB/s
-Message latency: 72.419 mcs
-Message throughput: 13808 msg/s
+Total data: 10.987 MiB
+Total messages: 108465
+Data throughput: 1.096 MiB/s
+Message latency: 92.414 mcs
+Message throughput: 10820 msg/s
 ```
 
 * [HttpTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceServer/Program.cs)
@@ -2663,12 +2663,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 12.068 s
-Total data: 47.220 MiB
-Total messages: 469069
-Data throughput: 3.934 MiB/s
-Message latency: 25.728 mcs
-Message throughput: 38867 msg/s
+Total time: 10.085 s
+Total data: 40.382 MiB
+Total messages: 401472
+Data throughput: 4.003 MiB/s
+Message latency: 25.120 mcs
+Message throughput: 39807 msg/s
 ```
 
 ### HTTPS Trace server
@@ -2685,12 +2685,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.022 s
-Total data: 20.674 MiB
-Total messages: 204361
-Data throughput: 2.062 MiB/s
-Message latency: 49.043 mcs
-Message throughput: 20390 msg/s
+Total time: 595.214 ms
+Total data: 627.842 KiB
+Total messages: 6065
+Data throughput: 1.030 MiB/s
+Message latency: 98.139 mcs
+Message throughput: 10189 msg/s
 ```
 
 * [HttpsTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceServer/Program.cs)
@@ -2705,12 +2705,12 @@ Seconds to benchmarking: 10
 
 Errors: 0
 
-Total time: 10.786 s
-Total data: 91.020 MiB
-Total messages: 896107
-Data throughput: 8.448 MiB/s
-Message latency: 12.037 mcs
-Message throughput: 83073 msg/s
+Total time: 3.548 s
+Total data: 17.948 MiB
+Total messages: 179111
+Data throughput: 5.052 MiB/s
+Message latency: 19.813 mcs
+Message throughput: 50471 msg/s
 ```
 
 # OpenSSL certificates
