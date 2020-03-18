@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -168,7 +169,7 @@ namespace tests
             Assert.True(!client2.Errors);
             Assert.True(!client3.Errors);
         }
-        
+
         [Fact(DisplayName = "UDP server multicast random test")]
         public void UdpMulticastServerRandomTest()
         {
@@ -272,3 +273,4 @@ namespace tests
         }
     }
 }
+*/
