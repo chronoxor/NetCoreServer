@@ -575,7 +575,7 @@ namespace NetCoreServer
         /// </summary>
         public virtual void ReceiveAsync()
         {
-            // Try to receive datagram
+            // Try to receive data from the server
             TryReceive();
         }
 
