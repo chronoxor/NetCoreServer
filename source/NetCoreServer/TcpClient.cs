@@ -177,11 +177,19 @@ namespace NetCoreServer
             }
             catch (SocketException ex)
             {
+                // Close the client socket
+                Socket.Close();
+                // Dispose the client socket
+                Socket.Dispose();
+
                 // Call the client disconnected handler
                 SendError(ex.SocketErrorCode);
                 OnDisconnected();
                 return false;
             }
+
+            // Update the client socket disposed flag
+            IsSocketDisposed = false;
 
             // Apply the option: keep alive
             if (OptionKeepAlive)
@@ -246,6 +254,9 @@ namespace NetCoreServer
 
                 // Dispose the client socket
                 Socket.Dispose();
+
+                // Update the client socket disposed flag
+                IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
 
@@ -858,8 +869,15 @@ namespace NetCoreServer
 
         #region IDisposable implementation
 
-        // Disposed flag.
-        private bool _disposed;
+        /// <summary>
+        /// Disposed flag
+        /// </summary>
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Client socket disposed flag
+        /// </summary>
+        public bool IsSocketDisposed { get; private set; } = true;
 
         // Implement IDisposable.
         public void Dispose()
@@ -882,7 +900,7 @@ namespace NetCoreServer
             // refer to reference type fields because those objects may
             // have already been finalized."
 
-            if (!_disposed)
+            if (!IsDisposed)
             {
                 if (disposingManagedResources)
                 {
@@ -895,7 +913,7 @@ namespace NetCoreServer
                 // Set large fields to null here...
 
                 // Mark as disposed.
-                _disposed = true;
+                IsDisposed = true;
             }
         }
 

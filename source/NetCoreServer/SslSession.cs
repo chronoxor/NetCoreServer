@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
@@ -12,7 +11,7 @@ namespace NetCoreServer
     /// SSL session is used to read and write data from the connected SSL client
     /// </summary>
     /// <remarks>Thread-safe</remarks>
-    public class SslSession
+    public class SslSession : IDisposable
     {
         /// <summary>
         /// Initialize the session with a given server
@@ -125,6 +124,9 @@ namespace NetCoreServer
         {
             Socket = socket;
 
+            // Update the session socket disposed flag
+            IsSocketDisposed = false;
+
             // Setup buffers
             _receiveBuffer = new Buffer();
             _sendBufferMain = new Buffer();
@@ -213,6 +215,9 @@ namespace NetCoreServer
 
                 // Dispose the session socket
                 Socket.Dispose();
+
+                // Update the session socket disposed flag
+                IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
 
@@ -748,6 +753,65 @@ namespace NetCoreServer
                 return;
 
             OnError(error);
+        }
+
+        #endregion
+
+        #region IDisposable implementation
+
+        /// <summary>
+        /// Disposed flag
+        /// </summary>
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Session socket disposed flag
+        /// </summary>
+        public bool IsSocketDisposed { get; private set; } = true;
+
+        // Implement IDisposable.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposingManagedResources)
+        {
+            // The idea here is that Dispose(Boolean) knows whether it is
+            // being called to do explicit cleanup (the Boolean is true)
+            // versus being called due to a garbage collection (the Boolean
+            // is false). This distinction is useful because, when being
+            // disposed explicitly, the Dispose(Boolean) method can safely
+            // execute code using reference type fields that refer to other
+            // objects knowing for sure that these other objects have not been
+            // finalized or disposed of yet. When the Boolean is false,
+            // the Dispose(Boolean) method should not execute code that
+            // refer to reference type fields because those objects may
+            // have already been finalized."
+
+            if (!IsDisposed)
+            {
+                if (disposingManagedResources)
+                {
+                    // Dispose managed resources here...
+                    Disconnect();
+                }
+
+                // Dispose unmanaged resources here...
+
+                // Set large fields to null here...
+
+                // Mark as disposed.
+                IsDisposed = true;
+            }
+        }
+
+        // Use C# destructor syntax for finalization code.
+        ~SslSession()
+        {
+            // Simply call Dispose(false).
+            Dispose(false);
         }
 
         #endregion
