@@ -63,7 +63,6 @@
     <Compile Include="HttpsServer.cs" />
     <Compile Include="HttpsSession.cs" />
     <Compile Include="IWebSocket.cs" />
-    <Compile Include="Polyfills\Range.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SslClient.cs" />
     <Compile Include="SslContext.cs" />

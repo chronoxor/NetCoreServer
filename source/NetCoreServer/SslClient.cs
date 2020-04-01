@@ -1,11 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -169,6 +169,10 @@ namespace NetCoreServer
         /// <summary>
         /// Connect the client (synchronous)
         /// </summary>
+        /// <remarks>
+        /// Please note that synchronous connect will not receive data automatically!
+        /// You should use Receive() or ReceiveAsync() method manually after successful connection.
+        /// </remarks>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool Connect()
         {
@@ -195,11 +199,19 @@ namespace NetCoreServer
             }
             catch (SocketException ex)
             {
+                // Close the client socket
+                Socket.Close();
+                // Dispose the client socket
+                Socket.Dispose();
+
                 // Call the client disconnected handler
                 SendError(ex.SocketErrorCode);
                 OnDisconnected();
                 return false;
             }
+
+            // Update the client socket disposed flag
+            IsSocketDisposed = false;
 
             // Apply the option: keep alive
             if (OptionKeepAlive)
@@ -298,6 +310,9 @@ namespace NetCoreServer
 
                 // Dispose the client socket
                 Socket.Dispose();
+
+                // Update the client socket disposed flag
+                IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
 
@@ -393,14 +408,12 @@ namespace NetCoreServer
         // Receive buffer
         private bool _receiving;
         private Buffer _receiveBuffer;
-        private int _receiveThreadId;
         // Send buffer
         private readonly object _sendLock = new object();
         private bool _sending;
         private Buffer _sendBufferMain;
         private Buffer _sendBufferFlush;
         private long _sendBufferFlushOffset;
-        private int _sendThreadId;
 
         /// <summary>
         /// Send data to the server (synchronous)
@@ -491,10 +504,7 @@ namespace NetCoreServer
             }
 
             // Try to send the main buffer
-            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
-                ThreadPool.QueueUserWorkItem(_ => TrySend());
-            else
-                TrySend();
+            Task.Factory.StartNew(TrySend);
 
             return true;
         }
@@ -568,10 +578,7 @@ namespace NetCoreServer
         /// </summary>
         public virtual void ReceiveAsync()
         {
-            // Try to receive datagram
-            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
-                ThreadPool.QueueUserWorkItem(_ => TryReceive());
-            else
+            // Try to receive data from the server
                 TryReceive();
         }
 
@@ -596,7 +603,6 @@ namespace NetCoreServer
                         return;
 
                     _receiving = true;
-                    _receiveThreadId = Thread.CurrentThread.ManagedThreadId;
                     result = _sslStream.BeginRead(_receiveBuffer.Data, 0, (int) _receiveBuffer.Capacity, ProcessReceive, _sslStreamId);
                 } while (result.CompletedSynchronously);
 
@@ -615,22 +621,30 @@ namespace NetCoreServer
             if (!IsHandshaked)
                 return;
 
-            // Swap send buffers
-            if (_sendBufferFlush.IsEmpty)
+            lock (_sendLock)
             {
-                lock (_sendLock)
-                {
-                    // Swap flush and main buffers
-                    _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
-                    _sendBufferFlushOffset = 0;
+                if (_sending)
+                    return;
 
-                    // Update statistic
-                    BytesPending = 0;
-                    BytesSending += _sendBufferFlush.Size;
+                // Swap send buffers
+                if (_sendBufferFlush.IsEmpty)
+                {
+                    lock (_sendLock)
+                    {
+                        // Swap flush and main buffers
+                        _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
+                        _sendBufferFlushOffset = 0;
+
+                        // Update statistic
+                        BytesPending = 0;
+                        BytesSending += _sendBufferFlush.Size;
+
+                        _sending = !_sendBufferFlush.IsEmpty;
+                    }
                 }
+                else
+                    return;
             }
-            else
-                return;
 
             // Check if the flush buffer is empty
             if (_sendBufferFlush.IsEmpty)
@@ -643,8 +657,6 @@ namespace NetCoreServer
             try
             {
                 // Async write with the write handler
-                _sending = true;
-                _sendThreadId = Thread.CurrentThread.ManagedThreadId;
                 _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, _sslStreamId);
             }
             catch (ObjectDisposedException) {}
@@ -793,8 +805,6 @@ namespace NetCoreServer
         {
             try
             {
-                _receiving = false;
-
                 if (!IsHandshaked)
                     return;
 
@@ -815,13 +825,12 @@ namespace NetCoreServer
                     // Call the buffer received handler
                     OnReceived(_receiveBuffer.Data, 0, size);
 
-                    // Reset the receive thread Id
-                    _receiveThreadId = 0;
-
                     // If the receive buffer is full increase its size
                     if (_receiveBuffer.Capacity == size)
                         _receiveBuffer.Reserve(2 * size);
                 }
+
+                _receiving = false;
 
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
@@ -846,8 +855,6 @@ namespace NetCoreServer
         {
             try
             {
-                _sending = false;
-
                 if (!IsHandshaked)
                     return;
 
@@ -881,10 +888,9 @@ namespace NetCoreServer
 
                     // Call the buffer sent handler
                     OnSent(size, BytesPending + BytesSending);
-
-                    // Reset the send thread Id
-                    _sendThreadId = 0;
                 }
+
+                _sending = false;
 
                 // Try to send again if the client is valid
                 if (!result.CompletedSynchronously)
@@ -975,8 +981,15 @@ namespace NetCoreServer
 
         #region IDisposable implementation
 
-        // Disposed flag.
-        private bool _disposed;
+        /// <summary>
+        /// Disposed flag
+        /// </summary>
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Client socket disposed flag
+        /// </summary>
+        public bool IsSocketDisposed { get; private set; } = true;
 
         // Implement IDisposable.
         public void Dispose()
@@ -999,7 +1012,7 @@ namespace NetCoreServer
             // refer to reference type fields because those objects may
             // have already been finalized."
 
-            if (!_disposed)
+            if (!IsDisposed)
             {
                 if (disposingManagedResources)
                 {
@@ -1012,7 +1025,7 @@ namespace NetCoreServer
                 // Set large fields to null here...
 
                 // Mark as disposed.
-                _disposed = true;
+                IsDisposed = true;
             }
         }
 

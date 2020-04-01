@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using NetCoreServer;
@@ -17,37 +17,20 @@ namespace HttpServer
 
         public bool GetCache(string key, out string value)
         {
-            lock (_cacheLock)
-            {
-                if (_cache.TryGetValue(key, out value))
-                    return true;
-                else
-                    return false;
-            }
+            return _cache.TryGetValue(key, out value);
         }
 
         public void SetCache(string key, string value)
         {
-            lock (_cacheLock)
-                _cache[key] = value;
+            _cache[key] = value;
         }
 
         public bool DeleteCache(string key, out string value)
         {
-            lock (_cacheLock)
-            {
-                if (_cache.TryGetValue(key, out value))
-                {
-                    _cache.Remove(key);
-                    return true;
-                }
-                else
-                    return false;
-            }
+            return _cache.TryRemove(key, out value);
         }
 
-        private readonly object _cacheLock = new object();
-        private SortedDictionary<string, string> _cache = new SortedDictionary<string, string>();
+        private readonly ConcurrentDictionary<string, string> _cache = new ConcurrentDictionary<string, string>();
         private static CommonCache _instance;
     }
 

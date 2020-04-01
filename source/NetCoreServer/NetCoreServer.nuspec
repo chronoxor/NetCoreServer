@@ -9,7 +9,7 @@
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/chronoxor/NetCoreServer</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Ultra fast and low latency asynchronous socket server &amp; client C# .NET Core library with support TCP, SSL, UDP protocols and 10K connections problem solution</description>
-    <copyright>Copyright (c) 2019 Ivan Shynkarenka</copyright>
+    <description>Ultra fast and low latency asynchronous socket server &amp; client C# .NET Core library with support TCP, SSL, UDP, HTTP, HTTPS, WebSockets protocols and 10K connections problem solution</description>
+    <copyright>Copyright (c) 2019-2020 Ivan Shynkarenka</copyright>
   </metadata>
 </package>

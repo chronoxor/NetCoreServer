@@ -24,7 +24,7 @@ namespace NetCoreServer
         /// <param name="request">WebSocket upgrade HTTP request</param>
         /// <param name="response">WebSocket upgrade HTTP response</param>
         /// <returns>return 'true' if the WebSocket update request is valid, 'false' if the WebSocket update request is not valid</returns>
-        bool OnWsConnecting(HttpRequest request, HttpResponse response); // { return true; }
+        bool OnWsConnecting(HttpRequest request, HttpResponse response);
 
         /// <summary>
         /// Handle WebSocket server session connected notification

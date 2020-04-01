@@ -459,8 +459,10 @@ namespace NetCoreServer
         /// <param name="body">Body string content (default is "")</param>
         public HttpResponse SetBody(string body = "")
         {
+            int length = string.IsNullOrEmpty(body) ? 0 : Encoding.UTF8.GetByteCount(body);
+
             // Append content length header
-            SetHeader("Content-Length", body.Length.ToString());
+            SetHeader("Content-Length", length.ToString());
 
             _cache.Append("\r\n");
 
@@ -469,8 +471,8 @@ namespace NetCoreServer
             // Append the HTTP response body
             _cache.Append(body);
             _bodyIndex = index;
-            _bodySize = body.Length;
-            _bodyLength = body.Length;
+            _bodySize = length;
+            _bodyLength = length;
             _bodyLengthProvided = true;
             return this;
         }
@@ -827,10 +829,12 @@ namespace NetCoreServer
                             return false;
 
                         // Add a new header
-                        _headers.Add(new Tuple<string, string>(_cache.ExtractString(headerNameIndex, headerNameSize), _cache.ExtractString(headerValueIndex, headerValueSize)));
+                        string headerName = _cache.ExtractString(headerNameIndex, headerNameSize);
+                        string headerValue = _cache.ExtractString(headerValueIndex, headerValueSize);
+                        _headers.Add(new Tuple<string, string>(headerName, headerValue));
 
                         // Try to find the body content length
-                        if (_cache.ExtractString(headerNameIndex, headerNameSize) == "Content-Length")
+                        if (headerName == "Content-Length")
                         {
                             _bodyLength = 0;
                             for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)

@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -167,6 +167,9 @@ namespace NetCoreServer
             // Create a new client socket
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
+            // Update the client socket disposed flag
+            IsSocketDisposed = false;
+
             // Apply the option: reuse address
             Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, OptionReuseAddress);
             // Apply the option: exclusive address use
@@ -224,6 +227,9 @@ namespace NetCoreServer
 
                 // Dispose the client socket
                 Socket.Dispose();
+
+                // Update the client socket disposed flag
+                IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
 
@@ -320,12 +326,10 @@ namespace NetCoreServer
         private bool _receiving;
         private Buffer _receiveBuffer;
         private SocketAsyncEventArgs _receiveEventArg;
-        private int _receiveThreadId;
         // Send buffer
         private bool _sending;
         private Buffer _sendBuffer;
         private SocketAsyncEventArgs _sendEventArg;
-        private int _sendThreadId;
 
         /// <summary>
         /// Send datagram to the connected server (synchronous)
@@ -467,10 +471,7 @@ namespace NetCoreServer
             _sendEndpoint = endpoint;
 
             // Try to send the main buffer
-            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
-                ThreadPool.QueueUserWorkItem(_ => TrySend());
-            else
-                TrySend();
+            Task.Factory.StartNew(TrySend);
 
             return true;
         }
@@ -551,10 +552,7 @@ namespace NetCoreServer
         public virtual void ReceiveAsync()
         {
             // Try to receive datagram
-            if (Thread.CurrentThread.ManagedThreadId == _sendThreadId)
-                ThreadPool.QueueUserWorkItem(_ => TryReceive());
-            else
-                TryReceive();
+            TryReceive();
         }
 
         /// <summary>
@@ -574,7 +572,6 @@ namespace NetCoreServer
                 _receiving = true;
                 _receiveEventArg.RemoteEndPoint = _receiveEndpoint;
                 _receiveEventArg.SetBuffer(_receiveBuffer.Data, 0, (int)_receiveBuffer.Capacity);
-                _receiveThreadId = Thread.CurrentThread.ManagedThreadId;
                 if (!Socket.ReceiveFromAsync(_receiveEventArg))
                     ProcessReceiveFrom(_receiveEventArg);
             }
@@ -598,7 +595,6 @@ namespace NetCoreServer
                 _sending = true;
                 _sendEventArg.RemoteEndPoint = _sendEndpoint;
                 _sendEventArg.SetBuffer(_sendBuffer.Data, 0, (int)(_sendBuffer.Size));
-                _sendThreadId = Thread.CurrentThread.ManagedThreadId;
                 if (!Socket.SendToAsync(_sendEventArg))
                     ProcessSendTo(_sendEventArg);
             }
@@ -672,9 +668,6 @@ namespace NetCoreServer
                 // Call the datagram received handler
                 OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, size);
 
-                // Reset the receive thread Id
-                _receiveThreadId = 0;
-
                 // If the receive buffer is full increase its size
                 if (_receiveBuffer.Capacity == size)
                     _receiveBuffer.Reserve(2 * size);
@@ -713,9 +706,6 @@ namespace NetCoreServer
 
                 // Call the buffer sent handler
                 OnSent(_sendEndpoint, sent);
-
-                // Reset the send thread Id
-                _sendThreadId = 0;
             }
         }
 
@@ -796,8 +786,15 @@ namespace NetCoreServer
 
         #region IDisposable implementation
 
-        // Disposed flag.
-        private bool _disposed;
+        /// <summary>
+        /// Disposed flag
+        /// </summary>
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Client socket disposed flag
+        /// </summary>
+        public bool IsSocketDisposed { get; private set; } = true;
 
         // Implement IDisposable.
         public void Dispose()
@@ -820,7 +817,7 @@ namespace NetCoreServer
             // refer to reference type fields because those objects may
             // have already been finalized."
 
-            if (!_disposed)
+            if (!IsDisposed)
             {
                 if (disposingManagedResources)
                 {
@@ -833,7 +830,7 @@ namespace NetCoreServer
                 // Set large fields to null here...
 
                 // Mark as disposed.
-                _disposed = true;
+                IsDisposed = true;
             }
         }
 
