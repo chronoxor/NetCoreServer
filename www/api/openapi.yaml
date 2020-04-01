@@ -1,0 +1,120 @@
+openapi: 3.0.1
+
+info:
+  version: "1.0"
+  title: HTTP Cache Server API
+  description: HTTP Cache Server API
+  contact:
+    name: chronoxor
+    url: https://github.com/chronoxor/CppServer
+    email: chronoxor@gmail.com
+
+servers:
+- url: /api
+  description: Cache API
+
+tags:
+- name: Cache
+  description: Cache methods
+
+paths:
+  /cache:
+    get:
+      tags:
+      - Cache
+      summary: Get the cache value
+      operationId: GetCacheValue
+      responses:
+        200:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Internal server error
+          content: {}
+    post:
+      tags:
+      - Cache
+      summary: Create the cache value
+      operationId: CreateCacheValue
+      requestBody:
+        description: Cache value to create
+        content:
+          text/plain:
+            schema:
+              type: string
+        required: true
+      responses:
+        200:
+          description: Success
+          content: {}
+        500:
+          description: Internal server error
+          content: {}
+    put:
+      tags:
+      - Cache
+      summary: Modify the cache value
+      operationId: ModifyCacheValue
+      requestBody:
+        description: Cache value to modify
+        content:
+          text/plain:
+            schema:
+              type: string
+        required: true
+      responses:
+        200:
+          description: Success
+          content: {}
+        500:
+          description: Internal server error
+          content: {}
+    delete:
+      tags:
+      - Cache
+      summary: Delete the cache value
+      operationId: DeleteCacheValue
+      requestBody:
+        description: Cache value to delete
+        content:
+          text/plain:
+            schema:
+              type: string
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Internal server error
+          content: {}
+    head:
+      tags:
+      - Cache
+      summary: Get the cache headers
+      operationId: GetCacheHeaders
+      responses:
+        200:
+          description: Success
+          content: {}
+        500:
+          description: Internal server error
+          content: {}
+    options:
+      tags:
+      - Cache
+      summary: Get the cache options
+      operationId: GetCacheOptions
+      responses:
+        200:
+          description: Success
+          content: {}
+        500:
+          description: Internal server error
+          content: {}

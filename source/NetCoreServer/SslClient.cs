@@ -1,11 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -111,20 +111,56 @@ namespace NetCoreServer
             get => Socket.SendBufferSize;
             set => Socket.SendBufferSize = value;
         }
+        /// <summary>
+        /// Option: receive timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionReceiveTimeout
+        {
+            get => Socket.ReceiveTimeout;
+            set => Socket.ReceiveTimeout = value;
+        }
+        /// <summary>
+        /// Option: send timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionSendTimeout
+        {
+            get => Socket.SendTimeout;
+            set => Socket.SendTimeout = value;
+        }
+        /// <summary>
+        /// Option: linger state
+        /// </summary>
+        public LingerOption OptionLingerState
+        {
+            get => Socket.LingerState;
+            set => Socket.LingerState = value;
+        }
 
         #region Connect/Disconnect client
 
-        private bool _connecting;
-        private bool _handshaking;
         private bool _disconnecting;
         private SocketAsyncEventArgs _connectEventArg;
         private SslStream _sslStream;
         private Guid? _sslStreamId;
 
         /// <summary>
+        /// Is the client connecting?
+        /// </summary>
+        public bool IsConnecting { get; private set; }
+        /// <summary>
         /// Is the client connected?
         /// </summary>
         public bool IsConnected { get; private set; }
+        /// <summary>
+        /// Is the client handshaking?
+        /// </summary>
+        public bool IsHandshaking { get; private set; }
         /// <summary>
         /// Is the client handshaked?
         /// </summary>
@@ -133,10 +169,14 @@ namespace NetCoreServer
         /// <summary>
         /// Connect the client (synchronous)
         /// </summary>
+        /// <remarks>
+        /// Please note that synchronous connect will not receive data automatically!
+        /// You should use Receive() or ReceiveAsync() method manually after successful connection.
+        /// </remarks>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool Connect()
         {
-            if (IsConnected || IsHandshaked || _connecting || _handshaking)
+            if (IsConnected || IsHandshaked || IsConnecting || IsHandshaking)
                 return false;
 
             // Setup buffers
@@ -159,11 +199,19 @@ namespace NetCoreServer
             }
             catch (SocketException ex)
             {
+                // Close the client socket
+                Socket.Close();
+                // Dispose the client socket
+                Socket.Dispose();
+
                 // Call the client disconnected handler
                 SendError(ex.SocketErrorCode);
                 OnDisconnected();
                 return false;
             }
+
+            // Update the client socket disposed flag
+            IsSocketDisposed = false;
 
             // Apply the option: keep alive
             if (OptionKeepAlive)
@@ -224,19 +272,19 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
         public virtual bool Disconnect()
         {
-            if (!IsConnected && !_connecting)
+            if (!IsConnected && !IsConnecting)
                 return false;
 
             // Cancel connecting operation
-            if (_connecting)
+            if (IsConnecting)
                 Socket.CancelConnectAsync(_connectEventArg);
 
             if (_disconnecting)
                 return false;
 
             // Reset connecting & handshaking flags
-            _connecting = false;
-            _handshaking = false;
+            IsConnecting = false;
+            IsHandshaking = false;
 
             // Update the disconnecting flag
             _disconnecting = true;
@@ -262,6 +310,9 @@ namespace NetCoreServer
 
                 // Dispose the client socket
                 Socket.Dispose();
+
+                // Update the client socket disposed flag
+                IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
 
@@ -305,7 +356,7 @@ namespace NetCoreServer
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
         public virtual bool ConnectAsync()
         {
-            if (IsConnected || IsHandshaked || _connecting || _handshaking)
+            if (IsConnected || IsHandshaked || IsConnecting || IsHandshaking)
                 return false;
 
             // Setup buffers
@@ -322,7 +373,7 @@ namespace NetCoreServer
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             // Async connect to the server
-            _connecting = true;
+            IsConnecting = true;
             if (!Socket.ConnectAsync(_connectEventArg))
                 ProcessConnect(_connectEventArg);
 
@@ -453,7 +504,7 @@ namespace NetCoreServer
             }
 
             // Try to send the main buffer
-            TrySend();
+            Task.Factory.StartNew(TrySend);
 
             return true;
         }
@@ -525,7 +576,11 @@ namespace NetCoreServer
         /// <summary>
         /// Receive data from the server (asynchronous)
         /// </summary>
-        public virtual void ReceiveAsync() { TryReceive(); }
+        public virtual void ReceiveAsync()
+        {
+            // Try to receive data from the server
+            TryReceive();
+        }
 
         /// <summary>
         /// Try to receive new data
@@ -566,22 +621,30 @@ namespace NetCoreServer
             if (!IsHandshaked)
                 return;
 
-            // Swap send buffers
-            if (_sendBufferFlush.IsEmpty)
+            lock (_sendLock)
             {
-                lock (_sendLock)
-                {
-                    // Swap flush and main buffers
-                    _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
-                    _sendBufferFlushOffset = 0;
+                if (_sending)
+                    return;
 
-                    // Update statistic
-                    BytesPending = 0;
-                    BytesSending += _sendBufferFlush.Size;
+                // Swap send buffers
+                if (_sendBufferFlush.IsEmpty)
+                {
+                    lock (_sendLock)
+                    {
+                        // Swap flush and main buffers
+                        _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
+                        _sendBufferFlushOffset = 0;
+
+                        // Update statistic
+                        BytesPending = 0;
+                        BytesSending += _sendBufferFlush.Size;
+
+                        _sending = !_sendBufferFlush.IsEmpty;
+                    }
                 }
+                else
+                    return;
             }
-            else
-                return;
 
             // Check if the flush buffer is empty
             if (_sendBufferFlush.IsEmpty)
@@ -594,7 +657,6 @@ namespace NetCoreServer
             try
             {
                 // Async write with the write handler
-                _sending = true;
                 _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, _sslStreamId);
             }
             catch (ObjectDisposedException) {}
@@ -644,7 +706,7 @@ namespace NetCoreServer
         /// </summary>
         private void ProcessConnect(SocketAsyncEventArgs e)
         {
-            _connecting = false;
+            IsConnecting = false;
 
             if (e.SocketError == SocketError.Success)
             {
@@ -679,7 +741,7 @@ namespace NetCoreServer
                     _sslStream = (Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
 
                     // Begin the SSL handshake
-                    _handshaking = true;
+                    IsHandshaking = true;
                     _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, _sslStreamId);
                 }
                 catch (Exception)
@@ -703,7 +765,7 @@ namespace NetCoreServer
         {
             try
             {
-                _handshaking = false;
+                IsHandshaking = false;
 
                 if (IsHandshaked)
                     return;
@@ -743,8 +805,6 @@ namespace NetCoreServer
         {
             try
             {
-                _receiving = false;
-
                 if (!IsHandshaked)
                     return;
 
@@ -770,6 +830,8 @@ namespace NetCoreServer
                         _receiveBuffer.Reserve(2 * size);
                 }
 
+                _receiving = false;
+
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
                 {
@@ -793,8 +855,6 @@ namespace NetCoreServer
         {
             try
             {
-                _sending = false;
-
                 if (!IsHandshaked)
                     return;
 
@@ -829,6 +889,8 @@ namespace NetCoreServer
                     // Call the buffer sent handler
                     OnSent(size, BytesPending + BytesSending);
                 }
+
+                _sending = false;
 
                 // Try to send again if the client is valid
                 if (!result.CompletedSynchronously)
@@ -919,8 +981,15 @@ namespace NetCoreServer
 
         #region IDisposable implementation
 
-        // Disposed flag.
-        private bool _disposed;
+        /// <summary>
+        /// Disposed flag
+        /// </summary>
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Client socket disposed flag
+        /// </summary>
+        public bool IsSocketDisposed { get; private set; } = true;
 
         // Implement IDisposable.
         public void Dispose()
@@ -943,7 +1012,7 @@ namespace NetCoreServer
             // refer to reference type fields because those objects may
             // have already been finalized."
 
-            if (!_disposed)
+            if (!IsDisposed)
             {
                 if (disposingManagedResources)
                 {
@@ -956,7 +1025,7 @@ namespace NetCoreServer
                 // Set large fields to null here...
 
                 // Mark as disposed.
-                _disposed = true;
+                IsDisposed = true;
             }
         }
 

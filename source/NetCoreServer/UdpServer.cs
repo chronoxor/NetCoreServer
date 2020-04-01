@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -86,12 +86,12 @@ namespace NetCoreServer
         /// </remarks>
         public bool OptionReuseAddress { get; set; }
         /// <summary>
-        /// Option: reuse port
+        /// Option: enables a socket to be bound for exclusive access
         /// </summary>
         /// <remarks>
-        /// This option will enable/disable SO_REUSEPORT if the OS support this feature
+        /// This option will enable/disable SO_EXCLUSIVEADDRUSE if the OS support this feature
         /// </remarks>
-        public bool OptionReusePort { get; set; }
+        public bool OptionExclusiveAddressUse { get; set; }
         /// <summary>
         /// Option: receive buffer size
         /// </summary>
@@ -107,6 +107,36 @@ namespace NetCoreServer
         {
             get => Socket.SendBufferSize;
             set => Socket.SendBufferSize = value;
+        }
+        /// <summary>
+        /// Option: receive timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionReceiveTimeout
+        {
+            get => Socket.ReceiveTimeout;
+            set => Socket.ReceiveTimeout = value;
+        }
+        /// <summary>
+        /// Option: send timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionSendTimeout
+        {
+            get => Socket.SendTimeout;
+            set => Socket.SendTimeout = value;
+        }
+        /// <summary>
+        /// Option: linger state
+        /// </summary>
+        public LingerOption OptionLingerState
+        {
+            get => Socket.LingerState;
+            set => Socket.LingerState = value;
         }
 
         #region Connect/Disconnect client
@@ -139,14 +169,13 @@ namespace NetCoreServer
             // Create a new server socket
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
+            // Update the server socket disposed flag
+            IsSocketDisposed = false;
+
             // Apply the option: reuse address
-            if (OptionReuseAddress)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            // Apply the option: reuse port
-            /*
-            if (OptionReusePort)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReusePort, true);
-            */
+            Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, OptionReuseAddress);
+            // Apply the option: exclusive address use
+            Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, OptionExclusiveAddressUse);
 
             // Bind the server socket to the IP endpoint
             Socket.Bind(Endpoint);
@@ -219,11 +248,14 @@ namespace NetCoreServer
 
             try
             {
-                // Close the session socket
+                // Close the server socket
                 Socket.Close();
 
-                // Dispose the session socket
+                // Dispose the server socket
                 Socket.Dispose();
+
+                // Update the server socket disposed flag
+                IsSocketDisposed = false;
             }
             catch (ObjectDisposedException) {}
 
@@ -433,7 +465,7 @@ namespace NetCoreServer
             _sendEndpoint = endpoint;
 
             // Try to send the main buffer
-            TrySend();
+            Task.Factory.StartNew(TrySend);
 
             return true;
         }
@@ -510,7 +542,11 @@ namespace NetCoreServer
         /// <summary>
         /// Receive datagram from the client (asynchronous)
         /// </summary>
-        public virtual void ReceiveAsync() { TryReceive(); }
+        public virtual void ReceiveAsync()
+        {
+            // Try to receive datagram
+            TryReceive();
+        }
 
         /// <summary>
         /// Try to receive new data
@@ -674,7 +710,7 @@ namespace NetCoreServer
 
         #endregion
 
-        #region Session handlers
+        #region Datagram handlers
 
         /// <summary>
         /// Handle server started notification
@@ -738,8 +774,15 @@ namespace NetCoreServer
 
         #region IDisposable implementation
 
-        // Disposed flag.
-        private bool _disposed;
+        /// <summary>
+        /// Disposed flag
+        /// </summary>
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Server socket disposed flag
+        /// </summary>
+        public bool IsSocketDisposed { get; private set; } = true;
 
         // Implement IDisposable.
         public void Dispose()
@@ -762,7 +805,7 @@ namespace NetCoreServer
             // refer to reference type fields because those objects may
             // have already been finalized."
 
-            if (!_disposed)
+            if (!IsDisposed)
             {
                 if (disposingManagedResources)
                 {
@@ -775,7 +818,7 @@ namespace NetCoreServer
                 // Set large fields to null here...
 
                 // Mark as disposed.
-                _disposed = true;
+                IsDisposed = true;
             }
         }
 

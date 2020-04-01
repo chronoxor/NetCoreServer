@@ -49,7 +49,7 @@ namespace NetCoreServer
         /// <summary>
         /// Number of sessions connected to the server
         /// </summary>
-        public long ConnectedSessions { get { return _sessions.Count; } }
+        public long ConnectedSessions { get { return Sessions.Count; } }
         /// <summary>
         /// Number of bytes pending sent by the server
         /// </summary>
@@ -92,12 +92,12 @@ namespace NetCoreServer
         /// </remarks>
         public bool OptionReuseAddress { get; set; }
         /// <summary>
-        /// Option: reuse port
+        /// Option: enables a socket to be bound for exclusive access
         /// </summary>
         /// <remarks>
-        /// This option will enable/disable SO_REUSEPORT if the OS support this feature
+        /// This option will enable/disable SO_EXCLUSIVEADDRUSE if the OS support this feature
         /// </remarks>
-        public bool OptionReusePort { get; set; }
+        public bool OptionExclusiveAddressUse { get; set; }
 
         #region Start/Stop server
 
@@ -136,14 +136,13 @@ namespace NetCoreServer
             // Create a new acceptor socket
             _acceptorSocket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
+            // Update the acceptor socket disposed flag
+            IsSocketDisposed = false;
+
             // Apply the option: reuse address
-            if (OptionReuseAddress)
-                _acceptorSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            // Apply the option: reuse port
-            /*
-            if (OptionReusePort)
-                _acceptorSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReusePort, true);
-            */
+            _acceptorSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, OptionReuseAddress);
+            // Apply the option: exclusive address use
+            _acceptorSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, OptionExclusiveAddressUse);
 
             // Bind the acceptor socket to the IP endpoint
             _acceptorSocket.Bind(Endpoint);
@@ -191,6 +190,9 @@ namespace NetCoreServer
 
             // Dispose the acceptor socket
             _acceptorSocket.Dispose();
+
+            // Update the acceptor socket disposed flag
+            IsSocketDisposed = true;
 
             // Disconnect all sessions
             DisconnectAll();
@@ -284,7 +286,7 @@ namespace NetCoreServer
         #region Session management
 
         // Server sessions
-        private readonly ConcurrentDictionary<Guid, TcpSession> _sessions = new ConcurrentDictionary<Guid, TcpSession>();
+        protected readonly ConcurrentDictionary<Guid, TcpSession> Sessions = new ConcurrentDictionary<Guid, TcpSession>();
 
         /// <summary>
         /// Disconnect all connected sessions
@@ -296,7 +298,7 @@ namespace NetCoreServer
                 return false;
 
             // Disconnect all sessions
-            foreach (var session in _sessions.Values)
+            foreach (var session in Sessions.Values)
                 session.Disconnect();
 
             return true;
@@ -310,7 +312,7 @@ namespace NetCoreServer
         public TcpSession FindSession(Guid id)
         {
             // Try to find the required session
-            return _sessions.TryGetValue(id, out TcpSession result) ? result : null;
+            return Sessions.TryGetValue(id, out TcpSession result) ? result : null;
         }
 
         /// <summary>
@@ -320,7 +322,7 @@ namespace NetCoreServer
         internal void RegisterSession(TcpSession session)
         {
             // Register a new session
-            _sessions.TryAdd(session.Id, session);
+            Sessions.TryAdd(session.Id, session);
         }
 
         /// <summary>
@@ -330,7 +332,7 @@ namespace NetCoreServer
         internal void UnregisterSession(Guid id)
         {
             // Unregister session by Id
-            _sessions.TryRemove(id, out TcpSession temp);
+            Sessions.TryRemove(id, out TcpSession temp);
         }
 
         #endregion
@@ -360,7 +362,7 @@ namespace NetCoreServer
                 return true;
 
             // Multicast data to all sessions
-            foreach (var session in _sessions.Values)
+            foreach (var session in Sessions.Values)
                 session.SendAsync(buffer, offset, size);
 
             return true;
@@ -431,8 +433,15 @@ namespace NetCoreServer
 
         #region IDisposable implementation
 
-        // Disposed flag.
-        private bool _disposed;
+        /// <summary>
+        /// Disposed flag
+        /// </summary>
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Acceptor socket disposed flag
+        /// </summary>
+        public bool IsSocketDisposed { get; private set; } = true;
 
         // Implement IDisposable.
         public void Dispose()
@@ -455,7 +464,7 @@ namespace NetCoreServer
             // refer to reference type fields because those objects may
             // have already been finalized."
 
-            if (!_disposed)
+            if (!IsDisposed)
             {
                 if (disposingManagedResources)
                 {
@@ -468,7 +477,7 @@ namespace NetCoreServer
                 // Set large fields to null here...
 
                 // Mark as disposed.
-                _disposed = true;
+                IsDisposed = true;
             }
         }
 

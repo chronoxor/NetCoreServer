@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -11,7 +11,7 @@ namespace NetCoreServer
     /// SSL session is used to read and write data from the connected SSL client
     /// </summary>
     /// <remarks>Thread-safe</remarks>
-    public class SslSession
+    public class SslSession : IDisposable
     {
         /// <summary>
         /// Initialize the session with a given server
@@ -70,6 +70,36 @@ namespace NetCoreServer
             get => Socket.SendBufferSize;
             set => Socket.SendBufferSize = value;
         }
+        /// <summary>
+        /// Option: receive timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionReceiveTimeout
+        {
+            get => Socket.ReceiveTimeout;
+            set => Socket.ReceiveTimeout = value;
+        }
+        /// <summary>
+        /// Option: send timeout in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
+        /// </remarks>
+        public int OptionSendTimeout
+        {
+            get => Socket.SendTimeout;
+            set => Socket.SendTimeout = value;
+        }
+        /// <summary>
+        /// Option: linger state
+        /// </summary>
+        public LingerOption OptionLingerState
+        {
+            get => Socket.LingerState;
+            set => Socket.LingerState = value;
+        }
 
         #region Connect/Disconnect session
 
@@ -93,6 +123,9 @@ namespace NetCoreServer
         internal void Connect(Socket socket)
         {
             Socket = socket;
+
+            // Update the session socket disposed flag
+            IsSocketDisposed = false;
 
             // Setup buffers
             _receiveBuffer = new Buffer();
@@ -175,6 +208,9 @@ namespace NetCoreServer
 
                 // Dispose the session socket
                 Socket.Dispose();
+
+                // Update the session socket disposed flag
+                IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
 
@@ -310,7 +346,7 @@ namespace NetCoreServer
             }
 
             // Try to send the main buffer
-            TrySend();
+            Task.Factory.StartNew(TrySend);
 
             return true;
         }
@@ -383,7 +419,11 @@ namespace NetCoreServer
         /// <summary>
         /// Receive data from the client (asynchronous)
         /// </summary>
-        public virtual void ReceiveAsync() { TryReceive(); }
+        public virtual void ReceiveAsync()
+        {
+            // Try to receive data from the client
+            TryReceive();
+        }
 
         /// <summary>
         /// Try to receive new data
@@ -423,22 +463,30 @@ namespace NetCoreServer
             if (!IsHandshaked)
                 return;
 
-            // Swap send buffers
-            if (_sendBufferFlush.IsEmpty)
+            lock (_sendLock)
             {
-                lock (_sendLock)
-                {
-                    // Swap flush and main buffers
-                    _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
-                    _sendBufferFlushOffset = 0;
+                if (_sending)
+                    return;
 
-                    // Update statistic
-                    BytesPending = 0;
-                    BytesSending += _sendBufferFlush.Size;
+                // Swap send buffers
+                if (_sendBufferFlush.IsEmpty)
+                {
+                    lock (_sendLock)
+                    {
+                        // Swap flush and main buffers
+                        _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
+                        _sendBufferFlushOffset = 0;
+
+                        // Update statistic
+                        BytesPending = 0;
+                        BytesSending += _sendBufferFlush.Size;
+
+                        _sending = !_sendBufferFlush.IsEmpty;
+                    }
                 }
+                else
+                    return;
             }
-            else
-                return;
 
             // Check if the flush buffer is empty
             if (_sendBufferFlush.IsEmpty)
@@ -451,7 +499,6 @@ namespace NetCoreServer
             try
             {
                 // Async write with the write handler
-                _sending = true;
                 _sslStream.BeginWrite(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset), ProcessSend, _sslStreamId);
             }
             catch (ObjectDisposedException) {}
@@ -527,8 +574,6 @@ namespace NetCoreServer
         {
             try
             {
-                _receiving = false;
-
                 if (!IsHandshaked)
                     return;
 
@@ -555,6 +600,8 @@ namespace NetCoreServer
                         _receiveBuffer.Reserve(2 * size);
                 }
 
+                _receiving = false;
+
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
                 {
@@ -578,8 +625,6 @@ namespace NetCoreServer
         {
             try
             {
-                _sending = false;
-
                 // Validate SSL stream Id
                 var sslStreamId = result.AsyncState as Guid?;
                 if (_sslStreamId != sslStreamId)
@@ -615,6 +660,8 @@ namespace NetCoreServer
                     // Call the buffer sent handler
                     OnSent(size, BytesPending + BytesSending);
                 }
+
+                _sending = false;
 
                 // Try to send again if the session is valid
                 if (!result.CompletedSynchronously)
@@ -699,6 +746,65 @@ namespace NetCoreServer
                 return;
 
             OnError(error);
+        }
+
+        #endregion
+
+        #region IDisposable implementation
+
+        /// <summary>
+        /// Disposed flag
+        /// </summary>
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Session socket disposed flag
+        /// </summary>
+        public bool IsSocketDisposed { get; private set; } = true;
+
+        // Implement IDisposable.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposingManagedResources)
+        {
+            // The idea here is that Dispose(Boolean) knows whether it is
+            // being called to do explicit cleanup (the Boolean is true)
+            // versus being called due to a garbage collection (the Boolean
+            // is false). This distinction is useful because, when being
+            // disposed explicitly, the Dispose(Boolean) method can safely
+            // execute code using reference type fields that refer to other
+            // objects knowing for sure that these other objects have not been
+            // finalized or disposed of yet. When the Boolean is false,
+            // the Dispose(Boolean) method should not execute code that
+            // refer to reference type fields because those objects may
+            // have already been finalized."
+
+            if (!IsDisposed)
+            {
+                if (disposingManagedResources)
+                {
+                    // Dispose managed resources here...
+                    Disconnect();
+                }
+
+                // Dispose unmanaged resources here...
+
+                // Set large fields to null here...
+
+                // Mark as disposed.
+                IsDisposed = true;
+            }
+        }
+
+        // Use C# destructor syntax for finalization code.
+        ~SslSession()
+        {
+            // Simply call Dispose(false).
+            Dispose(false);
         }
 
         #endregion

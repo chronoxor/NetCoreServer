@@ -7,17 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\tools\certificates\client.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="NDesk.Options.Core" Version="1.2.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\source\NetCoreServer\NetCoreServer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\tools\certificates\client.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
