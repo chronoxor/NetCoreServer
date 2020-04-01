@@ -505,18 +505,18 @@ namespace NetCoreServer
 
         #region IWebSocket implementation
 
-        public void OnWsConnecting(HttpRequest request) {}
-        public void OnWsConnected(HttpResponse response) {}
-        public bool OnWsConnecting(HttpRequest request, HttpResponse response) { return true; }
-        public void OnWsConnected(HttpRequest request) {}
-        public void OnWsDisconnected() {}
-        public void OnWsReceived(byte[] buffer, long offset, long size) {}
-        public void OnWsClose(byte[] buffer, long offset, long size) {}
-        public void OnWsPing(byte[] buffer, long offset, long size) {}
-        public void OnWsPong(byte[] buffer, long offset, long size) {}
-        public void OnWsError(string error) {}
-        public void OnWsError(SocketError error) {}
-        public void SendResponse(HttpResponse response) {}
+        public void OnWsConnecting(HttpRequest request) { _wsHandler.OnWsConnecting(request); }
+        public void OnWsConnected(HttpResponse response) { _wsHandler.OnWsConnected(response); }
+        public bool OnWsConnecting(HttpRequest request, HttpResponse response) { return _wsHandler.OnWsConnecting(request, response); }
+        public void OnWsConnected(HttpRequest request) { _wsHandler.OnWsConnected(request); }
+        public void OnWsDisconnected() { _wsHandler.OnWsDisconnected(); }
+        public void OnWsReceived(byte[] buffer, long offset, long size) { _wsHandler.OnWsReceived(buffer, offset, size); }
+        public void OnWsClose(byte[] buffer, long offset, long size) { _wsHandler.OnWsClose(buffer, offset, size); }
+        public void OnWsPing(byte[] buffer, long offset, long size) { _wsHandler.OnWsPing(buffer, offset, size); }
+        public void OnWsPong(byte[] buffer, long offset, long size) { _wsHandler.OnWsPong(buffer, offset, size); }
+        public void OnWsError(string error) { _wsHandler.OnWsError(error); }
+        public void OnWsError(SocketError error) { _wsHandler.OnWsError(error); }
+        public void SendResponse(HttpResponse response) { _wsHandler.SendResponse(response); }
 
         #endregion
 
