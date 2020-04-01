@@ -81,9 +81,17 @@ namespace NetCoreServer
             return _cookies[i];
         }
         /// <summary>
-        /// Get the HTTP request body
+        /// Get the HTTP request body as string
         /// </summary>
         public string Body { get { return _cache.ExtractString(_bodyIndex, _bodySize); } }
+        /// <summary>
+        /// Get the HTTP request body as byte array
+        /// </summary>
+        public byte[] BodyBytes { get { return _cache.Data[_bodyIndex..(_bodyIndex + _bodySize)]; } }
+        /// <summary>
+        /// Get the HTTP request body as byte span
+        /// </summary>
+        public Span<byte> BodySpan { get { return new Span<byte>(_cache.Data, _bodyIndex, _bodySize); } }
         /// <summary>
         /// Get the HTTP request body length
         /// </summary>

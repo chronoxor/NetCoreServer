@@ -76,9 +76,17 @@ namespace NetCoreServer
             return _headers[i];
         }
         /// <summary>
-        /// Get the HTTP response body
+        /// Get the HTTP response body as string
         /// </summary>
         public string Body { get { return _cache.ExtractString(_bodyIndex, _bodySize); } }
+        /// <summary>
+        /// Get the HTTP request body as byte array
+        /// </summary>
+        public byte[] BodyBytes { get { return _cache.Data[_bodyIndex..(_bodyIndex + _bodySize)]; } }
+        /// <summary>
+        /// Get the HTTP request body as read-only byte span
+        /// </summary>
+        public ReadOnlySpan<byte> BodySpan { get { return new ReadOnlySpan<byte>(_cache.Data, _bodyIndex, _bodySize); } }
         /// <summary>
         /// Get the HTTP response body length
         /// </summary>
