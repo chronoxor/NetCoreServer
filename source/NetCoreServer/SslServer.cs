@@ -107,6 +107,14 @@ namespace NetCoreServer
         /// This option will enable/disable SO_EXCLUSIVEADDRUSE if the OS support this feature
         /// </remarks>
         public bool OptionExclusiveAddressUse { get; set; }
+        /// <summary>
+        /// Option: receive buffer size
+        /// </summary>
+        public int OptionReceiveBufferSize { get; set; } = 8192;
+        /// <summary>
+        /// Option: send buffer size
+        /// </summary>
+        public int OptionSendBufferSize { get; set; } = 8192;
 
         #region Start/Stop server
 

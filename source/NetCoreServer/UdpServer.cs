@@ -95,49 +95,11 @@ namespace NetCoreServer
         /// <summary>
         /// Option: receive buffer size
         /// </summary>
-        public int OptionReceiveBufferSize
-        {
-            get => Socket.ReceiveBufferSize;
-            set => Socket.ReceiveBufferSize = value;
-        }
+        public int OptionReceiveBufferSize { get; set; } = 8192;
         /// <summary>
         /// Option: send buffer size
         /// </summary>
-        public int OptionSendBufferSize
-        {
-            get => Socket.SendBufferSize;
-            set => Socket.SendBufferSize = value;
-        }
-        /// <summary>
-        /// Option: receive timeout in milliseconds
-        /// </summary>
-        /// <remarks>
-        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
-        /// </remarks>
-        public int OptionReceiveTimeout
-        {
-            get => Socket.ReceiveTimeout;
-            set => Socket.ReceiveTimeout = value;
-        }
-        /// <summary>
-        /// Option: send timeout in milliseconds
-        /// </summary>
-        /// <remarks>
-        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
-        /// </remarks>
-        public int OptionSendTimeout
-        {
-            get => Socket.SendTimeout;
-            set => Socket.SendTimeout = value;
-        }
-        /// <summary>
-        /// Option: linger state
-        /// </summary>
-        public LingerOption OptionLingerState
-        {
-            get => Socket.LingerState;
-            set => Socket.LingerState = value;
-        }
+        public int OptionSendBufferSize { get; set; } = 8192;
 
         #region Connect/Disconnect client
 
