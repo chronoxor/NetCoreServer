@@ -180,7 +180,7 @@ namespace NetCoreServer
                 Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             // Apply the option: no delay
             if (OptionNoDelay)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+                Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
 
             // Prepare receive & send buffers
             _receiveBuffer.Reserve(OptionReceiveBufferSize);
@@ -684,7 +684,7 @@ namespace NetCoreServer
                     Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                 // Apply the option: no delay
                 if (OptionNoDelay)
-                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
 
                 // Prepare receive & send buffers
                 _receiveBuffer.Reserve(OptionReceiveBufferSize);
