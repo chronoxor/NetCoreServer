@@ -575,7 +575,10 @@ namespace NetCoreServer
 
                 // If zero is returned from a read operation, the remote end has closed the connection
                 if (size > 0)
-                    TryReceive();
+                {
+                    if (!result.CompletedSynchronously)
+                        TryReceive();
+                }
                 else
                     Disconnect();
             }
