@@ -100,6 +100,14 @@ namespace NetCoreServer
         /// Option: send buffer size
         /// </summary>
         public int OptionSendBufferSize { get; set; } = 8192;
+        /// <summary>
+        /// Option: dual mode socket
+        /// </summary>
+        /// <remarks>
+        /// Specifies whether the Socket is a dual-mode socket used for both IPv4 and IPv6
+        /// Will work only if socket is bound on IPv6 address
+        /// </remarks>
+        public bool OptionDualMode { get; set; }
 
         #region Connect/Disconnect client
 
@@ -138,6 +146,9 @@ namespace NetCoreServer
             Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, OptionReuseAddress);
             // Apply the option: exclusive address use
             Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, OptionExclusiveAddressUse);
+            // Apply the option: dual mode; this option must be applied before recieving
+            if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
+                Socket.DualMode = OptionDualMode;
 
             // Bind the server socket to the IP endpoint
             Socket.Bind(Endpoint);
