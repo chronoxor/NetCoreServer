@@ -129,7 +129,7 @@ namespace tests
 
             // Test CRUD operations
             var response = client.SendGetRequest("/test").Result;
-            Assert.True(response.Status == 500);
+            Assert.True(response.Status == 404);
             response = client.SendPostRequest("/test", "old_value").Result;
             Assert.True(response.Status == 200);
             response = client.SendGetRequest("/test").Result;
@@ -143,7 +143,7 @@ namespace tests
             response = client.SendDeleteRequest("/test").Result;
             Assert.True(response.Status == 200);
             response = client.SendGetRequest("/test").Result;
-            Assert.True(response.Status == 500);
+            Assert.True(response.Status == 404);
 
             // Stop the HTTPS server
             Assert.True(server.Stop());
