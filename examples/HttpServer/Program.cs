@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using NetCoreServer;
 
 namespace HttpServer
@@ -15,17 +16,32 @@ namespace HttpServer
             return _instance;
         }
 
-        public bool GetCache(string key, out string value)
+        public string GetAllCache()
+        {
+            var result = new StringBuilder();
+            result.Append("[\n");
+            foreach (var item in _cache)
+            {
+                result.Append("  {\n");
+                result.AppendFormat($"    \"key\": \"{item.Key}\",\n");
+                result.AppendFormat($"    \"value\": \"{item.Value}\",\n");
+                result.Append("  },\n");
+            }
+            result.Append("]\n");
+            return result.ToString();
+        }
+
+        public bool GetCacheValue(string key, out string value)
         {
             return _cache.TryGetValue(key, out value);
         }
 
-        public void SetCache(string key, string value)
+        public void PutCacheValue(string key, string value)
         {
             _cache[key] = value;
         }
 
-        public bool DeleteCache(string key, out string value)
+        public bool DeleteCacheValue(string key, out string value)
         {
             return _cache.TryRemove(key, out value);
         }
@@ -48,34 +64,60 @@ namespace HttpServer
                 SendResponseAsync(Response.MakeHeadResponse());
             else if (request.Method == "GET")
             {
-                // Get the cache value
-                string cache;
-                if (CommonCache.GetInstance().GetCache(request.Url, out cache))
+                string key = request.Url;
+
+                // Decode the key value
+                key = Uri.UnescapeDataString(key);
+                key = key.Replace("/api/cache", "", StringComparison.InvariantCultureIgnoreCase);
+                key = key.Replace("?key=", "", StringComparison.InvariantCultureIgnoreCase);
+
+                if (string.IsNullOrEmpty(key))
+                {
+                    // Response with all cache values
+                    SendResponseAsync(Response.MakeGetResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                }
+                // Get the cache value by the given key
+                else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(cache));
+                    SendResponseAsync(Response.MakeGetResponse(value));
                 }
                 else
-                    SendResponseAsync(Response.MakeErrorResponse("Required cache value was not found for the key: " + request.Url));
+                    SendResponseAsync(Response.MakeErrorResponse("Required cache value was not found for the key: " + key, 404));
             }
             else if ((request.Method == "POST") || (request.Method == "PUT"))
             {
-                // Set the cache value
-                CommonCache.GetInstance().SetCache(request.Url, request.Body);
+                string key = request.Url;
+                string value = request.Body;
+
+                // Decode the key value
+                key = Uri.UnescapeDataString(key);
+                key = key.Replace("/api/cache", "", StringComparison.InvariantCultureIgnoreCase);
+                key = key.Replace("?key=", "", StringComparison.InvariantCultureIgnoreCase);
+
+                // Put the cache value
+                CommonCache.GetInstance().PutCacheValue(key, value);
+
                 // Response with the cache value
                 SendResponseAsync(Response.MakeOkResponse());
             }
             else if (request.Method == "DELETE")
             {
+                string key = request.Url;
+
+                // Decode the key value
+                key = Uri.UnescapeDataString(key);
+                key = key.Replace("/api/cache", "", StringComparison.InvariantCultureIgnoreCase);
+                key = key.Replace("?key=", "", StringComparison.InvariantCultureIgnoreCase);
+
                 // Delete the cache value
-                string cache;
-                if (CommonCache.GetInstance().DeleteCache(request.Url, out cache))
+                if (CommonCache.GetInstance().DeleteCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(cache));
+                    SendResponseAsync(Response.MakeGetResponse(value));
                 }
                 else
-                    SendResponseAsync(Response.MakeErrorResponse("Deleted cache value was not found for the key: " + request.Url));
+                    SendResponseAsync(Response.MakeErrorResponse("Deleted cache value was not found for the key: " + key, 404));
             }
             else if (request.Method == "OPTIONS")
                 SendResponseAsync(Response.MakeOptionsResponse());

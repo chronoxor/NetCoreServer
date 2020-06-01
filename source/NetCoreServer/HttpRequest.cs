@@ -359,10 +359,13 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="content">String content</param>
-        public HttpRequest MakePostRequest(string url, string content)
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpRequest MakePostRequest(string url, string content, string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
             SetBegin("POST", url);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
             SetBody(content);
             return this;
         }
@@ -372,10 +375,13 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="content">Binary content</param>
-        public HttpRequest MakePostRequest(string url, byte[] content)
+        /// <param name="contentType">Content type (default is "")</param>
+        public HttpRequest MakePostRequest(string url, byte[] content, string contentType = "")
         {
             Clear();
             SetBegin("POST", url);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
             SetBody(content);
             return this;
         }
@@ -385,10 +391,13 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="content">Buffer content</param>
-        public HttpRequest MakePostRequest(string url, Buffer content)
+        /// <param name="contentType">Content type (default is "")</param>
+        public HttpRequest MakePostRequest(string url, Buffer content, string contentType = "")
         {
             Clear();
             SetBegin("POST", url);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
             SetBody(content);
             return this;
         }
@@ -398,10 +407,13 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="content">String content</param>
-        public HttpRequest MakePutRequest(string url, string content)
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param> 
+        public HttpRequest MakePutRequest(string url, string content, string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
             SetBegin("PUT", url);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
             SetBody(content);
             return this;
         }
@@ -411,10 +423,13 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="content">Binary content</param>
-        public HttpRequest MakePutRequest(string url, byte[] content)
+        /// <param name="contentType">Content type (default is "")</param>
+        public HttpRequest MakePutRequest(string url, byte[] content, string contentType = "")
         {
             Clear();
             SetBegin("PUT", url);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
             SetBody(content);
             return this;
         }
@@ -424,10 +439,13 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="content">Buffer content</param>
-        public HttpRequest MakePutRequest(string url, Buffer content)
+        /// <param name="contentType">Content type (default is "")</param>
+        public HttpRequest MakePutRequest(string url, Buffer content, string contentType = "")
         {
             Clear();
             SetBegin("PUT", url);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
             SetBody(content);
             return this;
         }

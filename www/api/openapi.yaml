@@ -24,13 +24,26 @@ paths:
       - Cache
       summary: Get the cache value
       operationId: GetCacheValue
+      parameters:
+      - name: key
+        in: query
+        description: Cache key (optional)
+        required: false
+        schema:
+          type: string
       responses:
         200:
           description: Success
           content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CacheItems'
             text/plain:
               schema:
                 type: string
+        404:
+          description: Cache key not found
+          content: {}
         500:
           description: Internal server error
           content: {}
@@ -39,6 +52,13 @@ paths:
       - Cache
       summary: Create the cache value
       operationId: CreateCacheValue
+      parameters:
+      - name: key
+        in: query
+        description: Cache key
+        required: true
+        schema:
+          type: string
       requestBody:
         description: Cache value to create
         content:
@@ -58,6 +78,13 @@ paths:
       - Cache
       summary: Modify the cache value
       operationId: ModifyCacheValue
+      parameters:
+      - name: key
+        in: query
+        description: Cache key
+        required: true
+        schema:
+          type: string
       requestBody:
         description: Cache value to modify
         content:
@@ -77,6 +104,13 @@ paths:
       - Cache
       summary: Delete the cache value
       operationId: DeleteCacheValue
+      parameters:
+      - name: key
+        in: query
+        description: Cache key
+        required: true
+        schema:
+          type: string
       requestBody:
         description: Cache value to delete
         content:
@@ -91,6 +125,9 @@ paths:
             text/plain:
               schema:
                 type: string
+        404:
+          description: Cache key not found
+          content: {}
         500:
           description: Internal server error
           content: {}
@@ -118,3 +155,17 @@ paths:
         500:
           description: Internal server error
           content: {}
+
+components:
+  schemas:
+    CacheItem:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    CacheItems:
+      type: array
+      items:
+        $ref: '#/components/schemas/CacheItem'
