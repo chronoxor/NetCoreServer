@@ -210,6 +210,9 @@ namespace NetCoreServer
             // Dispose the acceptor socket
             _acceptorSocket.Dispose();
 
+            // Dispose event arguments
+            _acceptorEventArg.Dispose();
+
             // Update the acceptor socket disposed flag
             IsSocketDisposed = true;
 

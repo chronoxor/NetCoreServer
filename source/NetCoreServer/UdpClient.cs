@@ -201,6 +201,10 @@ namespace NetCoreServer
                 // Dispose the client socket
                 Socket.Dispose();
 
+                // Dispose event arguments
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
+
                 // Update the client socket disposed flag
                 IsSocketDisposed = true;
             }

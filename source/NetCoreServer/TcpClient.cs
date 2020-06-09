@@ -155,6 +155,10 @@ namespace NetCoreServer
                 Socket.Close();
                 // Dispose the client socket
                 Socket.Dispose();
+                // Dispose event arguments
+                _connectEventArg.Dispose();
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
 
                 // Call the client disconnected handler
                 SendError(ex.SocketErrorCode);
@@ -228,6 +232,11 @@ namespace NetCoreServer
 
                 // Dispose the client socket
                 Socket.Dispose();
+
+                // Dispose event arguments
+                _connectEventArg.Dispose();
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
 
                 // Update the client socket disposed flag
                 IsSocketDisposed = true;
