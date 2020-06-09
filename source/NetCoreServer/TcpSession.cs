@@ -134,7 +134,7 @@ namespace NetCoreServer
                 Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             // Apply the option: no delay
             if (Server.OptionNoDelay)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+                Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
 
             // Prepare receive & send buffers
             _receiveBuffer.Reserve(OptionReceiveBufferSize);
@@ -191,6 +191,10 @@ namespace NetCoreServer
 
                 // Dispose the session socket
                 Socket.Dispose();
+
+                // Dispose event arguments
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
 
                 // Update the session socket disposed flag
                 IsSocketDisposed = true;

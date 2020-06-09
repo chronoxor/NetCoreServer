@@ -79,6 +79,14 @@ namespace NetCoreServer
         public long DatagramsReceived { get; private set; }
 
         /// <summary>
+        /// Option: dual mode socket
+        /// </summary>
+        /// <remarks>
+        /// Specifies whether the Socket is a dual-mode socket used for both IPv4 and IPv6.
+        /// Will work only if socket is bound on IPv6 address.
+        /// </remarks>
+        public bool OptionDualMode { get; set; }
+        /// <summary>
         /// Option: reuse address
         /// </summary>
         /// <remarks>
@@ -176,6 +184,9 @@ namespace NetCoreServer
             Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, OptionReuseAddress);
             // Apply the option: exclusive address use
             Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, OptionExclusiveAddressUse);
+            // Apply the option: dual mode (this option must be applied before recieving)
+            if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
+                Socket.DualMode = OptionDualMode;
 
             // Bind the server socket to the IP endpoint
             Socket.Bind(Endpoint);
@@ -253,6 +264,10 @@ namespace NetCoreServer
 
                 // Dispose the server socket
                 Socket.Dispose();
+
+                // Dispose event arguments
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
 
                 // Update the server socket disposed flag
                 IsSocketDisposed = false;

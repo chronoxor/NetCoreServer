@@ -54,6 +54,14 @@ namespace NetCoreServer
 
         #region Memory buffer methods
 
+        /// <summary>
+        /// Get string from the current buffer
+        /// </summary>
+        public override string ToString()
+        {
+            return ExtractString(0, _size);
+        }
+
         // Clear the current buffer and its offset
         public void Clear()
         {
