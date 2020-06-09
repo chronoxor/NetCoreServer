@@ -76,7 +76,7 @@ namespace NetCoreServer
             return _headers[i];
         }
         /// <summary>
-        /// Get the HTTP response body
+        /// Get the HTTP response body as string
         /// </summary>
         public string Body { get { return _cache.ExtractString(_bodyIndex, _bodySize); } }
         /// <summary>
@@ -550,7 +550,6 @@ namespace NetCoreServer
         {
             Clear();
             SetBegin(status);
-            SetHeader("Content-Type", "text/html; charset=UTF-8");
             SetBody();
             return this;
         }
@@ -564,7 +563,6 @@ namespace NetCoreServer
         {
             Clear();
             SetBegin(status);
-            SetHeader("Content-Type", "text/html; charset=UTF-8");
             SetBody(error);
             return this;
         }
@@ -576,7 +574,6 @@ namespace NetCoreServer
         {
             Clear();
             SetBegin(200);
-            SetHeader("Content-Type", "text/html; charset=UTF-8");
             SetBody();
             return this;
         }
@@ -584,39 +581,45 @@ namespace NetCoreServer
         /// <summary>
         /// Make GET response
         /// </summary>
-        /// <param name="body">Body string content (default is "")</param>
-        public HttpResponse MakeGetResponse(string body = "")
+        /// <param name="content">String content</param>
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpResponse MakeGetResponse(string content = "", string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
             SetBegin(200);
-            SetHeader("Content-Type", "text/html; charset=UTF-8");
-            SetBody(body);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
+            SetBody(content);
             return this;
         }
 
         /// <summary>
         /// Make GET response
         /// </summary>
-        /// <param name="body">Body binary content</param>
-        public HttpResponse MakeGetResponse(byte[] body)
+        /// <param name="content">String content</param>
+        /// <param name="contentType">Content type (default is "")</param>
+        public HttpResponse MakeGetResponse(byte[] content, string contentType = "")
         {
             Clear();
             SetBegin(200);
-            SetHeader("Content-Type", "text/html; charset=UTF-8");
-            SetBody(body);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
+            SetBody(content);
             return this;
         }
 
         /// <summary>
         /// Make GET response
         /// </summary>
-        /// <param name="body">Body buffer content</param>
-        public HttpResponse MakeGetResponse(Buffer body)
+        /// <param name="content">String content</param>
+        /// <param name="contentType">Content type (default is "")</param>
+        public HttpResponse MakeGetResponse(Buffer content, string contentType = "")
         {
             Clear();
             SetBegin(200);
-            SetHeader("Content-Type", "text/html; charset=UTF-8");
-            SetBody(body);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
+            SetBody(content);
             return this;
         }
 
