@@ -18,13 +18,13 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public UdpServer(IPAddress address, int port) : this(new IPEndPoint(address, port)) { }
+        public UdpServer(IPAddress address, int port) : this(new IPEndPoint(address, port)) {}
         /// <summary>
         /// Initialize UDP server with a given IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public UdpServer(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) { }
+        public UdpServer(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
         /// <summary>
         /// Initialize UDP server with a given IP endpoint
         /// </summary>
@@ -272,7 +272,7 @@ namespace NetCoreServer
                 // Update the server socket disposed flag
                 IsSocketDisposed = false;
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
 
             // Update the started flag
             IsStarted = false;
@@ -583,7 +583,7 @@ namespace NetCoreServer
                 if (!Socket.ReceiveFromAsync(_receiveEventArg))
                     ProcessReceiveFrom(_receiveEventArg);
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
         }
 
         /// <summary>
@@ -606,7 +606,7 @@ namespace NetCoreServer
                 if (!Socket.SendToAsync(_sendEventArg))
                     ProcessSendTo(_sendEventArg);
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
         }
 
         /// <summary>
@@ -726,11 +726,11 @@ namespace NetCoreServer
         /// <summary>
         /// Handle server started notification
         /// </summary>
-        protected virtual void OnStarted() { }
+        protected virtual void OnStarted() {}
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
-        protected virtual void OnStopped() { }
+        protected virtual void OnStopped() {}
 
         /// <summary>
         /// Handle datagram received notification
@@ -742,7 +742,7 @@ namespace NetCoreServer
         /// <remarks>
         /// Notification is called when another datagram was received from some endpoint
         /// </remarks>
-        protected virtual void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) { }
+        protected virtual void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) {}
         /// <summary>
         /// Handle datagram sent notification
         /// </summary>
@@ -752,13 +752,13 @@ namespace NetCoreServer
         /// Notification is called when a datagram was sent to the client.
         /// This handler could be used to send another datagram to the client for instance when the pending size is zero.
         /// </remarks>
-        protected virtual void OnSent(EndPoint endpoint, long sent) { }
+        protected virtual void OnSent(EndPoint endpoint, long sent) {}
 
         /// <summary>
         /// Handle error notification
         /// </summary>
         /// <param name="error">Socket error code</param>
-        protected virtual void OnError(SocketError error) { }
+        protected virtual void OnError(SocketError error) {}
 
         #endregion
 
