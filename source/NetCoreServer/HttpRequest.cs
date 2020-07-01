@@ -68,11 +68,11 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request cookies count
         /// </summary>
-        long Cookies { get { return _cookies.Count; } }
+        public long Cookies { get { return _cookies.Count; } }
         /// <summary>
         /// Get the HTTP request cookie by index
         /// </summary>
-        Tuple<string, string> Cookie(int i)
+        public Tuple<string, string> Cookie(int i)
         {
             Debug.Assert((i < _cookies.Count), "Index out of bounds!");
             if (i >= _cookies.Count)
@@ -407,7 +407,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="content">String content</param>
-        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param> 
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
         public HttpRequest MakePutRequest(string url, string content, string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
