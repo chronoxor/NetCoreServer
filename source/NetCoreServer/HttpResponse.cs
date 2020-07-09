@@ -845,7 +845,7 @@ namespace NetCoreServer
                         _headers.Add(new Tuple<string, string>(headerName, headerValue));
 
                         // Try to find the body content length
-                        if (headerName == "Content-Length")
+                        if (string.Compare(headerName, "Content-Length", StringComparison.OrdinalIgnoreCase) == 0)
                         {
                             _bodyLength = 0;
                             for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)

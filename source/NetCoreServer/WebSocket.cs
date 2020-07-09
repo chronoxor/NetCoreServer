@@ -62,9 +62,9 @@ namespace NetCoreServer
                 var key = header.Item1;
                 var value = header.Item2;
 
-                if (key == "Connection")
+                if (string.Compare(key, "Connection", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if (value != "Upgrade")
+                    if (string.Compare(value, "Upgrade", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
                         _wsHandler.OnWsError("Invalid WebSocket handshaked response: 'Connection' header value must be 'Upgrade'");
@@ -73,9 +73,9 @@ namespace NetCoreServer
 
                     connection = true;
                 }
-                else if (key == "Upgrade")
+                else if (string.Compare(key, "Upgrade", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if (value != "websocket")
+                    if (string.Compare(value, "websocket", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
                         _wsHandler.OnWsError("Invalid WebSocket handshaked response: 'Upgrade' header value must be 'websocket'");
@@ -84,7 +84,7 @@ namespace NetCoreServer
 
                     upgrade = true;
                 }
-                else if (key == "Sec-WebSocket-Accept")
+                else if (string.Compare(key, "Sec-WebSocket-Accept", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     // Calculate the original WebSocket hash
                     string wskey = Convert.ToBase64String(Encoding.UTF8.GetBytes(id.ToString())) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -152,9 +152,10 @@ namespace NetCoreServer
                 var key = header.Item1;
                 var value = header.Item2;
 
-                if (key == "Connection")
+
+                if (string.Compare(key, "Connection", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if ((value != "Upgrade") && (value != "keep-alive, Upgrade"))
+                    if ((string.Compare(value, "Upgrade", StringComparison.OrdinalIgnoreCase) != 0) && (string.Compare(value, "keep-alive, Upgrade", StringComparison.OrdinalIgnoreCase) != 0))
                     {
                         error = true;
                         response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Connection' header value must be 'Upgrade' or 'keep-alive, Upgrade'", 400);
@@ -163,9 +164,9 @@ namespace NetCoreServer
 
                     connection = true;
                 }
-                else if (key == "Upgrade")
+                else if (string.Compare(key, "Upgrade", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if (value != "websocket")
+                    if (string.Compare(value, "websocket", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
                         response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Upgrade' header value must be 'websocket'", 400);
@@ -174,7 +175,7 @@ namespace NetCoreServer
 
                     upgrade = true;
                 }
-                else if (key == "Sec-WebSocket-Key")
+                else if (string.Compare(key, "Sec-WebSocket-Key", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     if (string.IsNullOrEmpty(value))
                     {
@@ -195,9 +196,9 @@ namespace NetCoreServer
 
                     wsKey = true;
                 }
-                else if (key == "Sec-WebSocket-Version")
+                else if (string.Compare(key, "Sec-WebSocket-Version", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if (value != "13")
+                    if (string.Compare(value, "13", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
                         response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Sec-WebSocket-Version' header value must be '13'", 400);
