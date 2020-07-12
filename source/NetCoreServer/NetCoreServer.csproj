@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>3.0.18</Version>
+    <Version>3.0.19</Version>
     <Authors>Ivan Shynkarenka</Authors>
     <Copyright>Copyright (c) 2019-2020 Ivan Shynkarenka</Copyright>
     <RepositoryUrl>https://github.com/chronoxor/NetCoreServer</RepositoryUrl>

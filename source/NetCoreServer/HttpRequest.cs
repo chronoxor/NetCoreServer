@@ -634,8 +634,8 @@ namespace NetCoreServer
                         if (index >= (int)_cache.Size)
                             return false;
 
-                        // Validate header name and value
-                        if ((headerNameSize == 0) || (headerValueSize == 0))
+                        // Validate header name and value (sometimes value can be empty)
+                        if (headerNameSize == 0)
                             return false;
 
                         // Add a new header
