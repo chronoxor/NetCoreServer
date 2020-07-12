@@ -836,7 +836,7 @@ namespace NetCoreServer
                             return false;
 
                         // Validate header name and value
-                        if ((headerNameSize == 0) || (headerValueSize == 0))
+                        if (headerNameSize == 0)
                             return false;
 
                         // Add a new header
