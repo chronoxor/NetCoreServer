@@ -5,7 +5,7 @@ dotnet: 3.0.100
 solution: NetCoreServer.sln
 
 # OS environment
-dist: bionic
+dist: focal
 
 # Build matrix (OS, compiler)
 matrix:
@@ -14,7 +14,7 @@ matrix:
       os: linux
     - name: "MacOS"
       os: osx
-      osx_image: xcode11.4
+      osx_image: xcode12u
 
 # Build scripts
 script:
