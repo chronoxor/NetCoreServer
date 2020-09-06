@@ -130,6 +130,7 @@ namespace tests
             Assert.True(client.Connected);
             Assert.True(client.Handshaked);
             Assert.True(client.Disconnected);
+            Console.WriteLine($"client.BytesSent == {client.BytesSent}");
             Assert.True(client.BytesSent == 4);
             Assert.True(client.BytesReceived == 4);
             Assert.True(!client.Errors);
