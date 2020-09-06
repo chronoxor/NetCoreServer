@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -68,9 +68,6 @@ namespace tests
             Assert.True(client.Disconnect());
             while (client.IsConnected)
                 Thread.Yield();
-
-            // Sleep for a while...
-            Thread.Sleep(100);
 
             // Stop the Echo server
             Assert.True(server.Stop());
@@ -187,9 +184,6 @@ namespace tests
                 while (client.IsConnected)
                     Thread.Yield();
             }
-
-            // Sleep for a while...
-            Thread.Sleep(100);
 
             // Stop the Echo server
             Assert.True(server.Stop());

@@ -145,9 +145,6 @@ namespace tests
             response = client.SendGetRequest("/test").Result;
             Assert.True(response.Status == 404);
 
-            // Sleep for a while...
-            Thread.Sleep(100);
-
             // Stop the HTTPS server
             Assert.True(server.Stop());
             while (server.IsStarted)

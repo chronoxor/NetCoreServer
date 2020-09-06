@@ -122,9 +122,6 @@ namespace tests
             while (!client.Disconnected || (server.Clients != 0))
                 Thread.Yield();
 
-            // Sleep for a while...
-            Thread.Sleep(100);
-
             // Stop the Echo server
             Assert.True(server.Stop());
             while (server.IsStarted)
@@ -232,9 +229,6 @@ namespace tests
             Assert.True(client3.CloseAsync(1000));
             while (!client3.Disconnected || (server.Clients != 0))
                 Thread.Yield();
-
-            // Sleep for a while...
-            Thread.Sleep(100);
 
             // Stop the Echo server
             Assert.True(server.Stop());
@@ -373,9 +367,6 @@ namespace tests
                 while (client.IsConnected)
                     Thread.Yield();
             }
-
-            // Sleep for a while...
-            Thread.Sleep(100);
 
             // Stop the Echo server
             Assert.True(server.Stop());

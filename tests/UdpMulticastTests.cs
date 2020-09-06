@@ -145,9 +145,6 @@ namespace tests
             while (client3.IsConnected)
                 Thread.Yield();
 
-            // Sleep for a while...
-            Thread.Sleep(100);
-
             // Stop the Echo server
             Assert.True(server.Stop());
             while (server.IsStarted)
@@ -260,9 +257,6 @@ namespace tests
                 while (client.IsConnected)
                     Thread.Yield();
             }
-
-            // Sleep for a while...
-            Thread.Sleep(100);
 
             // Stop the multicast server
             Assert.True(server.Stop());
