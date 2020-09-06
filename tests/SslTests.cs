@@ -232,7 +232,6 @@ namespace tests
             Assert.True(server.Connected);
             Assert.True(server.Handshaked);
             Assert.True(server.Disconnected);
-            Console.WriteLine($"server.BytesSent == {server.BytesSent}");
             Assert.True(server.BytesSent == 36);
             Assert.True(server.BytesReceived == 0);
             Assert.True(!server.Errors);
