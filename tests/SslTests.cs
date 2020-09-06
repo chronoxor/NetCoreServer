@@ -76,7 +76,7 @@ namespace tests
     public class SslTests
     {
         [Fact(DisplayName = "SSL server test")]
-        public void TcpServerTest()
+        public void SslServerTest()
         {
             string address = "127.0.0.1";
             int port = 2222;
@@ -139,7 +139,7 @@ namespace tests
         }
 
         [Fact(DisplayName = "SSL server multicast test")]
-        public void TcpServerMulticastTest()
+        public void SslServerMulticastTest()
         {
             string address = "127.0.0.1";
             int port = 2223;
@@ -255,7 +255,7 @@ namespace tests
         }
 
         [Fact(DisplayName = "SSL server random test")]
-        public void TcpServerRandomTest()
+        public void SslServerRandomTest()
         {
             string address = "127.0.0.1";
             int port = 2224;
