@@ -129,6 +129,7 @@ namespace tests
 
             // Test CRUD operations
             var response = client.SendGetRequest("/test").Result;
+            Console.WriteLine($"response.Status = {response.Status}");
             Assert.True(response.Status == 404);
             response = client.SendPostRequest("/test", "old_value").Result;
             Assert.True(response.Status == 200);
