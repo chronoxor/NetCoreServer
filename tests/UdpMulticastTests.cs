@@ -150,9 +150,6 @@ namespace tests
             while (server.IsStarted)
                 Thread.Yield();
 
-            // Sleep for a while...
-            Thread.Sleep(100);
-
             // Check the multicast server state
             Assert.True(server.Started);
             Assert.True(server.Stopped);
@@ -265,9 +262,6 @@ namespace tests
             Assert.True(server.Stop());
             while (server.IsStarted)
                 Thread.Yield();
-
-            // Sleep for a while...
-            Thread.Sleep(100);
 
             // Check the multicast server state
             Assert.True(server.Started);
