@@ -105,6 +105,7 @@ namespace tests
             Assert.True(client.Connected);
             Assert.True(client.Disconnected);
             Assert.True(client.BytesSent == 4);
+            Console.WriteLine($"client.BytesReceived == {client.BytesReceived}");
             Assert.True(client.BytesReceived == 4);
             Assert.True(!client.Errors);
         }

@@ -362,14 +362,14 @@ namespace NetCoreServer
         #region Multicasting
 
         /// <summary>
-        /// Multicast data to all connected sessions
+        /// Multicast data to all connected sessions (synchronous)
         /// </summary>
         /// <param name="buffer">Buffer to multicast</param>
         /// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
         public virtual bool Multicast(byte[] buffer) { return Multicast(buffer, 0, buffer.Length); }
 
         /// <summary>
-        /// Multicast data to all connected clients
+        /// Multicast data to all connected clients (synchronous)
         /// </summary>
         /// <param name="buffer">Buffer to multicast</param>
         /// <param name="offset">Buffer offset</param>
@@ -385,17 +385,53 @@ namespace NetCoreServer
 
             // Multicast data to all sessions
             foreach (var session in Sessions.Values)
+                session.Send(buffer, offset, size);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Multicast text to all connected clients (synchronous)
+        /// </summary>
+        /// <param name="text">Text string to multicast</param>
+        /// <returns>'true' if the text was successfully multicasted, 'false' if the text was not multicasted</returns>
+        public virtual bool Multicast(string text) { return Multicast(Encoding.UTF8.GetBytes(text)); }
+
+        /// <summary>
+        /// Multicast data to all connected sessions (asynchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to multicast</param>
+        /// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
+        public virtual bool MulticastAsync(byte[] buffer) { return MulticastAsync(buffer, 0, buffer.Length); }
+
+        /// <summary>
+        /// Multicast data to all connected clients (asynchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to multicast</param>
+        /// <param name="offset">Buffer offset</param>
+        /// <param name="size">Buffer size</param>
+        /// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
+        public virtual bool MulticastAsync(byte[] buffer, long offset, long size)
+        {
+            if (!IsStarted)
+                return false;
+
+            if (size == 0)
+                return true;
+
+            // Multicast data to all sessions
+            foreach (var session in Sessions.Values)
                 session.SendAsync(buffer, offset, size);
 
             return true;
         }
 
         /// <summary>
-        /// Multicast text to all connected clients
+        /// Multicast text to all connected clients (asynchronous)
         /// </summary>
         /// <param name="text">Text string to multicast</param>
         /// <returns>'true' if the text was successfully multicasted, 'false' if the text was not multicasted</returns>
-        public virtual bool Multicast(string text) { return Multicast(Encoding.UTF8.GetBytes(text)); }
+        public virtual bool MulticastAsync(string text) { return MulticastAsync(Encoding.UTF8.GetBytes(text)); }
 
         #endregion
 
