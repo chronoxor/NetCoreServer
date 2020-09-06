@@ -116,6 +116,9 @@ namespace tests
             while (server.IsStarted)
                 Thread.Yield();
 
+            // Sleep for a while...
+            Thread.Sleep(100);
+
             // Check the Echo server state
             Assert.True(server.Started);
             Assert.True(server.Stopped);
@@ -130,7 +133,6 @@ namespace tests
             Assert.True(client.Connected);
             Assert.True(client.Handshaked);
             Assert.True(client.Disconnected);
-            Console.WriteLine($"client.BytesSent = {client.BytesSent}");
             Assert.True(client.BytesSent == 4);
             Assert.True(client.BytesReceived == 4);
             Assert.True(!client.Errors);
@@ -227,13 +229,15 @@ namespace tests
             while (server.IsStarted)
                 Thread.Yield();
 
+            // Sleep for a while...
+            Thread.Sleep(100);
+
             // Check the Echo server state
             Assert.True(server.Started);
             Assert.True(server.Stopped);
             Assert.True(server.Connected);
             Assert.True(server.Handshaked);
             Assert.True(server.Disconnected);
-            Console.WriteLine($"server.BytesSent = {server.BytesSent}");
             Assert.True(server.BytesSent == 36);
             Assert.True(server.BytesReceived == 0);
             Assert.True(!server.Errors);
@@ -366,6 +370,9 @@ namespace tests
             Assert.True(server.Stop());
             while (server.IsStarted)
                 Thread.Yield();
+
+            // Sleep for a while...
+            Thread.Sleep(100);
 
             // Check the Echo server state
             Assert.True(server.Started);
