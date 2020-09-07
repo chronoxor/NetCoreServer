@@ -79,7 +79,7 @@ namespace tests
         protected override void OnStarted() { Started = true; }
         protected override void OnStopped() { Stopped = true; }
         protected override void OnConnected(SslSession session) { Connected = true; Clients++; }
-        protected override void OnDisconnected(SslSession session) { Disconnected = true; Clients--; }
+        protected override void OnDisconnected(SslSession session) { Disconnected = true; Clients = Math.Max(Clients - 1, 0); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -142,7 +142,7 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-/*
+
         [Fact(DisplayName = "WebSocket secure server multicast test")]
         public void WssServerMulticastTest()
         {
@@ -254,7 +254,7 @@ namespace tests
             Assert.True(!client2.Errors);
             Assert.True(!client3.Errors);
         }
-
+/*
         [Fact(DisplayName = "WebSocket secure server random test")]
         public void WssServerRandomTest()
         {
