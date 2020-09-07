@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Authentication;
@@ -13,6 +12,7 @@ namespace tests
 {
     class EchoWssClient : WssClient
     {
+        public bool IsWsConnected { get; set; }
         public bool Connected { get; set; }
         public bool Disconnected { get; set; }
         public int Received { get; set; }
@@ -36,8 +36,8 @@ namespace tests
             request.SetHeader("Sec-WebSocket-Protocol", "chat, superchat");
             request.SetHeader("Sec-WebSocket-Version", "13");
         }
-        public override void OnWsConnected(HttpResponse response) { Connected = true; }
-        public override void OnWsDisconnected() { Disconnected = true; }
+        public override void OnWsConnected(HttpResponse response) { IsWsConnected = true; Connected = true; }
+        public override void OnWsDisconnected() { IsWsConnected = false; Disconnected = true; }
         public override void OnWsReceived(byte[] buffer, long offset, long size) { Received += (int)size; }
 
         protected override void OnError(SocketError error) { Errors = true; }
@@ -106,7 +106,7 @@ namespace tests
             // Create and connect Echo client
             var client = new EchoWssClient(clientContext, address, port);
             Assert.True(client.ConnectAsync());
-            while (!client.Connected || (server.Clients != 1))
+            while (!client.IsWsConnected || (server.Clients != 1))
                 Thread.Yield();
 
             // Send a message to the Echo server
@@ -118,7 +118,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client.CloseAsync(1000));
-            while (!client.Disconnected || (server.Clients != 0))
+            while (client.IsWsConnected || (server.Clients != 0))
                 Thread.Yield();
 
             // Stop the Echo server
@@ -164,7 +164,7 @@ namespace tests
             // Create and connect Echo client
             var client1 = new EchoWssClient(clientContext, address, port);
             Assert.True(client1.ConnectAsync());
-            while (!client1.Connected || (server.Clients != 1))
+            while (!client1.IsWsConnected || (server.Clients != 1))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -177,7 +177,7 @@ namespace tests
             // Create and connect Echo client
             var client2 = new EchoWssClient(clientContext, address, port);
             Assert.True(client2.ConnectAsync());
-            while (!client2.Connected || (server.Clients != 2))
+            while (!client2.IsWsConnected || (server.Clients != 2))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -190,7 +190,7 @@ namespace tests
             // Create and connect Echo client
             var client3 = new EchoWssClient(clientContext, address, port);
             Assert.True(client3.ConnectAsync());
-            while (!client3.Connected || (server.Clients != 3))
+            while (!client3.IsWsConnected || (server.Clients != 3))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -202,7 +202,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client1.CloseAsync(1000));
-            while (!client1.Disconnected || (server.Clients != 2))
+            while (client1.IsWsConnected || (server.Clients != 2))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -214,7 +214,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client2.CloseAsync(1000));
-            while (!client2.Disconnected || (server.Clients != 1))
+            while (client2.IsWsConnected || (server.Clients != 1))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -226,7 +226,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client3.CloseAsync(1000));
-            while (!client3.Disconnected || (server.Clients != 0))
+            while (client3.IsWsConnected || (server.Clients != 0))
                 Thread.Yield();
 
             // Stop the Echo server
