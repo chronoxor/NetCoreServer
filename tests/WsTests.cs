@@ -351,6 +351,6 @@ namespace tests
             Assert.True(server.BytesReceived > 0);
             Assert.True(!server.Errors);
         }
-*/
     }
+*/
 }
