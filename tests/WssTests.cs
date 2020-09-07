@@ -82,7 +82,7 @@ namespace tests
         protected override void OnDisconnected(SslSession session) { Disconnected = true; Clients = Math.Max(Clients - 1, 0); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
-
+/*
     public class WssTests
     {
         [Fact(DisplayName = "WebSocket secure server test")]
@@ -142,7 +142,7 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-/*
+
         [Fact(DisplayName = "WebSocket secure server multicast test")]
         public void WssServerMulticastTest()
         {

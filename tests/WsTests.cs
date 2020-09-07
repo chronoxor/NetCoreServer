@@ -70,7 +70,7 @@ namespace tests
         protected override void OnDisconnected(TcpSession session) { Disconnected = true; Clients = Math.Max(Clients - 1, 0); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
-
+/*
     public class WsTests
     {
         [Fact(DisplayName = "WebSocket server test")]
@@ -124,7 +124,7 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-/*
+
         [Fact(DisplayName = "WebSocket server multicast test")]
         public void WsServerMulticastTest()
         {
