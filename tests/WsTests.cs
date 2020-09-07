@@ -124,7 +124,7 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-
+/*
         [Fact(DisplayName = "WebSocket server multicast test")]
         public void WsServerMulticastTest()
         {
@@ -230,7 +230,7 @@ namespace tests
             Assert.True(!client2.Errors);
             Assert.True(!client3.Errors);
         }
-/*
+
         [Fact(DisplayName = "WebSocket server random test")]
         public void WsServerRandomTest()
         {
