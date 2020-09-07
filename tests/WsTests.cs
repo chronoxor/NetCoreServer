@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -70,7 +71,7 @@ namespace tests
         protected override void OnDisconnected(TcpSession session) { Disconnected = true; Clients = Math.Max(Clients - 1, 0); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
-/*
+
     public class WsTests
     {
         [Fact(DisplayName = "WebSocket server test")]
@@ -124,7 +125,7 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-
+/*
         [Fact(DisplayName = "WebSocket server multicast test")]
         public void WsServerMulticastTest()
         {
@@ -230,7 +231,7 @@ namespace tests
             Assert.True(!client2.Errors);
             Assert.True(!client3.Errors);
         }
-
+*/
         [Fact(DisplayName = "WebSocket server random test")]
         public void WsServerRandomTest()
         {
@@ -268,7 +269,7 @@ namespace tests
                         var client = new EchoWsClient(address, port);
                         clients.Add(client);
                         client.ConnectAsync();
-                        while (!client.IsConnected)
+                        while (!client.IsWsConnected)
                             Thread.Yield();
                     }
                 }
@@ -279,16 +280,16 @@ namespace tests
                     {
                         int index = rand.Next() % clients.Count;
                         var client = clients[index];
-                        if (client.IsConnected)
+                        if (client.IsWsConnected)
                         {
                             client.CloseAsync(1000);
-                            while (client.IsConnected)
+                            while (client.IsWsConnected)
                                 Thread.Yield();
                         }
                         else
                         {
                             client.ConnectAsync();
-                            while (!client.IsConnected)
+                            while (!client.IsWsConnected)
                                 Thread.Yield();
                         }
                     }
@@ -300,10 +301,10 @@ namespace tests
                     {
                         int index = rand.Next() % clients.Count;
                         var client = clients[index];
-                        if (client.IsConnected)
+                        if (client.IsWsConnected)
                         {
                             client.ReconnectAsync();
-                            while (!client.IsConnected)
+                            while (!client.IsWsConnected)
                                 Thread.Yield();
                         }
                     }
@@ -320,7 +321,7 @@ namespace tests
                     {
                         int index = rand.Next() % clients.Count;
                         var client = clients[index];
-                        if (client.IsConnected)
+                        if (client.IsWsConnected)
                             client.SendTextAsync("test");
                     }
                 }
@@ -333,7 +334,7 @@ namespace tests
             foreach (var client in clients)
             {
                 client.CloseAsync(1000);
-                while (client.IsConnected)
+                while (client.IsWsConnected)
                     Thread.Yield();
             }
 
@@ -352,5 +353,4 @@ namespace tests
             Assert.True(!server.Errors);
         }
     }
-*/
 }
