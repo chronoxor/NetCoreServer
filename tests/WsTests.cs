@@ -232,7 +232,7 @@ namespace tests
             Assert.True(!client2.Errors);
             Assert.True(!client3.Errors);
         }
-/*
+
         [Fact(DisplayName = "WebSocket server random test")]
         public void WsServerRandomTest()
         {
@@ -353,6 +353,5 @@ namespace tests
             Assert.True(server.BytesReceived > 0);
             Assert.True(!server.Errors);
         }
-*/
     }
 }
