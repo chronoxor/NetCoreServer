@@ -84,6 +84,7 @@ namespace tests
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
+    [Collection("Sequential")]
     public class WssTests
     {
         [Fact(DisplayName = "WebSocket secure server test")]

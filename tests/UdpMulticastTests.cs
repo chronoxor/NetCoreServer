@@ -35,6 +35,7 @@ namespace tests
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
+    [Collection("Sequential")]
     public class UdpMulticastTests
     {
         [Fact(DisplayName = "UDP server multicast test")]

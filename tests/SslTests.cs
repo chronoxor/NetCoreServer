@@ -73,6 +73,7 @@ namespace tests
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
+    [Collection("Sequential")]
     public class SslTests
     {
         [Fact(DisplayName = "SSL server test")]
