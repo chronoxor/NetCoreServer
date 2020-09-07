@@ -106,7 +106,6 @@ namespace tests
         }
     }
 
-    [Collection("Sequential")]
     public class HttpsTests
     {
         [Fact(DisplayName = "HTTPS server test")]
