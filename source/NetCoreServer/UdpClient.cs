@@ -527,15 +527,13 @@ namespace NetCoreServer
             {
                 // Receive datagram from the server
                 int received = Socket.ReceiveFrom(buffer, (int)offset, (int)size, SocketFlags.None, ref endpoint);
-                if (received > 0)
-                {
-                    // Update statistic
-                    DatagramsReceived++;
-                    BytesReceived += received;
 
-                    // Call the datagram received handler
-                    OnReceived(endpoint, buffer, offset, size);
-                }
+                // Update statistic
+                DatagramsReceived++;
+                BytesReceived += received;
+
+                // Call the datagram received handler
+                OnReceived(endpoint, buffer, offset, size);
 
                 return received;
             }
@@ -671,22 +669,19 @@ namespace NetCoreServer
                 return;
             }
 
+            // Received some data from the server
             long size = e.BytesTransferred;
 
-            // Received some data from the server
-            if (size > 0)
-            {
-                // Update statistic
-                DatagramsReceived++;
-                BytesReceived += size;
+            // Update statistic
+            DatagramsReceived++;
+            BytesReceived += size;
 
-                // Call the datagram received handler
-                OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, size);
+            // Call the datagram received handler
+            OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, size);
 
-                // If the receive buffer is full increase its size
-                if (_receiveBuffer.Capacity == size)
-                    _receiveBuffer.Reserve(2 * size);
-            }
+            // If the receive buffer is full increase its size
+            if (_receiveBuffer.Capacity == size)
+                _receiveBuffer.Reserve(2 * size);
         }
 
         /// <summary>
