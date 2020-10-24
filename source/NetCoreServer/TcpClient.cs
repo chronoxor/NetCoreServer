@@ -138,7 +138,7 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket = CreateSocket();
 
             // Apply the option: dual mode (this option must be applied before connecting)
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
@@ -295,7 +295,7 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket = CreateSocket();
 
             // Apply the option: dual mode (this option must be applied before connecting)
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
@@ -330,6 +330,15 @@ namespace NetCoreServer
             return ConnectAsync();
         }
 
+        
+        /// <summary>
+        /// Allow Creating Custom Socket (for example: bind to specific source ip)
+        /// </summary>
+        /// <returns>Socket</returns>
+        public virtual Socket CreateSocket()
+        {
+            return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        }
         #endregion
 
         #region Send/Recieve data
