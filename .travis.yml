@@ -14,7 +14,7 @@ matrix:
       os: linux
     - name: "MacOS"
       os: osx
-      osx_image: xcode12u
+      osx_image: xcode12.2
 
 # Build scripts
 script:
