@@ -111,6 +111,18 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
+        /// Create a new socket object
+        /// </summary>
+        /// <remarks>
+        /// Method may be override if you need to prepare some specific socket object in your implementation.
+        /// </remarks>
+        /// <returns>Socket object</returns>
+        protected virtual Socket CreateSocket()
+        {
+            return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        /// <summary>
         /// Connect the client (synchronous)
         /// </summary>
         /// <remarks>
@@ -138,7 +150,7 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket = CreateSocket();
 
             // Apply the option: dual mode (this option must be applied before connecting)
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
@@ -295,7 +307,7 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket = CreateSocket();
 
             // Apply the option: dual mode (this option must be applied before connecting)
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)

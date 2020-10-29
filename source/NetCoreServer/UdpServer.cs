@@ -117,6 +117,18 @@ namespace NetCoreServer
         public bool IsStarted { get; private set; }
 
         /// <summary>
+        /// Create a new socket object
+        /// </summary>
+        /// <remarks>
+        /// Method may be override if you need to prepare some specific socket object in your implementation.
+        /// </remarks>
+        /// <returns>Socket object</returns>
+        protected virtual Socket CreateSocket()
+        {
+            return new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+        }
+
+        /// <summary>
         /// Start the server (synchronous)
         /// </summary>
         /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
@@ -137,7 +149,7 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new server socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            Socket = CreateSocket();
 
             // Update the server socket disposed flag
             IsSocketDisposed = false;

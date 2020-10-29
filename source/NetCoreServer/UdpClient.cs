@@ -116,6 +116,18 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
+        /// Create a new socket object
+        /// </summary>
+        /// <remarks>
+        /// Method may be override if you need to prepare some specific socket object in your implementation.
+        /// </remarks>
+        /// <returns>Socket object</returns>
+        protected virtual Socket CreateSocket()
+        {
+            return new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+        }
+
+        /// <summary>
         /// Connect the client (synchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
@@ -135,7 +147,7 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            Socket = CreateSocket();
 
             // Update the client socket disposed flag
             IsSocketDisposed = false;

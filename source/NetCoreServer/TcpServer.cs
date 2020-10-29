@@ -136,6 +136,18 @@ namespace NetCoreServer
         public bool IsAccepting { get; private set; }
 
         /// <summary>
+        /// Create a new socket object
+        /// </summary>
+        /// <remarks>
+        /// Method may be override if you need to prepare some specific socket object in your implementation.
+        /// </remarks>
+        /// <returns>Socket object</returns>
+        protected virtual Socket CreateSocket()
+        {
+            return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        /// <summary>
         /// Start the server
         /// </summary>
         /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
@@ -150,7 +162,7 @@ namespace NetCoreServer
             _acceptorEventArg.Completed += OnAsyncCompleted;
 
             // Create a new acceptor socket
-            _acceptorSocket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _acceptorSocket = CreateSocket();
 
             // Update the acceptor socket disposed flag
             IsSocketDisposed = false;
