@@ -68,7 +68,7 @@ solution.
 * Linux
 * OSX
 * Windows 10
-* [.NET Core](https://dotnet.microsoft.com/download)
+* [.NET 5.0](https://dotnet.microsoft.com/download)
 * [7-Zip](https://www.7-zip.org)
 * [cmake](https://www.cmake.org)
 * [git](https://git-scm.com)
