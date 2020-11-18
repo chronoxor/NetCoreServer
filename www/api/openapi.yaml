@@ -117,15 +117,6 @@ paths:
         schema:
           type: string
           example: 'test'
-      requestBody:
-        required: false
-        content:
-          application/json:
-            type: object
-            schema:
-              type: string
-              nullable: true
-              example: null
       responses:
         200:
           description: Success

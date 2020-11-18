@@ -800,8 +800,8 @@ namespace NetCoreServer
             // Update body size
             _bodySize += size;
 
-            // GET request has no body
-            if ((Method == "HEAD") || (Method == "GET") || (Method == "OPTIONS") || (Method == "TRACE"))
+            // HEAD/GET/DELETE/OPTIONS/TRACE request might have no body
+            if ((Method == "HEAD") || (Method == "GET") || ((Method == "DELETE") && !_bodyLengthProvided) || (Method == "OPTIONS") || (Method == "TRACE"))
             {
                 _bodyLength = 0;
                 _bodySize = 0;
