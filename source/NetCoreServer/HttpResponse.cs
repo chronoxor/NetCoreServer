@@ -890,13 +890,18 @@ namespace NetCoreServer
             // Update body size
             _bodySize += size;
 
-            // Check if the body was fully parsed
-            if (_bodyLengthProvided && (_bodySize >= _bodyLength))
+            // Check if the body length was provided
+            if (_bodyLengthProvided)
             {
-                _bodySize = _bodyLength;
-                return true;
+                // Was the body fully received?
+                if (_bodySize >= _bodyLength)
+                {
+                    _bodySize = _bodyLength;
+                    return true;
+                }
             }
 
+            // Body was received partially...
             return false;
         }
     }
