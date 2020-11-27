@@ -136,16 +136,14 @@ namespace SslEchoClient
             foreach (var client in echoClients)
                 client.ConnectAsync();
             Console.WriteLine("Done!");
-            /*
             foreach (var client in echoClients)
                 while (!client.IsHandshaked)
                     Thread.Yield();
             Console.WriteLine("All clients connected!");
-            */
 
             // Wait for benchmarking
             Console.Write("Benchmarking...");
-            Thread.Sleep(seconds * 1000);
+            Thread.Sleep(seconds * 6000 * 5);
             Console.WriteLine("Done!");
 
             // Disconnect clients

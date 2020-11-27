@@ -149,12 +149,10 @@ namespace WssEchoClient
             foreach (var client in echoClients)
                 client.ConnectAsync();
             Console.WriteLine("Done!");
-            /*
             foreach (var client in echoClients)
                 while (!client.IsConnected)
                     Thread.Yield();
             Console.WriteLine("All clients connected!");
-            */
 
             // Wait for benchmarking
             Console.Write("Benchmarking...");

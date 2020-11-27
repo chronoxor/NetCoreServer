@@ -129,12 +129,10 @@ namespace HttpTraceClient
             foreach (var client in httpClients)
                 client.ConnectAsync();
             Console.WriteLine("Done!");
-            /*
             foreach (var client in httpClients)
                 while (!client.IsConnected)
                     Thread.Yield();
             Console.WriteLine("All clients connected!");
-            */
 
             // Wait for benchmarking
             Console.Write("Benchmarking...");

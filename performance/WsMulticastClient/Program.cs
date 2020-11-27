@@ -112,12 +112,10 @@ namespace WsMulticastClient
             foreach (var client in multicastClients)
                 client.ConnectAsync();
             Console.WriteLine("Done!");
-            /*
             foreach (var client in multicastClients)
                 while (!client.IsConnected)
                     Thread.Yield();
             Console.WriteLine("All clients connected!");
-            */
 
             // Wait for benchmarking
             Console.Write("Benchmarking...");
