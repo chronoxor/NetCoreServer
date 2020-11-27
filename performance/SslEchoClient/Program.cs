@@ -143,7 +143,7 @@ namespace SslEchoClient
 
             // Wait for benchmarking
             Console.Write("Benchmarking...");
-            Thread.Sleep(seconds * 6000 * 5);
+            Thread.Sleep(seconds * 1000);
             Console.WriteLine("Done!");
 
             // Disconnect clients
