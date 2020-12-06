@@ -152,7 +152,6 @@ namespace NetCoreServer
                 var key = header.Item1;
                 var value = header.Item2;
 
-
                 if (string.Compare(key, "Connection", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     if ((string.Compare(value, "Upgrade", StringComparison.OrdinalIgnoreCase) != 0) && (string.Compare(value, "keep-alive, Upgrade", StringComparison.OrdinalIgnoreCase) != 0))
