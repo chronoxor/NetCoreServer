@@ -76,7 +76,7 @@ namespace tests
     public class SslTests
     {
         [Fact(DisplayName = "SSL server test")]
-        public void TcpServerTest()
+        public void SslServerTest()
         {
             string address = "127.0.0.1";
             int port = 2222;
@@ -136,7 +136,7 @@ namespace tests
         }
 
         [Fact(DisplayName = "SSL server multicast test")]
-        public void TcpServerMulticastTest()
+        public void SslServerMulticastTest()
         {
             string address = "127.0.0.1";
             int port = 2223;
@@ -232,7 +232,7 @@ namespace tests
             Assert.True(server.Connected);
             Assert.True(server.Handshaked);
             Assert.True(server.Disconnected);
-            Assert.True(server.BytesSent == 36);
+            Assert.True(server.BytesSent > 0);
             Assert.True(server.BytesReceived == 0);
             Assert.True(!server.Errors);
 
@@ -249,7 +249,7 @@ namespace tests
         }
 
         [Fact(DisplayName = "SSL server random test")]
-        public void TcpServerRandomTest()
+        public void SslServerRandomTest()
         {
             string address = "127.0.0.1";
             int port = 2224;

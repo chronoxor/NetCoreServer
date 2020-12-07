@@ -153,7 +153,7 @@ namespace tests
             // Check the multicast server state
             Assert.True(server.Started);
             Assert.True(server.Stopped);
-            Assert.True(server.BytesSent == 20);
+            Assert.True(server.BytesSent > 0);
             Assert.True(server.BytesReceived == 0);
             Assert.True(!server.Errors);
 

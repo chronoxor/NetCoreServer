@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -14,6 +13,7 @@ namespace tests
 {
     class EchoWssClient : WssClient
     {
+        public bool IsWsConnected { get; set; }
         public bool Connected { get; set; }
         public bool Disconnected { get; set; }
         public int Received { get; set; }
@@ -33,12 +33,12 @@ namespace tests
             request.SetHeader("Origin", "http://localhost");
             request.SetHeader("Upgrade", "websocket");
             request.SetHeader("Connection", "Upgrade");
-            request.SetHeader("Sec-WebSocket-Key", Convert.ToBase64String(Encoding.UTF8.GetBytes(Id.ToString())));
+            request.SetHeader("Sec-WebSocket-Key", Convert.ToBase64String(WsNonce));
             request.SetHeader("Sec-WebSocket-Protocol", "chat, superchat");
             request.SetHeader("Sec-WebSocket-Version", "13");
         }
-        public override void OnWsConnected(HttpResponse response) { Connected = true; }
-        public override void OnWsDisconnected() { Disconnected = true; }
+        public override void OnWsConnected(HttpResponse response) { IsWsConnected = true; Connected = true; }
+        public override void OnWsDisconnected() { IsWsConnected = false; Disconnected = true; }
         public override void OnWsReceived(byte[] buffer, long offset, long size) { Received += (int)size; }
 
         protected override void OnError(SocketError error) { Errors = true; }
@@ -80,7 +80,7 @@ namespace tests
         protected override void OnStarted() { Started = true; }
         protected override void OnStopped() { Stopped = true; }
         protected override void OnConnected(SslSession session) { Connected = true; Clients++; }
-        protected override void OnDisconnected(SslSession session) { Disconnected = true; Clients--; }
+        protected override void OnDisconnected(SslSession session) { Disconnected = true; Clients = Math.Max(Clients - 1, 0); }
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
@@ -107,7 +107,7 @@ namespace tests
             // Create and connect Echo client
             var client = new EchoWssClient(clientContext, address, port);
             Assert.True(client.ConnectAsync());
-            while (!client.Connected || (server.Clients != 1))
+            while (!client.IsWsConnected || (server.Clients != 1))
                 Thread.Yield();
 
             // Send a message to the Echo server
@@ -119,7 +119,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client.CloseAsync(1000));
-            while (!client.Disconnected || (server.Clients != 0))
+            while (client.IsWsConnected || (server.Clients != 0))
                 Thread.Yield();
 
             // Stop the Echo server
@@ -145,7 +145,7 @@ namespace tests
         }
 
         [Fact(DisplayName = "WebSocket secure server multicast test")]
-        public void TcpServerMulticastTest()
+        public void WssServerMulticastTest()
         {
             string address = "127.0.0.1";
             int port = 8445;
@@ -165,7 +165,7 @@ namespace tests
             // Create and connect Echo client
             var client1 = new EchoWssClient(clientContext, address, port);
             Assert.True(client1.ConnectAsync());
-            while (!client1.Connected || (server.Clients != 1))
+            while (!client1.IsWsConnected || (server.Clients != 1))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -178,7 +178,7 @@ namespace tests
             // Create and connect Echo client
             var client2 = new EchoWssClient(clientContext, address, port);
             Assert.True(client2.ConnectAsync());
-            while (!client2.Connected || (server.Clients != 2))
+            while (!client2.IsWsConnected || (server.Clients != 2))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -191,7 +191,7 @@ namespace tests
             // Create and connect Echo client
             var client3 = new EchoWssClient(clientContext, address, port);
             Assert.True(client3.ConnectAsync());
-            while (!client3.Connected || (server.Clients != 3))
+            while (!client3.IsWsConnected || (server.Clients != 3))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -203,7 +203,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client1.CloseAsync(1000));
-            while (!client1.Disconnected || (server.Clients != 2))
+            while (client1.IsWsConnected || (server.Clients != 2))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -215,7 +215,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client2.CloseAsync(1000));
-            while (!client2.Disconnected || (server.Clients != 1))
+            while (client2.IsWsConnected || (server.Clients != 1))
                 Thread.Yield();
 
             // Multicast some data to all clients
@@ -227,7 +227,7 @@ namespace tests
 
             // Disconnect the Echo client
             Assert.True(client3.CloseAsync(1000));
-            while (!client3.Disconnected || (server.Clients != 0))
+            while (client3.IsWsConnected || (server.Clients != 0))
                 Thread.Yield();
 
             // Stop the Echo server
@@ -257,7 +257,7 @@ namespace tests
         }
 
         [Fact(DisplayName = "WebSocket secure server random test")]
-        public void TcpServerRandomTest()
+        public void WssServerRandomTest()
         {
             string address = "127.0.0.1";
             int port = 8446;
@@ -299,7 +299,7 @@ namespace tests
                         var client = new EchoWssClient(clientContext, address, port);
                         clients.Add(client);
                         client.ConnectAsync();
-                        while (!client.IsHandshaked)
+                        while (!client.IsWsConnected)
                             Thread.Yield();
                     }
                 }
@@ -310,16 +310,16 @@ namespace tests
                     {
                         int index = rand.Next() % clients.Count;
                         var client = clients[index];
-                        if (client.IsHandshaked)
+                        if (client.IsWsConnected)
                         {
                             client.CloseAsync(1000);
-                            while (client.IsConnected)
+                            while (client.IsWsConnected)
                                 Thread.Yield();
                         }
-                        else if (!client.IsConnected)
+                        else
                         {
                             client.ConnectAsync();
-                            while (!client.IsHandshaked)
+                            while (!client.IsWsConnected)
                                 Thread.Yield();
                         }
                     }
@@ -331,10 +331,10 @@ namespace tests
                     {
                         int index = rand.Next() % clients.Count;
                         var client = clients[index];
-                        if (client.IsHandshaked)
+                        if (client.IsWsConnected)
                         {
                             client.ReconnectAsync();
-                            while (!client.IsHandshaked)
+                            while (!client.IsWsConnected)
                                 Thread.Yield();
                         }
                     }
@@ -351,7 +351,7 @@ namespace tests
                     {
                         int index = rand.Next() % clients.Count;
                         var client = clients[index];
-                        if (client.IsHandshaked)
+                        if (client.IsWsConnected)
                             client.SendTextAsync("test");
                     }
                 }
@@ -364,7 +364,7 @@ namespace tests
             foreach (var client in clients)
             {
                 client.CloseAsync(1000);
-                while (client.IsConnected)
+                while (client.IsWsConnected)
                     Thread.Yield();
             }
 
@@ -384,4 +384,3 @@ namespace tests
         }
     }
 }
-*/

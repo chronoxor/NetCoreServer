@@ -827,8 +827,8 @@ namespace NetCoreServer
                         if (index >= (int)_cache.Size)
                             return false;
 
-                        // Validate header name and value
-                        if ((headerNameSize == 0) || (headerValueSize == 0))
+                        // Validate header name and value (sometimes value can be empty)
+                        if (headerNameSize == 0)
                             return false;
 
                         // Add a new header
@@ -837,7 +837,7 @@ namespace NetCoreServer
                         _headers.Add(new Tuple<string, string>(headerName, headerValue));
 
                         // Try to find the body content length
-                        if (headerName == "Content-Length")
+                        if (string.Compare(headerName, "Content-Length", StringComparison.OrdinalIgnoreCase) == 0)
                         {
                             _bodyLength = 0;
                             for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)
@@ -882,13 +882,18 @@ namespace NetCoreServer
             // Update body size
             _bodySize += size;
 
-            // Check if the body was fully parsed
-            if (_bodyLengthProvided && (_bodySize >= _bodyLength))
+            // Check if the body length was provided
+            if (_bodyLengthProvided)
             {
-                _bodySize = _bodyLength;
-                return true;
+                // Was the body fully received?
+                if (_bodySize >= _bodyLength)
+                {
+                    _bodySize = _bodyLength;
+                    return true;
+                }
             }
 
+            // Body was received partially...
             return false;
         }
     }

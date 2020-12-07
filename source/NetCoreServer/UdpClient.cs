@@ -102,49 +102,11 @@ namespace NetCoreServer
         /// <summary>
         /// Option: receive buffer size
         /// </summary>
-        public int OptionReceiveBufferSize
-        {
-            get => Socket.ReceiveBufferSize;
-            set => Socket.ReceiveBufferSize = value;
-        }
+        public int OptionReceiveBufferSize { get; set; } = 8192;
         /// <summary>
         /// Option: send buffer size
         /// </summary>
-        public int OptionSendBufferSize
-        {
-            get => Socket.SendBufferSize;
-            set => Socket.SendBufferSize = value;
-        }
-        /// <summary>
-        /// Option: receive timeout in milliseconds
-        /// </summary>
-        /// <remarks>
-        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
-        /// </remarks>
-        public int OptionReceiveTimeout
-        {
-            get => Socket.ReceiveTimeout;
-            set => Socket.ReceiveTimeout = value;
-        }
-        /// <summary>
-        /// Option: send timeout in milliseconds
-        /// </summary>
-        /// <remarks>
-        /// The default value is 0, which indicates an infinite time-out period. Specifying -1 also indicates an infinite time-out period.
-        /// </remarks>
-        public int OptionSendTimeout
-        {
-            get => Socket.SendTimeout;
-            set => Socket.SendTimeout = value;
-        }
-        /// <summary>
-        /// Option: linger state
-        /// </summary>
-        public LingerOption OptionLingerState
-        {
-            get => Socket.LingerState;
-            set => Socket.LingerState = value;
-        }
+        public int OptionSendBufferSize { get; set; } = 8192;
 
         #region Connect/Disconnect client
 
@@ -152,6 +114,18 @@ namespace NetCoreServer
         /// Is the client connected?
         /// </summary>
         public bool IsConnected { get; private set; }
+
+        /// <summary>
+        /// Create a new socket object
+        /// </summary>
+        /// <remarks>
+        /// Method may be override if you need to prepare some specific socket object in your implementation.
+        /// </remarks>
+        /// <returns>Socket object</returns>
+        protected virtual Socket CreateSocket()
+        {
+            return new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+        }
 
         /// <summary>
         /// Connect the client (synchronous)
@@ -173,7 +147,7 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            Socket = CreateSocket();
 
             // Update the client socket disposed flag
             IsSocketDisposed = false;

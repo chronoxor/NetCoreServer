@@ -118,7 +118,7 @@ namespace SslMulticastServer
                     // Sleep for remaining time or yield
                     var milliseconds = (int)(end - start).TotalMilliseconds;
                     if (milliseconds < 1000)
-                        Thread.Sleep(milliseconds);
+                        Thread.Sleep(1000 - milliseconds);
                     else
                         Thread.Yield();
                 }

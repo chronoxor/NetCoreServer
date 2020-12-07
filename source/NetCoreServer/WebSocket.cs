@@ -14,7 +14,7 @@ namespace NetCoreServer
     {
         private readonly IWebSocket _wsHandler;
 
-        public WebSocket(IWebSocket wsHandler) { _wsHandler = wsHandler; ClearWsBuffers(); }
+        public WebSocket(IWebSocket wsHandler) { _wsHandler = wsHandler; ClearWsBuffers(); InitWsNonce(); }
 
         /// <summary>
         /// Final frame
@@ -64,9 +64,9 @@ namespace NetCoreServer
                 var key = header.Item1;
                 var value = header.Item2;
 
-                if (key == "Connection")
+                if (string.Compare(key, "Connection", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if (value != "Upgrade")
+                    if (string.Compare(value, "Upgrade", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
                         _wsHandler.OnWsError("Invalid WebSocket handshaked response: 'Connection' header value must be 'Upgrade'");
@@ -75,9 +75,9 @@ namespace NetCoreServer
 
                     connection = true;
                 }
-                else if (key == "Upgrade")
+                else if (string.Compare(key, "Upgrade", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if (value != "websocket")
+                    if (string.Compare(value, "websocket", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
                         _wsHandler.OnWsError("Invalid WebSocket handshaked response: 'Upgrade' header value must be 'websocket'");
@@ -86,10 +86,10 @@ namespace NetCoreServer
 
                     upgrade = true;
                 }
-                else if (key == "Sec-WebSocket-Accept")
+                else if (string.Compare(key, "Sec-WebSocket-Accept", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     // Calculate the original WebSocket hash
-                    string wskey = Convert.ToBase64String(Encoding.UTF8.GetBytes(id.ToString())) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                    string wskey = Convert.ToBase64String(WsNonce) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                     string wshash;
                     using (SHA1Managed sha1 = new SHA1Managed())
                     {
@@ -121,8 +121,7 @@ namespace NetCoreServer
 
             // WebSocket successfully handshaked!
             WsHandshaked = true;
-            Random rnd = new Random();
-            rnd.NextBytes(WsSendMask);
+            WsRandom.NextBytes(WsSendMask);
             _wsHandler.OnWsConnected(response);
 
             return true;
@@ -154,9 +153,9 @@ namespace NetCoreServer
                 var key = header.Item1;
                 var value = header.Item2;
 
-                if (key == "Connection")
+                if (string.Compare(key, "Connection", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if ((value != "Upgrade") && (value != "keep-alive, Upgrade"))
+                    if ((string.Compare(value, "Upgrade", StringComparison.OrdinalIgnoreCase) != 0) && (string.Compare(value, "keep-alive, Upgrade", StringComparison.OrdinalIgnoreCase) != 0))
                     {
                         error = true;
                         response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Connection' header value must be 'Upgrade' or 'keep-alive, Upgrade'", 400);
@@ -165,9 +164,9 @@ namespace NetCoreServer
 
                     connection = true;
                 }
-                else if (key == "Upgrade")
+                else if (string.Compare(key, "Upgrade", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if (value != "websocket")
+                    if (string.Compare(value, "websocket", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
                         response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Upgrade' header value must be 'websocket'", 400);
@@ -176,7 +175,7 @@ namespace NetCoreServer
 
                     upgrade = true;
                 }
-                else if (key == "Sec-WebSocket-Key")
+                else if (string.Compare(key, "Sec-WebSocket-Key", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     if (string.IsNullOrEmpty(value))
                     {
@@ -197,9 +196,9 @@ namespace NetCoreServer
 
                     wsKey = true;
                 }
-                else if (key == "Sec-WebSocket-Version")
+                else if (string.Compare(key, "Sec-WebSocket-Version", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if (value != "13")
+                    if (string.Compare(value, "13", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
                         response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Sec-WebSocket-Version' header value must be '13'", 400);
@@ -503,6 +502,11 @@ namespace NetCoreServer
             }
         }
 
+        /// <summary>
+        /// Initialize WebSocket random nonce
+        /// </summary>
+        public void InitWsNonce() { WsRandom.NextBytes(WsNonce); }
+
         #region IWebSocket implementation
 
         public void OnWsConnecting(HttpRequest request) { _wsHandler.OnWsConnecting(request); }
@@ -562,5 +566,14 @@ namespace NetCoreServer
         /// Send mask
         /// </summary>
         internal readonly byte[] WsSendMask = new byte[4];
+
+        /// <summary>
+        /// WebSocket random generator
+        /// </summary>
+        internal readonly Random WsRandom = new Random();
+        /// <summary>
+        /// WebSocket random nonce of 16 bytes
+        /// </summary>
+        internal readonly byte[] WsNonce = new byte[16];
     }
 }

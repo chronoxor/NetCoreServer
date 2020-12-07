@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.0.4</Version>
+    <Version>2.0.5</Version>
     <Authors>Ivan Shynkarenka</Authors>
-    <Copyright>Copyright (c) 2019-2020 Ivan Shynkarenka</Copyright>
+    <Copyright>Copyright (c) 2019-2021 Ivan Shynkarenka</Copyright>
     <RepositoryUrl>https://github.com/chronoxor/NetCoreServer</RepositoryUrl>
     <Description>Ultra fast and low latency asynchronous socket server &amp; client C# .NET Core library with support TCP, SSL, UDP protocols and 10K connections problem solution</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -14,8 +14,8 @@
   <PropertyGroup>
     <IncludeSymbols>true</IncludeSymbols>	
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>	
-    <AssemblyVersion>2.0.2.0</AssemblyVersion>	
-    <FileVersion>2.0.2.0</FileVersion>	
+    <AssemblyVersion>2.0.5.0</AssemblyVersion>	
+    <FileVersion>2.0.5.0</FileVersion>	
   </PropertyGroup>
 
 </Project>

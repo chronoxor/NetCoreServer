@@ -68,11 +68,11 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request cookies count
         /// </summary>
-        long Cookies { get { return _cookies.Count; } }
+        public long Cookies { get { return _cookies.Count; } }
         /// <summary>
         /// Get the HTTP request cookie by index
         /// </summary>
-        Tuple<string, string> Cookie(int i)
+        public Tuple<string, string> Cookie(int i)
         {
             Debug.Assert((i < _cookies.Count), "Index out of bounds!");
             if (i >= _cookies.Count)
@@ -626,8 +626,8 @@ namespace NetCoreServer
                         if (index >= (int)_cache.Size)
                             return false;
 
-                        // Validate header name and value
-                        if ((headerNameSize == 0) || (headerValueSize == 0))
+                        // Validate header name and value (sometimes value can be empty)
+                        if (headerNameSize == 0)
                             return false;
 
                         // Add a new header
@@ -636,7 +636,7 @@ namespace NetCoreServer
                         _headers.Add(new Tuple<string, string>(headerName, headerValue));
 
                         // Try to find the body content length
-                        if (headerName == "Content-Length")
+                        if (string.Compare(headerName, "Content-Length", StringComparison.OrdinalIgnoreCase) == 0)
                         {
                             _bodyLength = 0;
                             for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)
@@ -650,7 +650,7 @@ namespace NetCoreServer
                         }
 
                         // Try to find Cookies
-                        if (headerName == "Cookie")
+                        if (string.Compare(headerName, "Cookie", StringComparison.OrdinalIgnoreCase) == 0)
                         {
                             bool name = true;
                             bool token = false;
@@ -792,21 +792,28 @@ namespace NetCoreServer
             // Update body size
             _bodySize += size;
 
-            // GET request has no body
-            if ((Method == "HEAD") || (Method == "GET") || (Method == "OPTIONS") || (Method == "TRACE"))
+            // Check if the body length was provided
+            if (_bodyLengthProvided)
             {
-                _bodyLength = 0;
-                _bodySize = 0;
-                return true;
+                // Was the body fully received?
+                if (_bodySize >= _bodyLength)
+                {
+                    _bodySize = _bodyLength;
+                    return true;
+                }
+            }
+            else
+            {
+                // HEAD/GET/DELETE/OPTIONS/TRACE request might have no body
+                if ((Method == "HEAD") || (Method == "GET") || (Method == "DELETE") || (Method == "OPTIONS") || (Method == "TRACE"))
+                {
+                    _bodyLength = 0;
+                    _bodySize = 0;
+                    return true;
+                }
             }
 
-            // Check if the body was fully parsed
-            if (_bodyLengthProvided && (_bodySize >= _bodyLength))
-            {
-                _bodySize = _bodyLength;
-                return true;
-            }
-
+            // Body was received partially...
             return false;
         }
     }
