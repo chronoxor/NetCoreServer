@@ -432,9 +432,6 @@ namespace NetCoreServer
 
             lock (_sendLock)
             {
-                // Detect multiple send handlers
-                bool sendRequired = _sendBufferMain.IsEmpty || _sendBufferFlush.IsEmpty;
-
                 // Fill the main send buffer
                 _sendBufferMain.Append(buffer, offset, size);
 
@@ -442,12 +439,14 @@ namespace NetCoreServer
                 BytesPending = _sendBufferMain.Size;
 
                 // Avoid multiple send handlers
-                if (!sendRequired)
+                if (_sending)
                     return true;
-            }
+                else
+                    _sending = true;
 
-            // Try to send the main buffer
-            Task.Factory.StartNew(TrySend);
+                // Try to send the main buffer
+                Task.Factory.StartNew(TrySend);
+            }
 
             return true;
         }
@@ -557,12 +556,10 @@ namespace NetCoreServer
         /// </summary>
         private void TrySend()
         {
-            if (_sending)
-                return;
-
             if (!IsConnected)
                 return;
 
+            bool empty = false;
             bool process = true;
 
             while (process)
@@ -571,10 +568,7 @@ namespace NetCoreServer
 
                 lock (_sendLock)
                 {
-                    if (_sending)
-                        return;
-
-                    // Swap send buffers
+                    // Is previous socket send in progress?
                     if (_sendBufferFlush.IsEmpty)
                     {
                         // Swap flush and main buffers
@@ -585,16 +579,23 @@ namespace NetCoreServer
                         BytesPending = 0;
                         BytesSending += _sendBufferFlush.Size;
 
-                        _sending = !_sendBufferFlush.IsEmpty;
+                        // Check if the flush buffer is empty
+                        if (_sendBufferFlush.IsEmpty)
+                        {
+                            // Need to call empty send buffer handler
+                            empty = true;
+
+                            // End sending process
+                            _sending = false;
+                        }
                     }
                     else
                         return;
                 }
 
-                // Check if the flush buffer is empty
-                if (_sendBufferFlush.IsEmpty)
+                // Call the empty send buffer handler
+                if (empty)
                 {
-                    // Call the empty send buffer handler
                     OnEmpty();
                     return;
                 }
@@ -780,8 +781,6 @@ namespace NetCoreServer
                 // Call the buffer sent handler
                 OnSent(size, BytesPending + BytesSending);
             }
-
-            _sending = false;
 
             // Try to send again if the client is valid
             if (e.SocketError == SocketError.Success)

@@ -12,7 +12,7 @@ namespace NetCoreServer
     {
         private readonly IWebSocket _wsHandler;
 
-        public WebSocket(IWebSocket wsHandler) { _wsHandler = wsHandler; ClearWsBuffers(); }
+        public WebSocket(IWebSocket wsHandler) { _wsHandler = wsHandler; ClearWsBuffers(); InitWsNonce(); }
 
         /// <summary>
         /// Final frame
@@ -87,7 +87,7 @@ namespace NetCoreServer
                 else if (string.Compare(key, "Sec-WebSocket-Accept", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     // Calculate the original WebSocket hash
-                    string wskey = Convert.ToBase64String(Encoding.UTF8.GetBytes(id.ToString())) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                    string wskey = Convert.ToBase64String(WsNonce) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                     string wshash;
                     using (SHA1Managed sha1 = new SHA1Managed())
                     {
@@ -119,8 +119,7 @@ namespace NetCoreServer
 
             // WebSocket successfully handshaked!
             WsHandshaked = true;
-            Random rnd = new Random();
-            rnd.NextBytes(WsSendMask);
+            WsRandom.NextBytes(WsSendMask);
             _wsHandler.OnWsConnected(response);
 
             return true;
@@ -151,7 +150,6 @@ namespace NetCoreServer
                 var header = request.Header(i);
                 var key = header.Item1;
                 var value = header.Item2;
-
 
                 if (string.Compare(key, "Connection", StringComparison.OrdinalIgnoreCase) == 0)
                 {
@@ -502,6 +500,11 @@ namespace NetCoreServer
         }
 
         /// <summary>
+        /// Initialize WebSocket random nonce
+        /// </summary>
+        public void InitWsNonce() => WsRandom.NextBytes(WsNonce);
+
+        /// <summary>
         /// Handshaked flag
         /// </summary>
         internal bool WsHandshaked;
@@ -543,5 +546,14 @@ namespace NetCoreServer
         /// Send mask
         /// </summary>
         internal readonly byte[] WsSendMask = new byte[4];
+
+        /// <summary>
+        /// WebSocket random generator
+        /// </summary>
+        internal readonly Random WsRandom = new Random();
+        /// <summary>
+        /// WebSocket random nonce of 16 bytes
+        /// </summary>
+        internal readonly byte[] WsNonce = new byte[16];
     }
 }

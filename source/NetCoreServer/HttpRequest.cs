@@ -799,22 +799,29 @@ namespace NetCoreServer
 
             // Update body size
             _bodySize += size;
-
-            // GET request has no body
-            if ((Method == "HEAD") || (Method == "GET") || (Method == "OPTIONS") || (Method == "TRACE"))
+            
+            // Check if the body length was provided
+            if (_bodyLengthProvided)
             {
-                _bodyLength = 0;
-                _bodySize = 0;
-                return true;
+                // Was the body fully received?
+                if (_bodySize >= _bodyLength)
+                {
+                    _bodySize = _bodyLength;
+                    return true;
+                }
+            }
+            else
+            {
+                // HEAD/GET/DELETE/OPTIONS/TRACE request might have no body
+                if ((Method == "HEAD") || (Method == "GET") || (Method == "DELETE") || (Method == "OPTIONS") || (Method == "TRACE"))
+                {
+                    _bodyLength = 0;
+                    _bodySize = 0;
+                    return true;
+                }
             }
 
-            // Check if the body was fully parsed
-            if (_bodyLengthProvided && (_bodySize >= _bodyLength))
-            {
-                _bodySize = _bodyLength;
-                return true;
-            }
-
+            // Body was received partially...
             return false;
         }
     }

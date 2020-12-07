@@ -26,7 +26,7 @@ namespace tests
             request.SetHeader("Origin", "http://localhost");
             request.SetHeader("Upgrade", "websocket");
             request.SetHeader("Connection", "Upgrade");
-            request.SetHeader("Sec-WebSocket-Key", Convert.ToBase64String(Encoding.UTF8.GetBytes(Id.ToString())));
+            request.SetHeader("Sec-WebSocket-Key", Convert.ToBase64String(WsNonce));
             request.SetHeader("Sec-WebSocket-Protocol", "chat, superchat");
             request.SetHeader("Sec-WebSocket-Version", "13");
         }
@@ -125,7 +125,7 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-/*
+
         [Fact(DisplayName = "WebSocket server multicast test")]
         public void WsServerMulticastTest()
         {
@@ -352,6 +352,5 @@ namespace tests
             Assert.True(server.BytesReceived > 0);
             Assert.True(!server.Errors);
         }
-*/
     }
 }

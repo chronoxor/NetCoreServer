@@ -491,9 +491,6 @@ namespace NetCoreServer
 
             lock (_sendLock)
             {
-                // Detect multiple send handlers
-                bool sendRequired = _sendBufferMain.IsEmpty || _sendBufferFlush.IsEmpty;
-
                 // Fill the main send buffer
                 _sendBufferMain.Append(buffer, offset, size);
 
@@ -501,12 +498,14 @@ namespace NetCoreServer
                 BytesPending = _sendBufferMain.Size;
 
                 // Avoid multiple send handlers
-                if (!sendRequired)
+                if (_sending)
                     return true;
-            }
+                else
+                    _sending = true;
 
-            // Try to send the main buffer
-            Task.Factory.StartNew(TrySend);
+                // Try to send the main buffer
+                Task.Factory.StartNew(TrySend);
+            }
 
             return true;
         }
@@ -617,41 +616,41 @@ namespace NetCoreServer
         /// </summary>
         private void TrySend()
         {
-            if (_sending)
-                return;
-
             if (!IsHandshaked)
                 return;
 
+            bool empty = false;
+
             lock (_sendLock)
             {
-                if (_sending)
-                    return;
-
-                // Swap send buffers
+                // Is previous socket send in progress?
                 if (_sendBufferFlush.IsEmpty)
                 {
-                    lock (_sendLock)
+                    // Swap flush and main buffers
+                    _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
+                    _sendBufferFlushOffset = 0;
+
+                    // Update statistic
+                    BytesPending = 0;
+                    BytesSending += _sendBufferFlush.Size;
+
+                    // Check if the flush buffer is empty
+                    if (_sendBufferFlush.IsEmpty)
                     {
-                        // Swap flush and main buffers
-                        _sendBufferFlush = Interlocked.Exchange(ref _sendBufferMain, _sendBufferFlush);
-                        _sendBufferFlushOffset = 0;
+                        // Need to call empty send buffer handler
+                        empty = true;
 
-                        // Update statistic
-                        BytesPending = 0;
-                        BytesSending += _sendBufferFlush.Size;
-
-                        _sending = !_sendBufferFlush.IsEmpty;
+                        // End sending process
+                        _sending = false;
                     }
                 }
                 else
                     return;
             }
 
-            // Check if the flush buffer is empty
-            if (_sendBufferFlush.IsEmpty)
+            // Call the empty send buffer handler
+            if (empty)
             {
-                // Call the empty send buffer handler
                 OnEmpty();
                 return;
             }
@@ -891,8 +890,6 @@ namespace NetCoreServer
                     // Call the buffer sent handler
                     OnSent(size, BytesPending + BytesSending);
                 }
-
-                _sending = false;
 
                 // Try to send again if the client is valid
                 TrySend();

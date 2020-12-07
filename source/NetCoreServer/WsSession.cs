@@ -299,6 +299,9 @@ namespace NetCoreServer
 
             // Clear WebSocket send/receive buffers
             WebSocket.ClearWsBuffers();
+
+            // Initialize new WebSocket random nonce
+            WebSocket.InitWsNonce();
         }
 
         protected override void OnReceived(byte[] buffer, long offset, long size)

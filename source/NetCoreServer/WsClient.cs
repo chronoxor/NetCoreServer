@@ -30,6 +30,11 @@ namespace NetCoreServer
         /// <param name="endpoint">IP endpoint</param>
         public WsClient(IPEndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
 
+        /// <summary>
+        /// WebSocket random nonce
+        /// </summary>
+        public byte[] WsNonce => WebSocket.WsNonce;
+
         #region WebSocket connection methods
 
         public override bool Connect() { _syncConnect = true; return base.Connect(); }
@@ -340,6 +345,9 @@ namespace NetCoreServer
 
             // Clear WebSocket send/receive buffers
             WebSocket.ClearWsBuffers();
+
+            // Initialize new WebSocket random nonce
+            WebSocket.InitWsNonce();
         }
 
         protected override void OnReceived(byte[] buffer, long offset, long size)

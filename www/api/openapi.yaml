@@ -31,6 +31,7 @@ paths:
         required: false
         schema:
           type: string
+          example: 'test'
       responses:
         200:
           description: Success
@@ -59,13 +60,15 @@ paths:
         required: true
         schema:
           type: string
+          example: 'test'
       requestBody:
         description: Cache value to create
+        required: true
         content:
           text/plain:
             schema:
               type: string
-        required: true
+              example: 'value'
       responses:
         200:
           description: Success
@@ -85,13 +88,15 @@ paths:
         required: true
         schema:
           type: string
+          example: 'test'
       requestBody:
         description: Cache value to modify
+        required: true
         content:
           text/plain:
             schema:
               type: string
-        required: true
+              example: 'modified'
       responses:
         200:
           description: Success
@@ -111,13 +116,7 @@ paths:
         required: true
         schema:
           type: string
-      requestBody:
-        description: Cache value to delete
-        content:
-          text/plain:
-            schema:
-              type: string
-        required: true
+          example: 'test'
       responses:
         200:
           description: Success

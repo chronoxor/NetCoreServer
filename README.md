@@ -1,9 +1,9 @@
 # NetCoreServer
 
-[![Linux build status](https://img.shields.io/travis/chronoxor/NetCoreServer/master.svg?label=Linux)](https://travis-ci.com/chronoxor/NetCoreServer)
-[![OSX build status](https://img.shields.io/travis/chronoxor/NetCoreServer/master.svg?label=OSX)](https://travis-ci.com/chronoxor/NetCoreServer)
-[![Windows build status](https://img.shields.io/appveyor/ci/chronoxor/NetCoreServer/master.svg?label=Windows)](https://ci.appveyor.com/project/chronoxor/NetCoreServer)
-[![NuGet](https://img.shields.io/nuget/v/NetCoreServer.svg)](https://www.nuget.org/packages/NetCoreServer/)
+[![Linux build status](https://img.shields.io/travis/com/chronoxor/NetCoreServer/master?label=Linux)](https://travis-ci.com/chronoxor/NetCoreServer)
+[![OSX build status](https://img.shields.io/travis/com/chronoxor/NetCoreServer/master?label=OSX)](https://travis-ci.com/chronoxor/NetCoreServer)
+[![Windows build status](https://img.shields.io/appveyor/build/chronoxor/NetCoreServer/master?label=Windows)](https://ci.appveyor.com/project/chronoxor/NetCoreServer)
+[![NuGet](https://img.shields.io/nuget/v/NetCoreServer)](https://www.nuget.org/packages/NetCoreServer)
 
 Ultra fast and low latency asynchronous socket server & client C# .NET Core
 library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)
