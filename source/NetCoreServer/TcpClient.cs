@@ -688,15 +688,15 @@ namespace NetCoreServer
                 // Update the connected flag
                 IsConnected = true;
 
+                // Try to receive something from the server
+                TryReceive();
+
                 // Call the client connected handler
                 OnConnected();
 
                 // Call the empty send buffer handler
                 if (_sendBufferMain.IsEmpty)
                     OnEmpty();
-
-                // Try to receive something from the server
-                TryReceive();
             }
             else
             {

@@ -517,6 +517,9 @@ namespace NetCoreServer
                 // Update the handshaked flag
                 IsHandshaked = true;
 
+                // Try to receive something from the client
+                TryReceive();
+
                 // Call the session handshaked handler
                 OnHandshaked();
 
@@ -526,9 +529,6 @@ namespace NetCoreServer
                 // Call the empty send buffer handler
                 if (_sendBufferMain.IsEmpty)
                     OnEmpty();
-
-                // Try to receive something from the client
-                TryReceive();
             }
             catch (Exception)
             {

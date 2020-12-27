@@ -114,6 +114,9 @@ namespace NetCoreServer
             // Update the connected flag
             IsConnected = true;
 
+            // Try to receive something from the client
+            TryReceive();
+
             // Call the session connected handler
             OnConnected();
 
@@ -123,9 +126,6 @@ namespace NetCoreServer
             // Call the empty send buffer handler
             if (_sendBufferMain.IsEmpty)
                 OnEmpty();
-
-            // Try to receive something from the client
-            TryReceive();
         }
 
         /// <summary>
