@@ -57,11 +57,11 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request header by index
         /// </summary>
-        public Tuple<string, string> Header(int i)
+        public (string, string) Header(int i)
         {
             Debug.Assert((i < _headers.Count), "Index out of bounds!");
             if (i >= _headers.Count)
-                return new Tuple<string, string>("", "");
+                return ("", "");
 
             return _headers[i];
         }
@@ -72,11 +72,11 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request cookie by index
         /// </summary>
-        public Tuple<string, string> Cookie(int i)
+        public (string, string) Cookie(int i)
         {
             Debug.Assert((i < _cookies.Count), "Index out of bounds!");
             if (i >= _cookies.Count)
-                return new Tuple<string, string>("", "");
+                return ("", "");
 
             return _cookies[i];
         }
@@ -192,7 +192,7 @@ namespace NetCoreServer
             _cache.Append("\r\n");
 
             // Add the header to the corresponding collection
-            _headers.Add(new Tuple<string, string>(key, value));
+            _headers.Add((key, value));
             return this;
         }
 
@@ -217,9 +217,9 @@ namespace NetCoreServer
             _cache.Append("\r\n");
 
             // Add the header to the corresponding collection
-            _headers.Add(new Tuple<string, string>(key, cookie));
+            _headers.Add((key, cookie));
             // Add the cookie to the corresponding collection
-            _cookies.Add(new Tuple<string, string>(name, value));
+            _cookies.Add((name, value));
             return this;
         }
 
@@ -237,7 +237,7 @@ namespace NetCoreServer
             _cache.Append(value);
 
             // Add the cookie to the corresponding collection
-            _cookies.Add(new Tuple<string, string>(name, value));
+            _cookies.Add((name, value));
             return this;
         }
 
@@ -493,9 +493,9 @@ namespace NetCoreServer
         // HTTP request protocol
         private string _protocol;
         // HTTP request headers
-        private List<Tuple<string, string>> _headers = new List<Tuple<string, string>>();
+        private List<(string, string)> _headers = new List<(string, string)>();
         // HTTP request cookies
-        private List<Tuple<string, string>> _cookies = new List<Tuple<string, string>>();
+        private List<(string, string)> _cookies = new List<(string, string)>();
         // HTTP request body
         private int _bodyIndex;
         private int _bodySize;
@@ -641,7 +641,7 @@ namespace NetCoreServer
                         // Add a new header
                         string headerName = _cache.ExtractString(headerNameIndex, headerNameSize);
                         string headerValue = _cache.ExtractString(headerValueIndex, headerValueSize);
-                        _headers.Add(new Tuple<string, string>(headerName, headerValue));
+                        _headers.Add((headerName, headerValue));
 
                         // Try to find the body content length
                         if (string.Compare(headerName, "Content-Length", StringComparison.OrdinalIgnoreCase) == 0)
@@ -725,7 +725,7 @@ namespace NetCoreServer
                                         if ((nameSize > 0) && (cookieSize > 0))
                                         {
                                             // Add the cookie to the corresponding collection
-                                            _cookies.Add(new Tuple<string, string>(_cache.ExtractString(nameIndex, nameSize), _cache.ExtractString(cookieIndex, cookieSize)));
+                                            _cookies.Add((_cache.ExtractString(nameIndex, nameSize), _cache.ExtractString(cookieIndex, cookieSize)));
 
                                             // Resset the current cookie values
                                             nameIndex = j;
@@ -763,7 +763,7 @@ namespace NetCoreServer
                                 if ((nameSize > 0) && (cookieSize > 0))
                                 {
                                     // Add the cookie to the corresponding collection
-                                    _cookies.Add(new Tuple<string, string>(_cache.ExtractString(nameIndex, nameSize), _cache.ExtractString(cookieIndex, cookieSize)));
+                                    _cookies.Add((_cache.ExtractString(nameIndex, nameSize), _cache.ExtractString(cookieIndex, cookieSize)));
                                 }
                             }
                         }

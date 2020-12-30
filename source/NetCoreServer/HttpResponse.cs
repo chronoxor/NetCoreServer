@@ -67,11 +67,11 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP response header by index
         /// </summary>
-        public Tuple<string, string> Header(int i)
+        public (string, string) Header(int i)
         {
             Debug.Assert((i < _headers.Count), "Index out of bounds!");
             if (i >= _headers.Count)
-                return new Tuple<string, string>("", "");
+                return ("", "");
 
             return _headers[i];
         }
@@ -403,7 +403,7 @@ namespace NetCoreServer
             _cache.Append("\r\n");
 
             // Add the header to the corresponding collection
-            _headers.Add(new Tuple<string, string>(key, value));
+            _headers.Add((key, value));
             return this;
         }
 
@@ -457,7 +457,7 @@ namespace NetCoreServer
             _cache.Append("\r\n");
 
             // Add the header to the corresponding collection
-            _headers.Add(new Tuple<string, string>(key, cookie));
+            _headers.Add((key, cookie));
             return this;
         }
 
@@ -688,7 +688,7 @@ namespace NetCoreServer
         // HTTP response protocol
         private string _protocol;
         // HTTP response headers
-        private List<Tuple<string, string>> _headers = new List<Tuple<string, string>>();
+        private List<(string, string)> _headers = new List<(string, string)>();
         // HTTP response body
         private int _bodyIndex;
         private int _bodySize;
@@ -842,7 +842,7 @@ namespace NetCoreServer
                         // Add a new header
                         string headerName = _cache.ExtractString(headerNameIndex, headerNameSize);
                         string headerValue = _cache.ExtractString(headerValueIndex, headerValueSize);
-                        _headers.Add(new Tuple<string, string>(headerName, headerValue));
+                        _headers.Add((headerName, headerValue));
 
                         // Try to find the body content length
                         if (string.Compare(headerName, "Content-Length", StringComparison.OrdinalIgnoreCase) == 0)

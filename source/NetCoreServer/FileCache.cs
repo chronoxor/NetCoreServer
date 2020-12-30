@@ -88,15 +88,15 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>'true' and cache value if the cache value was found, 'false' if the given key was not found</returns>
-        public Tuple<bool, byte[]> Find(string key)
+        public (bool, byte[]) Find(string key)
         {
             lock (_lock)
             {
                 // Try to find the given key
                 if (!_entriesByKey.TryGetValue(key, out var cacheValue))
-                    return new Tuple<bool, byte[]>(false, new byte[0]);
+                    return (false, new byte[0]);
 
-                return new Tuple<bool, byte[]>(true, cacheValue.Value);
+                return (true, cacheValue.Value);
             }
         }
 
@@ -106,7 +106,7 @@ namespace NetCoreServer
         /// <param name="key">Key to find</param>
         /// <param name="timeout">Cache timeout value</param>
         /// <returns>'true' and cache value if the cache value was found, 'false' if the given key was not found</returns>
-        public Tuple<bool, byte[]> Find(string key, out DateTime timeout)
+        public (bool, byte[]) Find(string key, out DateTime timeout)
         {
             lock (_lock)
             {
@@ -114,11 +114,11 @@ namespace NetCoreServer
                 if (!_entriesByKey.TryGetValue(key, out var cacheValue))
                 {
                     timeout = new DateTime(0);
-                    return new Tuple<bool, byte[]>(false, new byte[0]);
+                    return (false, new byte[0]);
                 }
 
                 timeout = cacheValue.Timestamp + cacheValue.Timespan;
-                return new Tuple<bool, byte[]>(true, cacheValue.Value);
+                return (true, cacheValue.Value);
             }
         }
 
