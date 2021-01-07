@@ -5,7 +5,7 @@ dotnet: 5.0.100
 solution: NetCoreServer.sln
 
 # OS environment
-dist: focal
+dist: bionic
 
 # Build matrix (OS, compiler)
 matrix:
