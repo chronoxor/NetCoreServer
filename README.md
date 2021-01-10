@@ -2817,7 +2817,7 @@ If you want to save some time, download and run [Generate-Certs](https://github.
 and it will generate the certs for you in less than a minute.
 Supports Windows + Linux.
 
-If you'd rather enter in the commands to generate the cert manually,
+If you'd rather enter in the commands to generate the certificates manually,
 here is the list in order below.
 
 ## Certificate Authority
