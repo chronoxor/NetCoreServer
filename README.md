@@ -50,6 +50,8 @@ solution.
       * [HTTP Trace server](#http-trace-server)
       * [HTTPS Trace server](#https-trace-server)
   * [OpenSSL certificates](#openssl-certificates)
+    * [Production](#production)
+    * [Development](#development)
     * [Certificate Authority](#certificate-authority)
     * [SSL Server certificate](#ssl-server-certificate)
     * [SSL Client certificate](#ssl-client-certificate)
@@ -2801,15 +2803,22 @@ Message throughput: 50471 msg/s
 In order to create OpenSSL based server and client you should prepare a set of
 SSL certificates.
 
-## Testing / Development
-The commands below entered in the order they are listed will generate a self-signed certificate for development purposes.
-
-If you want to save some time, download and run [Generate-Certs](https://github.com/asheroto/NetCoreServer-Generate-Certs) and it will generate the certs for you in less than a minute.  Supports Windows + Linux.
-
-If you'd rather enter in the commands to generate the cert manually, here is the list in order:
-
 ## Production
-Depending on your project, you may need to purchase a traditional SSL certificate signed by a Certificate Authority. If you, for instance, want some else's web browser to talk to your WebSocket project, you'll need a traditional SSL certificate.
+Depending on your project, you may need to purchase a traditional SSL
+certificate signed by a Certificate Authority. If you, for instance,
+want some else's web browser to talk to your WebSocket project, you'll
+need a traditional SSL certificate.
+
+## Development
+The commands below entered in the order they are listed will generate a
+self-signed certificate for development or testing purposes.
+
+If you want to save some time, download and run [Generate-Certs](https://github.com/asheroto/NetCoreServer-Generate-Certs)
+and it will generate the certs for you in less than a minute.
+Supports Windows + Linux.
+
+If you'd rather enter in the commands to generate the cert manually,
+here is the list in order below.
 
 ## Certificate Authority
 
