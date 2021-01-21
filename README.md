@@ -2814,7 +2814,7 @@ need a traditional SSL certificate.
 The commands below entered in the order they are listed will generate a
 self-signed certificate for development or testing purposes.
 
-If you want to save some time, download and run [Generate-Certs](https://github.com/asheroto/NetCoreServer-Generate-Certs)
+If you want to save some time, download and run [Generate-Certs](https://github.com/asheroto/Generate-Certs)
 and it will generate the certs for you in less than a minute.
 Supports Windows + Linux.
 
