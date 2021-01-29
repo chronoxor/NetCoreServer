@@ -93,7 +93,7 @@ namespace WsMulticastServer
                 while (multicasting)
                 {
                     var start = DateTime.UtcNow;
-                    for (int i = 0; i < messagesRate; ++i)
+                    for (int i = 0; i < messagesRate; i++)
                         server.MulticastBinary(message, 0, message.Length);
                     var end = DateTime.UtcNow;
 

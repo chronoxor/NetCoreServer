@@ -21,7 +21,7 @@ namespace TcpMulticastClient
         protected override void OnError(SocketError error)
         {
             Console.WriteLine($"Client caught an error with code {error}");
-            ++Program.TotalErrors;
+            Program.TotalErrors++;
         }
     }
 
@@ -85,7 +85,7 @@ namespace TcpMulticastClient
 
             // Create multicast clients
             var multicastClients = new List<MulticastClient>();
-            for (int i = 0; i < clients; ++i)
+            for (int i = 0; i < clients; i++)
             {
                 var client = new MulticastClient(address, port);
                 // client.OptionNoDelay = true;

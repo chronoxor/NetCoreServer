@@ -20,7 +20,7 @@ namespace HttpsTraceClient
 
         protected override void OnHandshaked()
         {
-            for (long i = _messages; i > 0; --i)
+            for (long i = _messages; i > 0; i--)
                 SendMessage();
         }
         protected override void OnSent(long sent, long pending)
@@ -39,22 +39,24 @@ namespace HttpsTraceClient
 
         protected override void OnReceivedResponse(HttpResponse response)
         {
-            ++Program.TotalMessages;
+            if (response.Status == 200) 
+                Program.TotalMessages++;
+            else
+                Program.TotalErrors++;
             SendMessage();
         }
 
         protected override void OnReceivedResponseError(HttpResponse response, string error)
         {
             Console.WriteLine($"Response error: {error}");
-            ++Program.TotalErrors;
-
+            Program.TotalErrors++;
             SendMessage();
         }
 
         protected override void OnError(SocketError error)
         {
             Console.WriteLine($"Client caught an error with code {error}");
-            ++Program.TotalErrors;
+            Program.TotalErrors++;
         }
 
         private long _sent = 0;
@@ -120,7 +122,7 @@ namespace HttpsTraceClient
 
             // Create HTTPS clients
             var httpsClients = new List<HttpsTraceClient>();
-            for (int i = 0; i < clients; ++i)
+            for (int i = 0; i < clients; i++)
             {
                 var client = new HttpsTraceClient(context, address, port, messages);
                 // client.OptionNoDelay = true;

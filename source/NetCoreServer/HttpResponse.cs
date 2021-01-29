@@ -107,7 +107,7 @@ namespace NetCoreServer
             sb.AppendLine($"Status phrase: {StatusPhrase}");
             sb.AppendLine($"Protocol: {Protocol}");
             sb.AppendLine($"Headers: {Headers}");
-            for (int i = 0; i < Headers; ++i)
+            for (int i = 0; i < Headers; i++)
             {
                 var header = Header(i);
                 sb.AppendLine($"{header.Item1} : {header.Item2}");
@@ -716,7 +716,7 @@ namespace NetCoreServer
             _cache.Append(buffer, offset, size);
 
             // Try to seek for HTTP header separator
-            for (int i = _cacheSize; i < (int)_cache.Size; ++i)
+            for (int i = _cacheSize; i < (int)_cache.Size; i++)
             {
                 // Check for the request cache out of bounds
                 if ((i + 3) >= (int)_cache.Size)
@@ -735,12 +735,12 @@ namespace NetCoreServer
                     int protocolSize = 0;
                     while (_cache[index] != ' ')
                     {
-                        ++protocolSize;
-                        ++index;
+                        protocolSize++;
+                        index++;
                         if (index >= (int)_cache.Size)
                             return false;
                     }
-                    ++index;
+                    index++;
                     if ((index >= (int)_cache.Size))
                         return false;
                     _protocol = _cache.ExtractString(protocolIndex, protocolSize);
@@ -752,18 +752,18 @@ namespace NetCoreServer
                     {
                         if ((_cache[index] < '0') || (_cache[index] > '9'))
                             return false;
-                        ++statusSize;
-                        ++index;
+                        statusSize++;
+                        index++;
                         if (index >= (int)_cache.Size)
                             return false;
                     }
                     Status = 0;
-                    for (int j = statusIndex; j < (statusIndex + statusSize); ++j)
+                    for (int j = statusIndex; j < (statusIndex + statusSize); j++)
                     {
                         Status *= 10;
                         Status += _cache[j] - '0';
                     }
-                    ++index;
+                    index++;
                     if (index >= (int)_cache.Size)
                         return false;
 
@@ -772,15 +772,15 @@ namespace NetCoreServer
                     int statusPhraseSize = 0;
                     while (_cache[index] != '\r')
                     {
-                        ++statusPhraseSize;
-                        ++index;
+                        statusPhraseSize++;
+                        index++;
                         if (index >= (int)_cache.Size)
                             return false;
                     }
-                    ++index;
+                    index++;
                     if ((index >= (int)_cache.Size) || (_cache[index] != '\n'))
                         return false;
-                    ++index;
+                    index++;
                     if (index >= (int)_cache.Size)
                         return false;
                     _statusPhrase = _cache.ExtractString(statusPhraseIndex, statusPhraseSize);
@@ -793,14 +793,14 @@ namespace NetCoreServer
                         int headerNameSize = 0;
                         while (_cache[index] != ':')
                         {
-                            ++headerNameSize;
-                            ++index;
+                            headerNameSize++;
+                            index++;
                             if (index >= i)
                                 break;
                             if (index >= (int)_cache.Size)
                                 return false;
                         }
-                        ++index;
+                        index++;
                         if (index >= i)
                             break;
                         if (index >= (int)_cache.Size)
@@ -809,7 +809,7 @@ namespace NetCoreServer
                         // Skip all prefix space characters
                         while (char.IsWhiteSpace((char)_cache[index]))
                         {
-                            ++index;
+                            index++;
                             if (index >= i)
                                 break;
                             if (index >= (int)_cache.Size)
@@ -821,17 +821,17 @@ namespace NetCoreServer
                         int headerValueSize = 0;
                         while (_cache[index] != '\r')
                         {
-                            ++headerValueSize;
-                            ++index;
+                            headerValueSize++;
+                            index++;
                             if (index >= i)
                                 break;
                             if (index >= (int)_cache.Size)
                                 return false;
                         }
-                        ++index;
+                        index++;
                         if ((index >= (int)_cache.Size) || (_cache[index] != '\n'))
                             return false;
-                        ++index;
+                        index++;
                         if (index >= (int)_cache.Size)
                             return false;
 
@@ -848,7 +848,7 @@ namespace NetCoreServer
                         if (string.Compare(headerName, "Content-Length", StringComparison.OrdinalIgnoreCase) == 0)
                         {
                             _bodyLength = 0;
-                            for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); ++j)
+                            for (int j = headerValueIndex; j < (headerValueIndex + headerValueSize); j++)
                             {
                                 if ((_cache[j] < '0') || (_cache[j] > '9'))
                                     return false;

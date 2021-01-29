@@ -83,7 +83,7 @@ namespace UdpMulticastServer
                 while (multicasting)
                 {
                     var start = DateTime.UtcNow;
-                    for (int i = 0; i < messagesRate; ++i)
+                    for (int i = 0; i < messagesRate; i++)
                         server.Multicast(message);
                     var end = DateTime.UtcNow;
 

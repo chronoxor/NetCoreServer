@@ -31,7 +31,7 @@ namespace WssEchoClient
 
         public override void OnWsConnected(HttpResponse response)
         {
-            for (long i = _messages; i > 0; --i)
+            for (long i = _messages; i > 0; i--)
                 SendMessage();
         }
 
@@ -56,7 +56,7 @@ namespace WssEchoClient
         protected override void OnError(SocketError error)
         {
             Console.WriteLine($"Client caught an error with code {error}");
-            ++Program.TotalErrors;
+            Program.TotalErrors++;
         }
 
         public void SendMessage()
@@ -135,7 +135,7 @@ namespace WssEchoClient
 
             // Create echo clients
             var echoClients = new List<EchoClient>();
-            for (int i = 0; i < clients; ++i)
+            for (int i = 0; i < clients; i++)
             {
                 var client = new EchoClient(context, address, port, messages);
                 // client.OptionNoDelay = true;

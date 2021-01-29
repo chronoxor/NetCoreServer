@@ -20,7 +20,7 @@ namespace UdpEchoClient
             // Start receive datagrams
             ReceiveAsync();
 
-            for (long i = _messages; i > 0; --i)
+            for (long i = _messages; i > 0; i--)
                 SendMessage();
         }
 
@@ -28,7 +28,7 @@ namespace UdpEchoClient
         {
             Program.TimestampStop = DateTime.UtcNow;
             Program.TotalBytes += size;
-            ++Program.TotalMessages;
+            Program.TotalMessages++;
 
             // Continue receive datagrams
             // Important: Receive using thread pool is necessary here to avoid stack overflow with Socket.ReceiveFromAsync() method!
@@ -40,7 +40,7 @@ namespace UdpEchoClient
         protected override void OnError(SocketError error)
         {
             Console.WriteLine($"Client caught an error with code {error}");
-            ++Program.TotalErrors;
+            Program.TotalErrors++;
         }
 
         private void SendMessage()
@@ -114,7 +114,7 @@ namespace UdpEchoClient
 
             // Create echo clients
             var echoClients = new List<EchoClient>();
-            for (int i = 0; i < clients; ++i)
+            for (int i = 0; i < clients; i++)
             {
                 var client = new EchoClient(address, port, messages);
                 echoClients.Add(client);

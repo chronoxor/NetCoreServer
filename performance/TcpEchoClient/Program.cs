@@ -16,7 +16,7 @@ namespace TcpEchoClient
 
         protected override void OnConnected()
         {
-            for (long i = _messages; i > 0; --i)
+            for (long i = _messages; i > 0; i--)
                 SendMessage();
         }
 
@@ -41,7 +41,7 @@ namespace TcpEchoClient
         protected override void OnError(SocketError error)
         {
             Console.WriteLine($"Client caught an error with code {error}");
-            ++Program.TotalErrors;
+            Program.TotalErrors++;
         }
 
         private void SendMessage()
@@ -117,7 +117,7 @@ namespace TcpEchoClient
 
             // Create echo clients
             var echoClients = new List<EchoClient>();
-            for (int i = 0; i < clients; ++i)
+            for (int i = 0; i < clients; i++)
             {
                 var client = new EchoClient(address, port, messages);
                 // client.OptionNoDelay = true;

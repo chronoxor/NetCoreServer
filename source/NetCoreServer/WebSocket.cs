@@ -56,7 +56,7 @@ namespace NetCoreServer
             bool upgrade = false;
 
             // Validate WebSocket handshake headers
-            for (int i = 0; i < response.Headers; ++i)
+            for (int i = 0; i < response.Headers; i++)
             {
                 var header = response.Header(i);
                 var key = header.Item1;
@@ -145,7 +145,7 @@ namespace NetCoreServer
             string accept = "";
 
             // Validate WebSocket handshake headers
-            for (int i = 0; i < request.Headers; ++i)
+            for (int i = 0; i < request.Headers; i++)
             {
                 var header = request.Header(i);
                 var key = header.Item1;
@@ -272,7 +272,7 @@ namespace NetCoreServer
             else
             {
                 WsSendBuffer.Add((byte)(127 | (mask ? 0x80 : 0)));
-                for (int i = 7; i >= 0; --i)
+                for (int i = 7; i >= 0; i--)
                     WsSendBuffer.Add((byte)((size >> (8 * i)) & 0xFF));
             }
 
@@ -290,7 +290,7 @@ namespace NetCoreServer
             WsSendBuffer.AddRange(new byte[size]);
 
             // Mask WebSocket frame content
-            for (int i = 0; i < size; ++i)
+            for (int i = 0; i < size; i++)
                 WsSendBuffer[bufferOffset + i] = (byte) (buffer[offset + i] ^ WsSendMask[i % 4]);
         }
 
@@ -331,7 +331,7 @@ namespace NetCoreServer
                     // Prepare WebSocket frame opcode and mask flag
                     if (WsReceiveBuffer.Count < 2)
                     {
-                        for (int i = 0; i < 2; ++i, ++index, --size)
+                        for (int i = 0; i < 2; i++, index++, size--)
                         {
                             if (size == 0)
                                 return;
@@ -355,7 +355,7 @@ namespace NetCoreServer
                     {
                         if (WsReceiveBuffer.Count < 4)
                         {
-                            for (int i = 0; i < 2; ++i, ++index, --size)
+                            for (int i = 0; i < 2; i++, index++, size--)
                             {
                                 if (size == 0)
                                     return;
@@ -372,7 +372,7 @@ namespace NetCoreServer
                     {
                         if (WsReceiveBuffer.Count < 10)
                         {
-                            for (int i = 0; i < 8; ++i, ++index, --size)
+                            for (int i = 0; i < 8; i++, index++, size--)
                             {
                                 if (size == 0)
                                     return;
@@ -391,7 +391,7 @@ namespace NetCoreServer
                     {
                         if (WsReceiveBuffer.Count < WsHeaderSize)
                         {
-                            for (int i = 0; i < 4; ++i, ++index, --size)
+                            for (int i = 0; i < 4; i++, index++, size--)
                             {
                                 if (size == 0)
                                     return;
@@ -416,7 +416,7 @@ namespace NetCoreServer
 
                         // Unmask WebSocket frame content
                         if (mask)
-                            for (int i = 0; i < WsPayloadSize; ++i)
+                            for (int i = 0; i < WsPayloadSize; i++)
                                 WsReceiveBuffer[bufferOffset + i] ^= WsReceiveMask[i % 4];
 
                         WsReceived = true;

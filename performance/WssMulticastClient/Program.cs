@@ -36,7 +36,7 @@ namespace WssMulticastClient
         protected override void OnError(SocketError error)
         {
             Console.WriteLine($"Client caught an error with code {error}");
-            ++Program.TotalErrors;
+            Program.TotalErrors++;
         }
     }
 
@@ -103,7 +103,7 @@ namespace WssMulticastClient
 
             // Create multicast clients
             var multicastClients = new List<MulticastClient>();
-            for (int i = 0; i < clients; ++i)
+            for (int i = 0; i < clients; i++)
             {
                 var client = new MulticastClient(context, address, port);
                 // client.OptionNoDelay = true;
