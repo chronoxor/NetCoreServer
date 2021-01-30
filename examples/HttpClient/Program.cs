@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Net;
 using NetCoreServer;
 
 namespace HttpClient
@@ -8,7 +10,7 @@ namespace HttpClient
         static void Main(string[] args)
         {
             // HTTP server address
-            string address = "127.0.0.1";
+            string address = "localhost";
             if (args.Length > 0)
                 address = args[0];
 
@@ -23,7 +25,7 @@ namespace HttpClient
             Console.WriteLine();
 
             // Create a new HTTP client
-            var client = new HttpClientEx(address, port);
+            var client = new HttpClientEx(Dns.GetHostAddresses(address).FirstOrDefault(), port);
 
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
 

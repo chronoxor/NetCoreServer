@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using NetCoreServer;
@@ -10,7 +12,7 @@ namespace HttpsClient
         static void Main(string[] args)
         {
             // HTTPS server address
-            string address = "127.0.0.1";
+            string address = "localhost";
             if (args.Length > 0)
                 address = args[0];
 
@@ -28,7 +30,7 @@ namespace HttpsClient
             var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
 
             // Create a new HTTPS client
-            var client = new HttpsClientEx(context, address, port);
+            var client = new HttpsClientEx(context, Dns.GetHostAddresses(address).FirstOrDefault(), port);
 
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
 
