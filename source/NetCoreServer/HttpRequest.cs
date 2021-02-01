@@ -819,6 +819,19 @@ namespace NetCoreServer
                     _bodySize = 0;
                     return true;
                 }
+
+                // Check the body content to find the request body end
+                if (_bodySize >= 4)
+                {
+                    int index = _bodyIndex + _bodySize - 4;
+
+                    // Was the body fully received?
+                    if ((_cache[index + 0] == '\r') && (_cache[index + 1] == '\n') && (_cache[index + 2] == '\r') && (_cache[index + 3] == '\n'))
+                    {
+                        _bodyLength = _bodySize;
+                        return true;
+                    }
+                }
             }
 
             // Body was received partially...
