@@ -349,7 +349,7 @@ namespace NetCoreServer
                     {
                         WsHeaderSize = 2 + (mask ? 4 : 0);
                         WsPayloadSize = payload;
-                    WsReceiveBuffer.Capacity = WsHeaderSize + WsPayloadSize;
+                        WsReceiveBuffer.Capacity = WsHeaderSize + WsPayloadSize;
                     }
                     else if (payload == 126)
                     {
@@ -366,7 +366,7 @@ namespace NetCoreServer
                         payload = ((WsReceiveBuffer[2] << 8) | (WsReceiveBuffer[3] << 0));
                         WsHeaderSize = 4 + (mask ? 4 : 0);
                         WsPayloadSize = payload;
-                    WsReceiveBuffer.Capacity = WsHeaderSize + WsPayloadSize;
+                        WsReceiveBuffer.Capacity = WsHeaderSize + WsPayloadSize;
                     }
                     else if (payload == 127)
                     {
@@ -383,7 +383,7 @@ namespace NetCoreServer
                         payload = ((WsReceiveBuffer[2] << 56) | (WsReceiveBuffer[3] << 48) | (WsReceiveBuffer[4] << 40) | (WsReceiveBuffer[5] << 32) | (WsReceiveBuffer[6] << 24) | (WsReceiveBuffer[7] << 16) | (WsReceiveBuffer[8] << 8) | (WsReceiveBuffer[9] << 0));
                         WsHeaderSize = 10 + (mask ? 4 : 0);
                         WsPayloadSize = payload;
-                    WsReceiveBuffer.Capacity = WsHeaderSize + WsPayloadSize;
+                        WsReceiveBuffer.Capacity = WsHeaderSize + WsPayloadSize;
                     }
 
                     // Prepare WebSocket frame mask
