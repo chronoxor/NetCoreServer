@@ -165,16 +165,19 @@ namespace NetCoreServer
             {
                 // Close the client socket
                 Socket.Close();
+
+                // Call the client disconnected handler
+                SendError(ex.SocketErrorCode);
+                OnDisconnected();
+
                 // Dispose the client socket
                 Socket.Dispose();
+
                 // Dispose event arguments
                 _connectEventArg.Dispose();
                 _receiveEventArg.Dispose();
                 _sendEventArg.Dispose();
 
-                // Call the client disconnected handler
-                SendError(ex.SocketErrorCode);
-                OnDisconnected();
                 return false;
             }
 
@@ -242,6 +245,19 @@ namespace NetCoreServer
                 // Close the client socket
                 Socket.Close();
 
+                // Update the connected flag
+                IsConnected = false;
+
+                // Update sending/receiving flags
+                _receiving = false;
+                _sending = false;
+
+                // Clear send/receive buffers
+                ClearBuffers();
+
+                // Call the client disconnected handler
+                OnDisconnected();
+
                 // Dispose the client socket
                 Socket.Dispose();
 
@@ -254,19 +270,6 @@ namespace NetCoreServer
                 IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
-
-            // Update the connected flag
-            IsConnected = false;
-
-            // Update sending/receiving flags
-            _receiving = false;
-            _sending = false;
-
-            // Clear send/receive buffers
-            ClearBuffers();
-
-            // Call the client disconnected handler
-            OnDisconnected();
 
             return true;
         }

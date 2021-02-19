@@ -153,6 +153,25 @@ namespace NetCoreServer
                 // Close the session socket
                 Socket.Close();
 
+                // Update the connected flag
+                IsConnected = false;
+
+                // Update sending/receiving flags
+                _receiving = false;
+                _sending = false;
+
+                // Clear send/receive buffers
+                ClearBuffers();
+
+                // Call the session disconnected handler
+                OnDisconnected();
+
+                // Call the session disconnected handler in the server
+                Server.OnDisconnectedInternal(this);
+
+                // Unregister session
+                Server.UnregisterSession(Id);
+
                 // Dispose the session socket
                 Socket.Dispose();
 
@@ -164,25 +183,6 @@ namespace NetCoreServer
                 IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
-
-            // Update the connected flag
-            IsConnected = false;
-
-            // Update sending/receiving flags
-            _receiving = false;
-            _sending = false;
-
-            // Clear send/receive buffers
-            ClearBuffers();
-
-            // Call the session disconnected handler
-            OnDisconnected();
-
-            // Call the session disconnected handler in the server
-            Server.OnDisconnectedInternal(this);
-
-            // Unregister session
-            Server.UnregisterSession(Id);
 
             return true;
         }

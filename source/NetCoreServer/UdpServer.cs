@@ -236,6 +236,19 @@ namespace NetCoreServer
                 // Close the server socket
                 Socket.Close();
 
+                // Update the started flag
+                IsStarted = false;
+
+                // Update sending/receiving flags
+                _receiving = false;
+                _sending = false;
+
+                // Clear send/receive buffers
+                ClearBuffers();
+
+                // Call the server stopped handler
+                OnStopped();
+
                 // Dispose the server socket
                 Socket.Dispose();
 
@@ -244,22 +257,9 @@ namespace NetCoreServer
                 _sendEventArg.Dispose();
 
                 // Update the server socket disposed flag
-                IsSocketDisposed = false;
+                IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
-
-            // Update the started flag
-            IsStarted = false;
-
-            // Update sending/receiving flags
-            _receiving = false;
-            _sending = false;
-
-            // Clear send/receive buffers
-            ClearBuffers();
-
-            // Call the server stopped handler
-            OnStopped();
 
             return true;
         }

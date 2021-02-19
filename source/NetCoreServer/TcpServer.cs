@@ -216,26 +216,30 @@ namespace NetCoreServer
             // Reset acceptor event arg
             _acceptorEventArg.Completed -= OnAsyncCompleted;
 
-            // Close the acceptor socket
-            _acceptorSocket.Close();
+            try
+            {
+                // Close the acceptor socket
+                _acceptorSocket.Close();
 
-            // Dispose the acceptor socket
-            _acceptorSocket.Dispose();
+                // Disconnect all sessions
+                DisconnectAll();
 
-            // Dispose event arguments
-            _acceptorEventArg.Dispose();
+                // Update the started flag
+                IsStarted = false;
 
-            // Update the acceptor socket disposed flag
-            IsSocketDisposed = true;
+                // Call the server stopped handler
+                OnStopped();
 
-            // Disconnect all sessions
-            DisconnectAll();
+                // Dispose the acceptor socket
+                _acceptorSocket.Dispose();
 
-            // Update the started flag
-            IsStarted = false;
+                // Dispose event arguments
+                _acceptorEventArg.Dispose();
 
-            // Call the server stopped handler
-            OnStopped();
+                // Update the acceptor socket disposed flag
+                IsSocketDisposed = true;
+            }
+            catch (ObjectDisposedException) {}
 
             return true;
         }
