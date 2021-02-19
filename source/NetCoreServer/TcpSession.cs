@@ -111,6 +111,12 @@ namespace NetCoreServer
             BytesSent = 0;
             BytesReceived = 0;
 
+            // Call the session connecting handler
+            OnConnecting();
+
+            // Call the session connecting handler in the server
+            Server.OnConnectingInternal(this);
+
             // Update the connected flag
             IsConnected = true;
 
@@ -140,6 +146,12 @@ namespace NetCoreServer
             // Reset event args
             _receiveEventArg.Completed -= OnAsyncCompleted;
             _sendEventArg.Completed -= OnAsyncCompleted;
+
+            // Call the session disconnecting handler
+            OnDisconnecting();
+
+            // Call the session disconnecting handler in the server
+            Server.OnDisconnectingInternal(this);
 
             try
             {
@@ -485,6 +497,9 @@ namespace NetCoreServer
         /// </summary>
         private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
+            if (IsSocketDisposed)
+                return;
+
             // Determine which type of operation just completed and call the associated handler
             switch (e.LastOperation)
             {
@@ -596,9 +611,17 @@ namespace NetCoreServer
         #region Session handlers
 
         /// <summary>
+        /// Handle client connecting notification
+        /// </summary>
+        protected virtual void OnConnecting() {}
+        /// <summary>
         /// Handle client connected notification
         /// </summary>
         protected virtual void OnConnected() {}
+        /// <summary>
+        /// Handle client disconnecting notification
+        /// </summary>
+        protected virtual void OnDisconnecting() {}
         /// <summary>
         /// Handle client disconnected notification
         /// </summary>

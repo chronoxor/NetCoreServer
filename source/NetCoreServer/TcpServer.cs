@@ -179,6 +179,10 @@ namespace NetCoreServer
             _acceptorSocket.Bind(Endpoint);
             // Refresh the endpoint property based on the actual endpoint created
             Endpoint = (IPEndPoint)_acceptorSocket.LocalEndPoint;
+
+            // Call the server starting handler
+            OnStarting();
+
             // Start listen to the acceptor socket with the given accepting backlog size
             _acceptorSocket.Listen(OptionAcceptorBacklog);
 
@@ -216,17 +220,24 @@ namespace NetCoreServer
             // Reset acceptor event arg
             _acceptorEventArg.Completed -= OnAsyncCompleted;
 
-            // Close the acceptor socket
-            _acceptorSocket.Close();
+            // Call the server stopping handler
+            OnStopping();
 
-            // Dispose the acceptor socket
-            _acceptorSocket.Dispose();
+            try
+            {
+                // Close the acceptor socket
+                _acceptorSocket.Close();
 
-            // Dispose event arguments
-            _acceptorEventArg.Dispose();
+                // Dispose the acceptor socket
+                _acceptorSocket.Dispose();
 
-            // Update the acceptor socket disposed flag
-            IsSocketDisposed = true;
+                // Dispose event arguments
+                _acceptorEventArg.Dispose();
+
+                // Update the acceptor socket disposed flag
+                IsSocketDisposed = true;
+            }
+            catch (ObjectDisposedException) {}
 
             // Disconnect all sessions
             DisconnectAll();
@@ -302,6 +313,9 @@ namespace NetCoreServer
         /// </summary>
         private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
+            if (IsSocketDisposed)
+                return;
+
             ProcessAccept(e);
         }
 
@@ -414,19 +428,37 @@ namespace NetCoreServer
         #region Server handlers
 
         /// <summary>
+        /// Handle server starting notification
+        /// </summary>
+        protected virtual void OnStarting() {}
+        /// <summary>
         /// Handle server started notification
         /// </summary>
         protected virtual void OnStarted() {}
+        /// <summary>
+        /// Handle server stopping notification
+        /// </summary>
+        protected virtual void OnStopping() {}
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
         protected virtual void OnStopped() {}
 
         /// <summary>
+        /// Handle session connecting notification
+        /// </summary>
+        /// <param name="session">Connecting session</param>
+        protected virtual void OnConnecting(TcpSession session) {}
+        /// <summary>
         /// Handle session connected notification
         /// </summary>
         /// <param name="session">Connected session</param>
         protected virtual void OnConnected(TcpSession session) {}
+        /// <summary>
+        /// Handle session disconnecting notification
+        /// </summary>
+        /// <param name="session">Disconnecting session</param>
+        protected virtual void OnDisconnecting(TcpSession session) {}
         /// <summary>
         /// Handle session disconnected notification
         /// </summary>
@@ -439,7 +471,9 @@ namespace NetCoreServer
         /// <param name="error">Socket error code</param>
         protected virtual void OnError(SocketError error) {}
 
+        internal void OnConnectingInternal(TcpSession session) { OnConnecting(session); }
         internal void OnConnectedInternal(TcpSession session) { OnConnected(session); }
+        internal void OnDisconnectingInternal(TcpSession session) { OnDisconnecting(session); }
         internal void OnDisconnectedInternal(TcpSession session) { OnDisconnected(session); }
 
         #endregion

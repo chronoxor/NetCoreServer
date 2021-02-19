@@ -167,6 +167,9 @@ namespace NetCoreServer
             // Refresh the endpoint property based on the actual endpoint created
             Endpoint = (IPEndPoint)Socket.LocalEndPoint;
 
+            // Call the server starting handler
+            OnStarting();
+
             // Prepare receive endpoint
             _receiveEndpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any, 0);
 
@@ -231,6 +234,9 @@ namespace NetCoreServer
             _receiveEventArg.Completed -= OnAsyncCompleted;
             _sendEventArg.Completed -= OnAsyncCompleted;
 
+            // Call the server stopping handler
+            OnStopping();
+
             try
             {
                 // Close the server socket
@@ -244,7 +250,7 @@ namespace NetCoreServer
                 _sendEventArg.Dispose();
 
                 // Update the server socket disposed flag
-                IsSocketDisposed = false;
+                IsSocketDisposed = true;
             }
             catch (ObjectDisposedException) {}
 
@@ -603,6 +609,9 @@ namespace NetCoreServer
         /// </summary>
         private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
+            if (IsSocketDisposed)
+                return;
+
             // Determine which type of operation just completed and call the associated handler
             switch (e.LastOperation)
             {
@@ -697,9 +706,17 @@ namespace NetCoreServer
         #region Datagram handlers
 
         /// <summary>
+        /// Handle server starting notification
+        /// </summary>
+        protected virtual void OnStarting() {}
+        /// <summary>
         /// Handle server started notification
         /// </summary>
         protected virtual void OnStarted() {}
+        /// <summary>
+        /// Handle server stopping notification
+        /// </summary>
+        protected virtual void OnStopping() {}
         /// <summary>
         /// Handle server stopped notification
         /// </summary>

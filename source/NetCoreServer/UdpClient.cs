@@ -160,13 +160,46 @@ namespace NetCoreServer
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
 
-            // Bind the acceptor socket to the IP endpoint
-            if (OptionMulticast)
-                Socket.Bind(Endpoint);
-            else
+            // Call the client connecting handler
+            OnConnecting();
+
+            try
             {
-                var endpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any, 0);
-                Socket.Bind(endpoint);
+                // Bind the acceptor socket to the IP endpoint
+                if (OptionMulticast)
+                    Socket.Bind(Endpoint);
+                else
+                {
+                    var endpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any, 0);
+                    Socket.Bind(endpoint);
+                }
+            }
+            catch (SocketException ex)
+            {
+                // Call the client error handler
+                SendError(ex.SocketErrorCode);
+
+                // Reset event args
+                _receiveEventArg.Completed -= OnAsyncCompleted;
+                _sendEventArg.Completed -= OnAsyncCompleted;
+
+                // Call the client disconnecting handler
+                OnDisconnecting();
+
+                // Close the client socket
+                Socket.Close();
+
+                // Dispose the client socket
+                Socket.Dispose();
+
+                // Dispose event arguments
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
+
+                // Call the client disconnected handler
+                OnDisconnected();
+
+                return false;
             }
 
             // Prepare receive endpoint
@@ -204,6 +237,9 @@ namespace NetCoreServer
             // Reset event args
             _receiveEventArg.Completed -= OnAsyncCompleted;
             _sendEventArg.Completed -= OnAsyncCompleted;
+
+            // Call the client disconnecting handler
+            OnDisconnecting();
 
             try
             {
@@ -610,6 +646,9 @@ namespace NetCoreServer
         /// </summary>
         private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
+            if (IsSocketDisposed)
+                return;
+
             // Determine which type of operation just completed and call the associated handler
             switch (e.LastOperation)
             {
@@ -698,9 +737,17 @@ namespace NetCoreServer
         #region Session handlers
 
         /// <summary>
+        /// Handle client connecting notification
+        /// </summary>
+        protected virtual void OnConnecting() {}
+        /// <summary>
         /// Handle client connected notification
         /// </summary>
         protected virtual void OnConnected() {}
+        /// <summary>
+        /// Handle client disconnecting notification
+        /// </summary>
+        protected virtual void OnDisconnecting() {}
         /// <summary>
         /// Handle client disconnected notification
         /// </summary>

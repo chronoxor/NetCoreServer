@@ -333,6 +333,12 @@ namespace NetCoreServer
                 SendAsync(Request.Cache.Data);
         }
 
+        protected override void OnDisconnecting()
+        {
+            if (WebSocket.WsHandshaked)
+                OnWsDisconnecting();
+        }
+
         protected override void OnDisconnected()
         {
             // Disconnect WebSocket
@@ -411,88 +417,18 @@ namespace NetCoreServer
 
         #region Web socket handlers
 
-        /// <summary>
-        /// Handle WebSocket client connecting notification
-        /// </summary>
-        /// <remarks>Notification is called when WebSocket client is connecting to the server.You can handle the connection and change WebSocket upgrade HTTP request by providing your own headers.</remarks>
-        /// <param name="request">WebSocket upgrade HTTP request</param>
         public virtual void OnWsConnecting(HttpRequest request) {}
-
-        /// <summary>
-        /// Handle WebSocket client connected notification
-        /// </summary>
-        /// <param name="response">WebSocket upgrade HTTP response</param>
         public virtual void OnWsConnected(HttpResponse response) {}
-
-        /// <summary>
-        /// Handle WebSocket server session validating notification
-        /// </summary>
-        /// <remarks>Notification is called when WebSocket client is connecting to the server.You can handle the connection and validate WebSocket upgrade HTTP request.</remarks>
-        /// <param name="request">WebSocket upgrade HTTP request</param>
-        /// <param name="response">WebSocket upgrade HTTP response</param>
-        /// <returns>return 'true' if the WebSocket update request is valid, 'false' if the WebSocket update request is not valid</returns>
         public virtual bool OnWsConnecting(HttpRequest request, HttpResponse response) { return true; }
-
-        /// <summary>
-        /// Handle WebSocket server session connected notification
-        /// </summary>
-        /// <param name="request">WebSocket upgrade HTTP request</param>
         public virtual void OnWsConnected(HttpRequest request) {}
-
-        /// <summary>
-        /// Handle WebSocket client disconnected notification
-        /// </summary>
+        public virtual void OnWsDisconnecting() {}
         public virtual void OnWsDisconnected() {}
-
-        /// <summary>
-        /// Handle WebSocket received notification
-        /// </summary>
-        /// <param name="buffer">Received buffer</param>
-        /// <param name="offset">Received buffer offset</param>
-        /// <param name="size">Received buffer size</param>
         public virtual void OnWsReceived(byte[] buffer, long offset, long size) {}
-
-        /// <summary>
-        /// Handle WebSocket client close notification
-        /// </summary>
-        /// <param name="buffer">Received buffer</param>
-        /// <param name="offset">Received buffer offset</param>
-        /// <param name="size">Received buffer size</param>
         public virtual void OnWsClose(byte[] buffer, long offset, long size) { CloseAsync(1000); }
-
-        /// <summary>
-        /// Handle WebSocket ping notification
-        /// </summary>
-        /// <param name="buffer">Received buffer</param>
-        /// <param name="offset">Received buffer offset</param>
-        /// <param name="size">Received buffer size</param>
         public virtual void OnWsPing(byte[] buffer, long offset, long size) { SendPongAsync(buffer, offset, size); }
-
-        /// <summary>
-        /// Handle WebSocket pong notification
-        /// </summary>
-        /// <param name="buffer">Received buffer</param>
-        /// <param name="offset">Received buffer offset</param>
-        /// <param name="size">Received buffer size</param>
         public virtual void OnWsPong(byte[] buffer, long offset, long size) {}
-
-        /// <summary>
-        /// Handle WebSocket error notification
-        /// </summary>
-        /// <param name="error">Error message</param>
         public virtual void OnWsError(string error) { OnError(SocketError.SocketError); }
-
-        /// <summary>
-        /// Handle socket error notification
-        /// </summary>
-        /// <param name="error">Socket error</param>
         public virtual void OnWsError(SocketError error) { OnError(error); }
-
-        /// <summary>
-        /// Send WebSocket server upgrade response
-        /// </summary>
-        /// <param name="response">WebSocket upgrade HTTP response</param>
-        public virtual void SendResponse(HttpResponse response) {}
 
         #endregion
 

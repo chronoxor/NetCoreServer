@@ -7,10 +7,9 @@ namespace NetCoreServer
         /// <summary>
         /// Handle WebSocket client connecting notification
         /// </summary>
-        /// <remarks>Notification is called when WebSocket client is connecting to the server.You can handle the connection and change WebSocket upgrade HTTP request by providing your own headers.</remarks>
+        /// <remarks>Notification is called when WebSocket client is connecting to the server. You can handle the connection and change WebSocket upgrade HTTP request by providing your own headers.</remarks>
         /// <param name="request">WebSocket upgrade HTTP request</param>
         void OnWsConnecting(HttpRequest request) {}
-
         /// <summary>
         /// Handle WebSocket client connected notification
         /// </summary>
@@ -20,18 +19,21 @@ namespace NetCoreServer
         /// <summary>
         /// Handle WebSocket server session validating notification
         /// </summary>
-        /// <remarks>Notification is called when WebSocket client is connecting to the server.You can handle the connection and validate WebSocket upgrade HTTP request.</remarks>
+        /// <remarks>Notification is called when WebSocket client is connecting to the server. You can handle the connection and validate WebSocket upgrade HTTP request.</remarks>
         /// <param name="request">WebSocket upgrade HTTP request</param>
         /// <param name="response">WebSocket upgrade HTTP response</param>
         /// <returns>return 'true' if the WebSocket update request is valid, 'false' if the WebSocket update request is not valid</returns>
         bool OnWsConnecting(HttpRequest request, HttpResponse response) { return true; }
-
         /// <summary>
         /// Handle WebSocket server session connected notification
         /// </summary>
         /// <param name="request">WebSocket upgrade HTTP request</param>
         void OnWsConnected(HttpRequest request) {}
 
+        /// <summary>
+        /// Handle WebSocket client disconnecting notification
+        /// </summary>
+        void OnWsDisconnecting() {}
         /// <summary>
         /// Handle WebSocket client disconnected notification
         /// </summary>
@@ -85,6 +87,6 @@ namespace NetCoreServer
         /// Send WebSocket server upgrade response
         /// </summary>
         /// <param name="response">WebSocket upgrade HTTP response</param>
-        void SendResponse(HttpResponse response) {}
+        void SendUpgrade(HttpResponse response) {}
     }
 }

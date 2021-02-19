@@ -114,6 +114,12 @@ namespace NetCoreServer
             BytesSent = 0;
             BytesReceived = 0;
 
+            // Call the session connecting handler
+            OnConnecting();
+
+            // Call the session connecting handler in the server
+            Server.OnConnectingInternal(this);
+
             // Update the connected flag
             IsConnected = true;
 
@@ -128,6 +134,12 @@ namespace NetCoreServer
                 // Create SSL stream
                 _sslStreamId = Guid.NewGuid();
                 _sslStream = (Server.Context.CertificateValidationCallback != null) ? new SslStream(new NetworkStream(Socket, false), false, Server.Context.CertificateValidationCallback) : new SslStream(new NetworkStream(Socket, false), false);
+
+                // Call the session handshaking handler
+                OnHandshaking();
+
+                // Call the session handshaking handler in the server
+                Server.OnHandshakingInternal(this);
 
                 // Begin the SSL handshake
                 _sslStream.BeginAuthenticateAsServer(Server.Context.Certificate, Server.Context.ClientCertificateRequired, Server.Context.Protocols, false, ProcessHandshake, _sslStreamId);
@@ -153,6 +165,12 @@ namespace NetCoreServer
 
             // Update the disconnecting flag
             _disconnecting = true;
+
+            // Call the session disconnecting handler
+            OnDisconnecting();
+
+            // Call the session disconnecting handler in the server
+            Server.OnDisconnectingInternal(this);
 
             try
             {
@@ -646,13 +664,25 @@ namespace NetCoreServer
         #region Session handlers
 
         /// <summary>
+        /// Handle client connecting notification
+        /// </summary>
+        protected virtual void OnConnecting() {}
+        /// <summary>
         /// Handle client connected notification
         /// </summary>
         protected virtual void OnConnected() {}
         /// <summary>
+        /// Handle client handshaking notification
+        /// </summary>
+        protected virtual void OnHandshaking() {}
+        /// <summary>
         /// Handle client handshaked notification
         /// </summary>
         protected virtual void OnHandshaked() {}
+        /// <summary>
+        /// Handle client disconnecting notification
+        /// </summary>
+        protected virtual void OnDisconnecting() {}
         /// <summary>
         /// Handle client disconnected notification
         /// </summary>

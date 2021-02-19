@@ -216,7 +216,7 @@ namespace NetCoreServer
             {
                 if (!error)
                     response.MakeErrorResponse("Invalid WebSocket response", 400);
-                _wsHandler.SendResponse(response);
+                _wsHandler.SendUpgrade(response);
                 return false;
             }
 
@@ -233,7 +233,7 @@ namespace NetCoreServer
                 return false;
 
             // Send WebSocket upgrade response
-            _wsHandler.SendResponse(response);
+            _wsHandler.SendUpgrade(response);
 
             // WebSocket successfully handshaked!
             WsHandshaked = true;

@@ -156,6 +156,9 @@ namespace NetCoreServer
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
 
+            // Call the client connecting handler
+            OnConnecting();
+
             try
             {
                 // Connect to the server
@@ -163,18 +166,31 @@ namespace NetCoreServer
             }
             catch (SocketException ex)
             {
+                // Call the client error handler
+                SendError(ex.SocketErrorCode);
+
+                // Reset event args
+                _connectEventArg.Completed -= OnAsyncCompleted;
+                _receiveEventArg.Completed -= OnAsyncCompleted;
+                _sendEventArg.Completed -= OnAsyncCompleted;
+
+                // Call the client disconnecting handler
+                OnDisconnecting();
+
                 // Close the client socket
                 Socket.Close();
+
                 // Dispose the client socket
                 Socket.Dispose();
+
                 // Dispose event arguments
                 _connectEventArg.Dispose();
                 _receiveEventArg.Dispose();
                 _sendEventArg.Dispose();
 
                 // Call the client disconnected handler
-                SendError(ex.SocketErrorCode);
                 OnDisconnected();
+
                 return false;
             }
 
@@ -229,6 +245,9 @@ namespace NetCoreServer
             _connectEventArg.Completed -= OnAsyncCompleted;
             _receiveEventArg.Completed -= OnAsyncCompleted;
             _sendEventArg.Completed -= OnAsyncCompleted;
+
+            // Call the client disconnecting handler
+            OnDisconnecting();
 
             try
             {
@@ -313,8 +332,13 @@ namespace NetCoreServer
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
 
-            // Async connect to the server
+            // Update the connecting flag
             IsConnecting = true;
+
+            // Call the client connecting handler
+            OnConnecting();
+
+            // Async connect to the server
             if (!Socket.ConnectAsync(_connectEventArg))
                 ProcessConnect(_connectEventArg);
 
@@ -638,6 +662,9 @@ namespace NetCoreServer
         /// </summary>
         private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
+            if (IsSocketDisposed)
+                return;
+
             // Determine which type of operation just completed and call the associated handler
             switch (e.LastOperation)
             {
@@ -798,9 +825,17 @@ namespace NetCoreServer
         #region Session handlers
 
         /// <summary>
+        /// Handle client connecting notification
+        /// </summary>
+        protected virtual void OnConnecting() {}
+        /// <summary>
         /// Handle client connected notification
         /// </summary>
         protected virtual void OnConnected() {}
+        /// <summary>
+        /// Handle client disconnecting notification
+        /// </summary>
+        protected virtual void OnDisconnecting() {}
         /// <summary>
         /// Handle client disconnected notification
         /// </summary>
