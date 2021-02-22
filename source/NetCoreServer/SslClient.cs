@@ -174,6 +174,9 @@ namespace NetCoreServer
             // Create a new client socket
             Socket = CreateSocket();
 
+            // Update the client socket disposed flag
+            IsSocketDisposed = false;
+
             // Apply the option: dual mode (this option must be applied before connecting)
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
@@ -211,9 +214,6 @@ namespace NetCoreServer
 
                 return false;
             }
-
-            // Update the client socket disposed flag
-            IsSocketDisposed = false;
 
             // Apply the option: keep alive
             if (OptionKeepAlive)
@@ -389,6 +389,9 @@ namespace NetCoreServer
 
             // Create a new client socket
             Socket = CreateSocket();
+
+            // Update the client socket disposed flag
+            IsSocketDisposed = false;
 
             // Apply the option: dual mode (this option must be applied before connecting)
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
