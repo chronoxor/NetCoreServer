@@ -496,7 +496,7 @@ namespace NetCoreServer
             _sendEndpoint = endpoint;
 
             // Try to send the main buffer
-            Task.Factory.StartNew(TrySend);
+            TrySend();
 
             return true;
         }

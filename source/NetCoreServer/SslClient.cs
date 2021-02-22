@@ -532,7 +532,7 @@ namespace NetCoreServer
                     _sending = true;
 
                 // Try to send the main buffer
-                Task.Factory.StartNew(TrySend);
+                TrySend();
             }
 
             return true;
