@@ -156,7 +156,7 @@ namespace NetCoreServer
                     if ((string.Compare(value, "Upgrade", StringComparison.OrdinalIgnoreCase) != 0) && (string.Compare(value, "keep-alive, Upgrade", StringComparison.OrdinalIgnoreCase) != 0))
                     {
                         error = true;
-                        response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Connection' header value must be 'Upgrade' or 'keep-alive, Upgrade'", 400);
+                        response.MakeErrorResponse(400, "Invalid WebSocket handshaked request: 'Connection' header value must be 'Upgrade' or 'keep-alive, Upgrade'");
                         break;
                     }
 
@@ -167,7 +167,7 @@ namespace NetCoreServer
                     if (string.Compare(value, "websocket", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
-                        response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Upgrade' header value must be 'websocket'", 400);
+                        response.MakeErrorResponse(400, "Invalid WebSocket handshaked request: 'Upgrade' header value must be 'websocket'");
                         break;
                     }
 
@@ -178,7 +178,7 @@ namespace NetCoreServer
                     if (string.IsNullOrEmpty(value))
                     {
                         error = true;
-                        response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Sec-WebSocket-Key' header value must be non empty", 400);
+                        response.MakeErrorResponse(400, "Invalid WebSocket handshaked request: 'Sec-WebSocket-Key' header value must be non empty");
                         break;
                     }
 
@@ -199,7 +199,7 @@ namespace NetCoreServer
                     if (string.Compare(value, "13", StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         error = true;
-                        response.MakeErrorResponse("Invalid WebSocket handshaked request: 'Sec-WebSocket-Version' header value must be '13'", 400);
+                        response.MakeErrorResponse(400, "Invalid WebSocket handshaked request: 'Sec-WebSocket-Version' header value must be '13'");
                         break;
                     }
 
@@ -215,7 +215,7 @@ namespace NetCoreServer
             if (!connection || !upgrade || !wsKey || !wsVersion)
             {
                 if (!error)
-                    response.MakeErrorResponse("Invalid WebSocket response", 400);
+                    response.MakeErrorResponse(400, "Invalid WebSocket response");
                 _wsHandler.SendUpgrade(response);
                 return false;
             }

@@ -565,13 +565,26 @@ namespace NetCoreServer
         /// <summary>
         /// Make ERROR response
         /// </summary>
-        /// <param name="error">Error content (default is "")</param>
-        /// <param name="status">OK status (default is 200 (OK))</param>
-        public HttpResponse MakeErrorResponse(string error = "", int status = 500)
+        /// <param name="content">Error content (default is "")</param>
+        /// <param name="contentType">Error content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpResponse MakeErrorResponse(string content = "", string contentType = "text/plain; charset=UTF-8")
+        {
+            return MakeErrorResponse(500, content, contentType);
+        }
+
+        /// <summary>
+        /// Make ERROR response
+        /// </summary>
+        /// <param name="status">Error status</param>
+        /// <param name="content">Error content (default is "")</param>
+        /// <param name="contentType">Error content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpResponse MakeErrorResponse(int status, string content = "", string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
             SetBegin(status);
-            SetBody(error);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
+            SetBody(content);
             return this;
         }
 
@@ -589,7 +602,7 @@ namespace NetCoreServer
         /// <summary>
         /// Make GET response
         /// </summary>
-        /// <param name="content">String content</param>
+        /// <param name="content">String content (default is "")</param>
         /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
         public HttpResponse MakeGetResponse(string content = "", string contentType = "text/plain; charset=UTF-8")
         {
@@ -900,7 +913,7 @@ namespace NetCoreServer
                     return true;
                 }
             }
-            else 
+            else
             {
                 // Check the body content to find the response body end
                 if (_bodySize >= 4)

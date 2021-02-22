@@ -39,7 +39,7 @@ namespace tests
                     SendResponseAsync(Response.MakeGetResponse(value));
                 }
                 else
-                    SendResponseAsync(Response.MakeErrorResponse("Required cache value was not found for the key: " + key, 404));
+                    SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
             }
             else if ((request.Method == "POST") || (request.Method == "PUT"))
             {
@@ -73,7 +73,7 @@ namespace tests
                     SendResponseAsync(Response.MakeGetResponse(value));
                 }
                 else
-                    SendResponseAsync(Response.MakeErrorResponse("Deleted cache value was not found for the key: " + key, 404));
+                    SendResponseAsync(Response.MakeErrorResponse(404, "Deleted cache value was not found for the key: " + key));
             }
             else if (request.Method == "OPTIONS")
                 SendResponseAsync(Response.MakeOptionsResponse());
