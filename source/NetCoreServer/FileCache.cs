@@ -326,7 +326,7 @@ namespace NetCoreServer
 
         private Dictionary<string, MemCacheEntry> _entriesByKey = new Dictionary<string, MemCacheEntry>();
         private SortedDictionary<DateTime, string> _entriesByTimestamp = new SortedDictionary<DateTime, string>();
-        private SortedDictionary<string, FileCacheEntry> _pathsByKey = new SortedDictionary<string, FileCacheEntry>();
+        private Dictionary<string, FileCacheEntry> _pathsByKey = new Dictionary<string, FileCacheEntry>();
         private SortedDictionary<DateTime, string> _pathsByTimestamp = new SortedDictionary<DateTime, string>();
 
         private bool RemoveInternal(string key)
