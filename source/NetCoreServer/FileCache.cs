@@ -280,6 +280,8 @@ namespace NetCoreServer
                 else
                     break;
             }
+
+            Monitor.Exit(_lock);
         }
 
         private readonly object _lock = new object();
