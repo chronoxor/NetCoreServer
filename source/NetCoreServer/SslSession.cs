@@ -538,6 +538,10 @@ namespace NetCoreServer
                 // Try to receive something from the client
                 TryReceive();
 
+                // Check the socket disposed state: in some rare cases it might be disconnected while receiving!
+                if (IsSocketDisposed)
+                    return;
+
                 // Call the session handshaked handler
                 OnHandshaked();
 

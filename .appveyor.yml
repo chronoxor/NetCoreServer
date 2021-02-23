@@ -1,5 +1,5 @@
 # Specify version format
-version: "5.0.12.{build}"
+version: "5.0.13.{build}"
 
 # Image to use
 image: Visual Studio 2019

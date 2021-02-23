@@ -721,6 +721,10 @@ namespace NetCoreServer
                 // Try to receive something from the server
                 TryReceive();
 
+                // Check the socket disposed state: in some rare cases it might be disconnected while receiving!
+                if (IsSocketDisposed)
+                    return;
+
                 // Call the client connected handler
                 OnConnected();
 
