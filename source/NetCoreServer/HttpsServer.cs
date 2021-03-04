@@ -41,8 +41,9 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="path">Static content path</param>
         /// <param name="prefix">Cache prefix (default is "/")</param>
+        /// <param name="filter">Cache filter (default is "*.*")</param>
         /// <param name="timeout">Refresh cache timeout (default is 1 hour)</param>
-        public void AddStaticContent(string path, string prefix = "/", TimeSpan? timeout = null)
+        public void AddStaticContent(string path, string prefix = "/", string filter = "*.*", TimeSpan? timeout = null)
         {
             timeout ??= TimeSpan.FromHours(1);
 
@@ -56,7 +57,7 @@ namespace NetCoreServer
                 return cache.Add(key, header.Cache.Data, timespan);
             }
 
-            Cache.InsertPath(path, prefix, timeout.Value, Handler);
+            Cache.InsertPath(path, prefix, filter, timeout.Value, Handler);
         }
         /// <summary>
         /// Remove static content cache
@@ -68,11 +69,39 @@ namespace NetCoreServer
         /// </summary>
         public void ClearStaticContent() { Cache.Clear(); }
 
-        /// <summary>
-        /// Watchdog the static content cache
-        /// </summary>
-        public void Watchdog(DateTime utc) { Cache.Watchdog(utc); }
-
         protected override SslSession CreateSession() { return new HttpsSession(this); }
+
+        #region IDisposable implementation
+
+        // Disposed flag.
+        private bool _disposed;
+
+        protected override void Dispose(bool disposingManagedResources)
+        {
+            if (!_disposed)
+            {
+                if (disposingManagedResources)
+                {
+                    // Dispose managed resources here...
+                    Cache.Dispose();
+                }
+
+                // Dispose unmanaged resources here...
+
+                // Set large fields to null here...
+
+                // Mark as disposed.
+                _disposed = true;
+            }
+
+            // Call Dispose in the base class.
+            base.Dispose(disposingManagedResources);
+        }
+
+        // The derived class does not have a Finalize method
+        // or a Dispose method without parameters because it inherits
+        // them from the base class.
+
+        #endregion
     }
 }
