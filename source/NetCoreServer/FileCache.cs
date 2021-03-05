@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Web;
 
 namespace NetCoreServer
@@ -21,11 +22,12 @@ namespace NetCoreServer
         /// <summary>
         /// Is the file cache empty?
         /// </summary>
-        public bool Empty { get { lock (_lock) return _entriesByKey.Count == 0; } }
+        public bool Empty => _entriesByKey.Count == 0;
+
         /// <summary>
         /// Get the file cache size
         /// </summary>
-        public int Size { get { lock (_lock) return _entriesByKey.Count; } }
+        public int Size => _entriesByKey.Count;
 
         /// <summary>
         /// Add a new cache value with the given timeout into the file cache
@@ -36,7 +38,7 @@ namespace NetCoreServer
         /// <returns>'true' if the cache value was added, 'false' if the given key was not added</returns>
         public bool Add(string key, byte[] value, TimeSpan timeout = new TimeSpan())
         {
-            lock (_lock)
+            using (new WriteLock(_lockEx))
             {
                 // Try to find and remove the previous key
                 _entriesByKey.Remove(key);
@@ -48,14 +50,14 @@ namespace NetCoreServer
             }
         }
 
-        /// <summary>                                                                              
+        /// <summary>
         /// Try to find the cache value by the given key
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>'true' and cache value if the cache value was found, 'false' if the given key was not found</returns>
         public (bool, byte[]) Find(string key)
         {
-            lock (_lock)
+            using (new ReadLock(_lockEx))
             {
                 // Try to find the given key
                 if (!_entriesByKey.TryGetValue(key, out var cacheValue))
@@ -72,7 +74,7 @@ namespace NetCoreServer
         /// <returns>'true' if the cache value was removed, 'false' if the given key was not found</returns>
         public bool Remove(string key)
         {
-            lock (_lock)
+            using (new WriteLock(_lockEx))
             {
                 return _entriesByKey.Remove(key);
             }
@@ -98,15 +100,17 @@ namespace NetCoreServer
             // Try to find and remove the previous path
             RemovePathInternal(path);
 
-            // Insert the cache path
-            if (!InsertPathInternal(path, prefix, timeout, handler))
-                return false;
-
-            lock (_lock)
+            using (new WriteLock(_lockEx))
             {
                 // Add the given path to the cache
                 _pathsByKey.Add(path, new FileCacheEntry(this, prefix, path, filter, handler, timeout));
+                // Create entries by path map
+                _entriesByPath[path] = new HashSet<string>();
             }
+
+            // Insert the cache path
+            if (!InsertPathInternal(path, path, prefix, timeout, handler))
+                return false;
 
             return true;
         }
@@ -118,7 +122,7 @@ namespace NetCoreServer
         /// <returns>'true' if the cache path was found, 'false' if the given path was not found</returns>
         public bool FindPath(string path)
         {
-            lock (_lock)
+            using (new ReadLock(_lockEx))
             {
                 // Try to find the given key
                 return _pathsByKey.ContainsKey(path);
@@ -140,7 +144,7 @@ namespace NetCoreServer
         /// </summary>
         public void Clear()
         {
-            lock (_lock)
+            using (new WriteLock(_lockEx))
             {
                 // Stop all file system watchers
                 foreach (var fileCacheEntry in _pathsByKey)
@@ -148,6 +152,7 @@ namespace NetCoreServer
 
                 // Clear all cache entries
                 _entriesByKey.Clear();
+                _entriesByPath.Clear();
                 _pathsByKey.Clear();
             }
         }
@@ -156,7 +161,10 @@ namespace NetCoreServer
 
         #region Cache implementation
 
-        private readonly object _lock = new object();
+        private readonly ReaderWriterLockSlim _lockEx = new ReaderWriterLockSlim();
+        private Dictionary<string, MemCacheEntry> _entriesByKey = new Dictionary<string, MemCacheEntry>();
+        private Dictionary<string, HashSet<string>> _entriesByPath = new Dictionary<string, HashSet<string>>();
+        private Dictionary<string, FileCacheEntry> _pathsByKey = new Dictionary<string, FileCacheEntry>();
 
         private class MemCacheEntry
         {
@@ -244,7 +252,7 @@ namespace NetCoreServer
                 if (IsDirectory(file))
                     return;
 
-                cache.InsertFileInternal(file, key, entry._timespan, entry._handler);
+                cache.InsertFileInternal(entry._path, file, key, entry._timespan, entry._handler);
             }
 
             private static void OnChanged(object sender, FileSystemEventArgs e, FileCache cache, FileCacheEntry entry)
@@ -262,7 +270,7 @@ namespace NetCoreServer
                 if (IsDirectory(file))
                     return;
 
-                cache.InsertFileInternal(file, key, entry._timespan, entry._handler);
+                cache.InsertFileInternal(entry._path, file, key, entry._timespan, entry._handler);
             }
 
             private static void OnDeleted(object sender, FileSystemEventArgs e, FileCache cache, FileCacheEntry entry)
@@ -270,14 +278,7 @@ namespace NetCoreServer
                 var key = e.FullPath.Replace(entry._path, entry._prefix);
                 var file = e.FullPath;
 
-                // Skip missing files
-                if (!File.Exists(file))
-                    return;
-                // Skip directory updates
-                if (IsDirectory(file))
-                    return;
-
-                cache.RemoveFileInternal(key);
+                cache.RemoveFileInternal(entry._path, key);
             }
 
             private static void OnRenamed(object sender, RenamedEventArgs e, FileCache cache, FileCacheEntry entry)
@@ -291,18 +292,15 @@ namespace NetCoreServer
                 if (!File.Exists(newFile))
                     return;
                 // Skip directory updates
-                if (IsDirectory(oldFile) || IsDirectory(newFile))
+                if (IsDirectory(newFile))
                     return;
 
-                cache.RemoveFileInternal(oldKey);
-                cache.InsertFileInternal(newFile, newKey, entry._timespan, entry._handler);
+                cache.RemoveFileInternal(entry._path, oldKey);
+                cache.InsertFileInternal(entry._path, newFile, newKey, entry._timespan, entry._handler);
             }
         };
 
-        private Dictionary<string, MemCacheEntry> _entriesByKey = new Dictionary<string, MemCacheEntry>();
-        private Dictionary<string, FileCacheEntry> _pathsByKey = new Dictionary<string, FileCacheEntry>();
-
-        private bool InsertFileInternal(string file, string key, TimeSpan timeout, InsertHandler handler)
+        private bool InsertFileInternal(string path, string file, string key, TimeSpan timeout, InsertHandler handler)
         {
             try
             {
@@ -314,23 +312,35 @@ namespace NetCoreServer
                 if (!handler(this, key, content, timeout))
                     return false;
 
+                using (new WriteLock(_lockEx))
+                {
+                    // Update entries by path map
+                    _entriesByPath[path].Add(key);
+                }
+
                 return true;
             }
             catch (Exception) { return false; }
         }
 
-        private bool RemoveFileInternal(string key)
+        private bool RemoveFileInternal(string path, string key)
         {
             try
             {
                 key = key.Replace('\\', '/');
+
+                using (new WriteLock(_lockEx))
+                {
+                    // Update entries by path map
+                    _entriesByPath[path].Remove(key);
+                }
 
                 return Remove(key);
             }
             catch (Exception) { return false; }
         }
 
-        private bool InsertPathInternal(string path, string prefix, TimeSpan timeout, InsertHandler handler)
+        private bool InsertPathInternal(string root, string path, string prefix, TimeSpan timeout, InsertHandler handler)
         {
             try
             {
@@ -342,7 +352,7 @@ namespace NetCoreServer
                     string key = keyPrefix + HttpUtility.UrlDecode(Path.GetFileName(item));
 
                     // Recursively insert sub-directory
-                    if (!InsertPathInternal(item, key, timeout, handler))
+                    if (!InsertPathInternal(root, item, key, timeout, handler))
                         return false;
                 }
 
@@ -351,7 +361,7 @@ namespace NetCoreServer
                     string key = keyPrefix + HttpUtility.UrlDecode(Path.GetFileName(item));
 
                     // Insert file into the cache
-                    if (!InsertFileInternal(item, key, timeout, handler))
+                    if (!InsertFileInternal(root, item, key, timeout, handler))
                         return false;
                 }
 
@@ -362,7 +372,7 @@ namespace NetCoreServer
 
         private bool RemovePathInternal(string path)
         {
-            lock (_lock)
+            using (new WriteLock(_lockEx))
             {
                 // Try to find the given path
                 if (!_pathsByKey.TryGetValue(path, out var cacheValue))
@@ -371,7 +381,12 @@ namespace NetCoreServer
                 // Stop the file system watcher
                 cacheValue.StopWatcher();
 
-                // Erase cache path
+                // Remove path entries
+                foreach (var entryKey in _entriesByPath[path])
+                    _entriesByKey.Remove(entryKey);
+                _entriesByPath.Remove(path);
+
+                // Remove cache path
                 _pathsByKey.Remove(path);
 
                 return true;
@@ -394,16 +409,16 @@ namespace NetCoreServer
 
         protected virtual void Dispose(bool disposingManagedResources)
         {
-            // The idea here is that Dispose(Boolean) knows whether it is 
-            // being called to do explicit cleanup (the Boolean is true) 
-            // versus being called due to a garbage collection (the Boolean 
-            // is false). This distinction is useful because, when being 
-            // disposed explicitly, the Dispose(Boolean) method can safely 
-            // execute code using reference type fields that refer to other 
-            // objects knowing for sure that these other objects have not been 
-            // finalized or disposed of yet. When the Boolean is false, 
-            // the Dispose(Boolean) method should not execute code that 
-            // refer to reference type fields because those objects may 
+            // The idea here is that Dispose(Boolean) knows whether it is
+            // being called to do explicit cleanup (the Boolean is true)
+            // versus being called due to a garbage collection (the Boolean
+            // is false). This distinction is useful because, when being
+            // disposed explicitly, the Dispose(Boolean) method can safely
+            // execute code using reference type fields that refer to other
+            // objects knowing for sure that these other objects have not been
+            // finalized or disposed of yet. When the Boolean is false,
+            // the Dispose(Boolean) method should not execute code that
+            // refer to reference type fields because those objects may
             // have already been finalized."
 
             if (!_disposed)
@@ -431,5 +446,45 @@ namespace NetCoreServer
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Disposable lock class performs exit action on dispose operation.
+    /// </summary>
+    public class DisposableLock : IDisposable
+    {
+        private readonly Action _exitLock;
+
+        public DisposableLock(Action exitLock)
+        {
+            _exitLock = exitLock;
+        }
+
+        public void Dispose()
+        {
+            _exitLock();
+        }
+    }
+
+    /// <summary>
+    /// Read lock class enters read lock on construction and performs exit read lock on dispose.
+    /// </summary>
+    public class ReadLock : DisposableLock
+    {
+        public ReadLock(ReaderWriterLockSlim locker) : base(locker.ExitReadLock)
+        {
+            locker.EnterReadLock();
+        }
+    }
+
+    /// <summary>
+    /// Write lock class enters write lock on construction and performs exit write lock on dispose.
+    /// </summary>
+    public class WriteLock : DisposableLock
+    {
+        public WriteLock(ReaderWriterLockSlim locker) : base(locker.ExitWriteLock)
+        {
+            locker.EnterWriteLock();
+        }
     }
 }
