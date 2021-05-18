@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -86,7 +87,6 @@ namespace tests
 
     public class WssTests
     {
-        /*
         [Fact(DisplayName = "WebSocket secure server test")]
         public void WssServerTest()
         {
@@ -256,7 +256,7 @@ namespace tests
             Assert.True(!client2.Errors);
             Assert.True(!client3.Errors);
         }
-        */
+
         [Fact(DisplayName = "WebSocket secure server random test")]
         public void WssServerRandomTest()
         {
@@ -385,3 +385,4 @@ namespace tests
         }
     }
 }
+*/
