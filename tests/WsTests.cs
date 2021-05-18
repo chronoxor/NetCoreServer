@@ -78,7 +78,7 @@ namespace tests
         public void WsServerTest()
         {
             string address = "127.0.0.1";
-            int port = 8090;
+            int port = 8081;
 
             // Create and start Echo server
             var server = new EchoWsServer(IPAddress.Any, port);
@@ -130,7 +130,7 @@ namespace tests
         public void WsServerMulticastTest()
         {
             string address = "127.0.0.1";
-            int port = 8091;
+            int port = 8082;
 
             // Create and start Echo server
             var server = new EchoWsServer(IPAddress.Any, port);
@@ -236,7 +236,7 @@ namespace tests
         public void WsServerRandomTest()
         {
             string address = "127.0.0.1";
-            int port = 8092;
+            int port = 8083;
 
             // Create and start Echo server
             var server = new EchoWsServer(IPAddress.Any, port);

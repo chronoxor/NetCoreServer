@@ -90,7 +90,7 @@ namespace tests
         public void WssServerTest()
         {
             string address = "127.0.0.1";
-            int port = 8450;
+            int port = 8444;
 
             // Create and prepare a new SSL server context
             var serverContext = EchoWssServer.CreateContext();
@@ -143,12 +143,12 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-/*
+
         [Fact(DisplayName = "WebSocket secure server multicast test")]
         public void WssServerMulticastTest()
         {
             string address = "127.0.0.1";
-            int port = 8451;
+            int port = 8445;
 
             // Create and prepare a new SSL server context
             var serverContext = EchoWssServer.CreateContext();
@@ -255,12 +255,12 @@ namespace tests
             Assert.True(!client2.Errors);
             Assert.True(!client3.Errors);
         }
-*/
+
         [Fact(DisplayName = "WebSocket secure server random test")]
         public void WssServerRandomTest()
         {
             string address = "127.0.0.1";
-            int port = 8452;
+            int port = 8446;
 
             // Create and prepare a new SSL server context
             var serverContext = EchoWssServer.CreateContext();
