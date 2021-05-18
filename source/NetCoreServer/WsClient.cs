@@ -38,7 +38,7 @@ namespace NetCoreServer
         #region WebSocket connection methods
 
         public override bool Connect() { _syncConnect = true; return base.Connect(); }
-        public override bool ConnectAsync() { _syncConnect = true; return base.ConnectAsync(); }
+        public override bool ConnectAsync() { _syncConnect = false; return base.ConnectAsync(); }
         public virtual bool Close(int status) { SendClose(status, null, 0, 0); base.Disconnect(); return true; }
         public virtual bool CloseAsync(int status) { SendCloseAsync(status, null, 0, 0); base.DisconnectAsync(); return true; }
 
