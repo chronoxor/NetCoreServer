@@ -143,7 +143,7 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-
+/*
         [Fact(DisplayName = "WebSocket secure server multicast test")]
         public void WssServerMulticastTest()
         {
@@ -174,7 +174,7 @@ namespace tests
             // Wait for all data processed...
             while (client1.Received != 4)
                 Thread.Yield();
-            /*
+
             // Create and connect Echo client
             var client2 = new EchoWssClient(clientContext, address, port);
             Assert.True(client2.ConnectAsync());
@@ -229,7 +229,7 @@ namespace tests
             Assert.True(client3.CloseAsync(1000));
             while (client3.IsWsConnected || (server.Clients != 0))
                 Thread.Yield();
-            */
+
             // Stop the Echo server
             Assert.True(server.Stop());
             while (server.IsStarted)
@@ -243,7 +243,7 @@ namespace tests
             Assert.True(server.BytesSent > 0);
             Assert.True(server.BytesReceived > 0);
             Assert.True(!server.Errors);
-            /*
+
             // Check the Echo client state
             Assert.True(client1.BytesSent > 0);
             Assert.True(client2.BytesSent > 0);
@@ -254,9 +254,8 @@ namespace tests
             Assert.True(!client1.Errors);
             Assert.True(!client2.Errors);
             Assert.True(!client3.Errors);
-            */
         }
-
+*/
         [Fact(DisplayName = "WebSocket secure server random test")]
         public void WssServerRandomTest()
         {
