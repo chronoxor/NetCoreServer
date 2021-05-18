@@ -1,9 +1,7 @@
 # NetCoreServer
 
 [![Awesome .NET](https://awesome.re/badge.svg)](https://github.com/quozd/awesome-dotnet)
-[![Linux build status](https://img.shields.io/travis/com/chronoxor/NetCoreServer/master?label=Linux)](https://travis-ci.com/chronoxor/NetCoreServer)
-[![OSX build status](https://img.shields.io/travis/com/chronoxor/NetCoreServer/master?label=OSX)](https://travis-ci.com/chronoxor/NetCoreServer)
-[![Windows build status](https://img.shields.io/appveyor/build/chronoxor/NetCoreServer/master?label=Windows)](https://ci.appveyor.com/project/chronoxor/NetCoreServer)
+[![NetCoreServer build status](https://github.com/chronoxor/NetCoreServer/actions/workflows/workflow.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/workflow.yml)
 [![NuGet](https://img.shields.io/nuget/v/NetCoreServer)](https://www.nuget.org/packages/NetCoreServer)
 
 Ultra fast and low latency asynchronous socket server & client C# .NET Core
