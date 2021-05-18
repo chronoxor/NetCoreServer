@@ -86,6 +86,7 @@ namespace tests
 
     public class WssTests
     {
+        /*
         [Fact(DisplayName = "WebSocket secure server test")]
         public void WssServerTest()
         {
@@ -143,7 +144,7 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-        /*
+
         [Fact(DisplayName = "WebSocket secure server multicast test")]
         public void WssServerMulticastTest()
         {
