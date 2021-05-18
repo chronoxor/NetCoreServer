@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -91,7 +90,7 @@ namespace tests
         public void WssServerTest()
         {
             string address = "127.0.0.1";
-            int port = 8444;
+            int port = 8450;
 
             // Create and prepare a new SSL server context
             var serverContext = EchoWssServer.CreateContext();
@@ -144,12 +143,12 @@ namespace tests
             Assert.True(client.BytesReceived > 0);
             Assert.True(!client.Errors);
         }
-
+/*
         [Fact(DisplayName = "WebSocket secure server multicast test")]
         public void WssServerMulticastTest()
         {
             string address = "127.0.0.1";
-            int port = 8445;
+            int port = 8451;
 
             // Create and prepare a new SSL server context
             var serverContext = EchoWssServer.CreateContext();
@@ -261,7 +260,7 @@ namespace tests
         public void WssServerRandomTest()
         {
             string address = "127.0.0.1";
-            int port = 8446;
+            int port = 8452;
 
             // Create and prepare a new SSL server context
             var serverContext = EchoWssServer.CreateContext();
@@ -383,6 +382,6 @@ namespace tests
             Assert.True(server.BytesReceived > 0);
             Assert.True(!server.Errors);
         }
+*/
     }
 }
-*/
