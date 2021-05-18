@@ -200,12 +200,12 @@ namespace tests
             // Wait for all data processed...
             while ((client1.Received != 12) || (client2.Received != 8) || (client3.Received != 4))
                 Thread.Yield();
-            */
+
             // Disconnect the Echo client
             Assert.True(client1.CloseAsync(1000));
             while (client1.IsWsConnected || (server.Clients != 2))
                 Thread.Yield();
-            /*
+
             // Multicast some data to all clients
             server.MulticastText("test");
 
