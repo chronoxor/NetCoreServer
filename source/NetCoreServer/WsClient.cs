@@ -320,14 +320,11 @@ namespace NetCoreServer
             // Fill the WebSocket upgrade HTTP request
             OnWsConnecting(Request);
 
-            // Set empty body of the WebSocket upgrade HTTP request
-            Request.SetBody();
-
             // Send the WebSocket upgrade HTTP request
             if (_syncConnect)
-                Send(Request.Cache.Data);
+                SendRequest(Request);
             else
-                SendAsync(Request.Cache.Data);
+                SendRequestAsync(Request);
         }
 
         protected override void OnDisconnecting()
@@ -413,8 +410,9 @@ namespace NetCoreServer
         #endregion
 
         #region Web socket handlers
-
-        public virtual void OnWsConnecting(HttpRequest request) {}
+        
+        // Set empty body of the WebSocket upgrade HTTP request
+        public virtual void OnWsConnecting(HttpRequest request) { Request.SetBody(); }
         public virtual void OnWsConnected(HttpResponse response) {}
         public virtual bool OnWsConnecting(HttpRequest request, HttpResponse response) { return true; }
         public virtual void OnWsConnected(HttpRequest request) {}
