@@ -320,14 +320,11 @@ namespace NetCoreServer
             // Fill the WebSocket upgrade HTTP request
             OnWsConnecting(Request);
 
-            // Set empty body of the WebSocket upgrade HTTP request
-            Request.SetBody();
-
             // Send the WebSocket upgrade HTTP request
             if (_syncConnect)
-                Send(Request.Cache.Data);
+                SendRequest(Request);
             else
-                SendAsync(Request.Cache.Data);
+                SendRequestAsync(Request);
         }
 
         protected override void OnDisconnecting()

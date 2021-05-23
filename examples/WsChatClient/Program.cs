@@ -28,6 +28,7 @@ namespace WsChatClient
             request.SetHeader("Sec-WebSocket-Key", Convert.ToBase64String(WsNonce));
             request.SetHeader("Sec-WebSocket-Protocol", "chat, superchat");
             request.SetHeader("Sec-WebSocket-Version", "13");
+            request.SetBody();
         }
 
         public override void OnWsConnected(HttpResponse response)
