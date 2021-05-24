@@ -385,8 +385,8 @@ namespace NetCoreServer
             // Check for WebSocket handshaked status
             if (WebSocket.WsHandshaked)
             {
-                // Prepare receive frame from the remaining request body
-                var body = Request.Body;
+                // Prepare receive frame from the remaining response body
+                var body = Response.Body;
                 var data = Encoding.UTF8.GetBytes(body);
                 WebSocket.PrepareReceiveFrame(data, 0, data.Length);
                 return;
