@@ -277,7 +277,7 @@ namespace NetCoreServer
             }
 
             // Copy WebSocket frame data
-            result.Append(WebSocket.WsReceiveBuffer.ToArray(), WebSocket.WsHeaderSize, WebSocket.WsHeaderSize + WebSocket.WsPayloadSize);
+            result.Append(WebSocket.WsReceiveFinalBuffer.ToArray(), 0, WebSocket.WsReceiveFinalBuffer.Count);
             WebSocket.PrepareReceiveFrame(null, 0, 0);
             return result.ExtractString(0, result.Data.Length);
         }
@@ -303,7 +303,7 @@ namespace NetCoreServer
             }
 
             // Copy WebSocket frame data
-            result.Append(WebSocket.WsReceiveBuffer.ToArray(), WebSocket.WsHeaderSize, WebSocket.WsHeaderSize + WebSocket.WsPayloadSize);
+            result.Append(WebSocket.WsReceiveFinalBuffer.ToArray(), 0, WebSocket.WsReceiveFinalBuffer.Count);
             WebSocket.PrepareReceiveFrame(null, 0, 0);
             return result;
         }
