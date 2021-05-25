@@ -307,27 +307,35 @@ namespace NetCoreServer
                 var index = 0;
 
                 // Clear received data after WebSocket frame was processed
-                if (WsReceived)
+                if (WsFrameReceived)
                 {
-                    WsReceived = false;
+                    WsFrameReceived = false;
                     WsHeaderSize = 0;
                     WsPayloadSize = 0;
                     WsReceiveFrameBuffer.Clear();
-                    WsReceiveFinalBuffer.Clear();
                     Array.Clear(WsReceiveMask, 0, WsReceiveMask.Length);
+                }
+                if (WsFinalReceived)
+                {
+                    WsFinalReceived = false;
+                    WsReceiveFinalBuffer.Clear();
                 }
 
                 while (size > 0)
                 {
                     // Clear received data after WebSocket frame was processed
-                    if (WsReceived)
+                    if (WsFrameReceived)
                     {
-                        WsReceived = false;
+                        WsFrameReceived = false;
                         WsHeaderSize = 0;
                         WsPayloadSize = 0;
                         WsReceiveFrameBuffer.Clear();
-                        WsReceiveFinalBuffer.Clear();
                         Array.Clear(WsReceiveMask, 0, WsReceiveMask.Length);
+                    }
+                    if (WsFinalReceived)
+                    {
+                        WsFinalReceived = false;
+                        WsReceiveFinalBuffer.Clear();
                     }
 
                     // Prepare WebSocket frame opcode and mask flag
@@ -428,11 +436,13 @@ namespace NetCoreServer
                         else
                             WsReceiveFinalBuffer.AddRange(WsReceiveFrameBuffer.GetRange(bufferOffset, WsPayloadSize));
 
-                        WsReceived = true;
+                        WsFrameReceived = true;
 
                         // Finalize WebSocket frame
                         if (fin)
                         {
+                            WsFinalReceived = true;
+
                             if ((WsOpcode & WS_PING) == WS_PING)
                             {
                                 // Call the WebSocket ping handler
@@ -466,7 +476,7 @@ namespace NetCoreServer
         {
             lock (WsReceiveLock)
             {
-                if (WsReceived)
+                if (WsFrameReceived)
                     return 0;
 
                 // Required WebSocket frame opcode and mask flag
@@ -498,7 +508,8 @@ namespace NetCoreServer
         {
             lock (WsReceiveLock)
             {
-                WsReceived = false;
+                WsFrameReceived = false;
+                WsFinalReceived = false;
                 WsHeaderSize = 0;
                 WsPayloadSize = 0;
                 WsReceiveFrameBuffer.Clear();
@@ -525,7 +536,11 @@ namespace NetCoreServer
         /// <summary>
         /// Received frame flag
         /// </summary>
-        internal bool WsReceived;
+        internal bool WsFrameReceived;
+        /// <summary>
+        /// Received final flag
+        /// </summary>
+        internal bool WsFinalReceived;
         /// <summary>
         /// Received frame opcode
         /// </summary>

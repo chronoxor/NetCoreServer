@@ -269,14 +269,19 @@ namespace NetCoreServer
             Buffer cache = new Buffer();
 
             // Receive WebSocket frame data
-            while (!WebSocket.WsReceived)
+            while (!WebSocket.WsFinalReceived)
             {
-                int required = WebSocket.RequiredReceiveFrameSize();
-                cache.Resize(required);
-                int received = (int)base.Receive(cache.Data, 0, required);
-                if (received != required)
-                    return result.ExtractString(0, result.Data.Length);
-                WebSocket.PrepareReceiveFrame(cache.Data, 0, received);
+                while (!WebSocket.WsFrameReceived)
+                {
+                    int required = WebSocket.RequiredReceiveFrameSize();
+                    cache.Resize(required);
+                    int received = (int)base.Receive(cache.Data, 0, required);
+                    if (received != required)
+                        return result.ExtractString(0, result.Data.Length);
+                    WebSocket.PrepareReceiveFrame(cache.Data, 0, received);
+                }
+                if (!WebSocket.WsFinalReceived)
+                    WebSocket.PrepareReceiveFrame(null, 0, 0);
             }
 
             // Copy WebSocket frame data
@@ -295,14 +300,19 @@ namespace NetCoreServer
             Buffer cache = new Buffer();
 
             // Receive WebSocket frame data
-            while (!WebSocket.WsReceived)
+            while (!WebSocket.WsFinalReceived)
             {
-                int required = WebSocket.RequiredReceiveFrameSize();
-                cache.Resize(required);
-                int received = (int)base.Receive(cache.Data, 0, required);
-                if (received != required)
-                    return result;
-                WebSocket.PrepareReceiveFrame(cache.Data, 0, received);
+                while (!WebSocket.WsFrameReceived)
+                {
+                    int required = WebSocket.RequiredReceiveFrameSize();
+                    cache.Resize(required);
+                    int received = (int)base.Receive(cache.Data, 0, required);
+                    if (received != required)
+                        return result;
+                    WebSocket.PrepareReceiveFrame(cache.Data, 0, received);
+                }
+                if (!WebSocket.WsFinalReceived)
+                    WebSocket.PrepareReceiveFrame(null, 0, 0);
             }
 
             // Copy WebSocket frame data
