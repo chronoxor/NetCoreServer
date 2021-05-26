@@ -422,16 +422,14 @@ namespace NetCoreServer
                     // Process WebSocket frame
                     if (WsReceiveFrameBuffer.Count == total)
                     {
-                        int bufferOffset = WsHeaderSize;
-
                         // Unmask WebSocket frame content
                         if (mask)
                         {
                             for (int i = 0; i < WsPayloadSize; i++)
-                                WsReceiveFinalBuffer.Add((byte)(WsReceiveFrameBuffer[bufferOffset + i] ^ WsReceiveMask[i % 4]));
+                                WsReceiveFinalBuffer.Add((byte)(WsReceiveFrameBuffer[WsHeaderSize + i] ^ WsReceiveMask[i % 4]));
                         }
                         else
-                            WsReceiveFinalBuffer.AddRange(WsReceiveFrameBuffer.GetRange(bufferOffset, WsPayloadSize));
+                            WsReceiveFinalBuffer.AddRange(WsReceiveFrameBuffer.GetRange(WsHeaderSize, WsPayloadSize));
 
                         WsFrameReceived = true;
 
@@ -440,25 +438,33 @@ namespace NetCoreServer
                         {
                             WsFinalReceived = true;
 
-                            if ((WsOpcode & WS_PING) == WS_PING)
+                            switch (WsOpcode)
                             {
-                                // Call the WebSocket ping handler
-                                _wsHandler.OnWsPing(WsReceiveFinalBuffer.ToArray(), 0, WsReceiveFinalBuffer.Count);
-                            }
-                            else if ((WsOpcode & WS_PONG) == WS_PONG)
-                            {
-                                // Call the WebSocket pong handler
-                                _wsHandler.OnWsPong(WsReceiveFinalBuffer.ToArray(), 0, WsReceiveFinalBuffer.Count);
-                            }
-                            else if ((WsOpcode & WS_CLOSE) == WS_CLOSE)
-                            {
-                                // Call the WebSocket close handler
-                                _wsHandler.OnWsClose(WsReceiveFinalBuffer.ToArray(), 0, WsReceiveFinalBuffer.Count);
-                            }
-                            else if (((WsOpcode & WS_TEXT) == WS_TEXT) || ((WsOpcode & WS_BINARY) == WS_BINARY))
-                            {
-                                // Call the WebSocket received handler
-                                _wsHandler.OnWsReceived(WsReceiveFinalBuffer.ToArray(), 0, WsReceiveFinalBuffer.Count);
+                                case WS_PING:
+                                {
+                                    // Call the WebSocket ping handler
+                                    _wsHandler.OnWsPing(WsReceiveFinalBuffer.ToArray(), 0, WsReceiveFinalBuffer.Count);
+                                    break;
+                                }
+                                case WS_PONG:
+                                {
+                                    // Call the WebSocket pong handler
+                                    _wsHandler.OnWsPong(WsReceiveFinalBuffer.ToArray(), 0, WsReceiveFinalBuffer.Count);
+                                    break;
+                                }
+                                case WS_CLOSE:
+                                {
+                                    // Call the WebSocket close handler
+                                    _wsHandler.OnWsClose(WsReceiveFinalBuffer.ToArray(), 0, WsReceiveFinalBuffer.Count);
+                                    break;
+                                }
+                                case WS_BINARY:
+                                case WS_TEXT:
+                                {
+                                    // Call the WebSocket received handler
+                                    _wsHandler.OnWsReceived(WsReceiveFinalBuffer.ToArray(), 0, WsReceiveFinalBuffer.Count);
+                                    break;
+                                }
                             }
                         }
                     }
