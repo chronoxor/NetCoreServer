@@ -29,6 +29,20 @@ namespace NetCoreServer
         public UnixDomainSocketEndPoint EndPoint { get; private set; }
 
         /// <summary>
+        /// Number of bytes pending sent by the server
+        /// </summary>
+        public long BytesPending => _bytesPending;
+
+        /// <summary>
+        /// Number of bytes sent by the server
+        /// </summary>
+        public long BytesSent => _bytesSent;
+        /// <summary>
+        /// Number of bytes received by the server
+        /// </summary>
+        public long BytesReceived => _bytesReceived;
+
+        /// <summary>
         /// Option: acceptor backlog size
         /// </summary>
         /// <remarks>
