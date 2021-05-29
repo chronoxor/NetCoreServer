@@ -367,7 +367,7 @@ namespace NetCoreServer
         internal void UnregisterSession(Guid id)
         {
             // Unregister session by Id
-            Sessions.TryRemove(id, out UdsSession temp);
+            Sessions.TryRemove(id, out _);
         }
 
         #endregion
