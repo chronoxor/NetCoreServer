@@ -91,9 +91,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WssMulticastClient", "perfo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WssMulticastServer", "performance\WssMulticastServer\WssMulticastServer.csproj", "{20E95322-2F84-4147-8014-E50312D86CE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdsChatClient", "examples\UdsChatClient\UdsChatClient.csproj", "{1869F059-5E74-41F3-AC76-7CB5098D6D0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdsChatClient", "examples\UdsChatClient\UdsChatClient.csproj", "{1869F059-5E74-41F3-AC76-7CB5098D6D0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdsChatServer", "examples\UdsChatServer\UdsChatServer.csproj", "{CD2BFFF7-7EC5-4035-8149-1B04B734BD11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdsChatServer", "examples\UdsChatServer\UdsChatServer.csproj", "{CD2BFFF7-7EC5-4035-8149-1B04B734BD11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdsEchoClient", "performance\UdsEchoClient\UdsEchoClient.csproj", "{D1F01072-EC85-4320-A232-8EEFBFFB5D20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdsEchoServer", "performance\UdsEchoServer\UdsEchoServer.csproj", "{228D7EAD-55D1-45FA-958D-5B159FEE81F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -455,6 +459,22 @@ Global
 		{CD2BFFF7-7EC5-4035-8149-1B04B734BD11}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CD2BFFF7-7EC5-4035-8149-1B04B734BD11}.Release|x64.ActiveCfg = Release|Any CPU
 		{CD2BFFF7-7EC5-4035-8149-1B04B734BD11}.Release|x64.Build.0 = Release|Any CPU
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20}.Debug|x64.Build.0 = Debug|Any CPU
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20}.Release|x64.ActiveCfg = Release|Any CPU
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20}.Release|x64.Build.0 = Release|Any CPU
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5}.Debug|x64.Build.0 = Debug|Any CPU
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5}.Release|x64.ActiveCfg = Release|Any CPU
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -502,6 +522,8 @@ Global
 		{20E95322-2F84-4147-8014-E50312D86CE5} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
 		{1869F059-5E74-41F3-AC76-7CB5098D6D0C} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
 		{CD2BFFF7-7EC5-4035-8149-1B04B734BD11} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
+		{D1F01072-EC85-4320-A232-8EEFBFFB5D20} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
+		{228D7EAD-55D1-45FA-958D-5B159FEE81F5} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {64415837-63D9-474E-A25C-EE91C9CA90C5}
