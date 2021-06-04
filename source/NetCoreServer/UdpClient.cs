@@ -100,9 +100,17 @@ namespace NetCoreServer
         /// </summary>
         public bool OptionMulticast { get; set; }
         /// <summary>
+        /// Option: receive buffer limit
+        /// </summary>
+        public int OptionReceiveBufferLimit { get; set; } = 0;
+        /// <summary>
         /// Option: receive buffer size
         /// </summary>
         public int OptionReceiveBufferSize { get; set; } = 8192;
+        /// <summary>
+        /// Option: send buffer limit
+        /// </summary>
+        public int OptionSendBufferLimit { get; set; } = 0;
         /// <summary>
         /// Option: send buffer size
         /// </summary>
@@ -486,6 +494,13 @@ namespace NetCoreServer
             if (size == 0)
                 return true;
 
+            // Check the send buffer limit
+            if (((_sendBuffer.Size + size) > OptionSendBufferLimit) && (OptionSendBufferLimit > 0))
+            {
+                SendError(SocketError.NoBufferSpaceAvailable);
+                return false;
+            }
+
             // Fill the main send buffer
             _sendBuffer.Append(buffer, offset, size);
 
@@ -694,7 +709,17 @@ namespace NetCoreServer
 
             // If the receive buffer is full increase its size
             if (_receiveBuffer.Capacity == size)
+            {
+                // Check the receive buffer limit
+                if (((2 * size) > OptionReceiveBufferLimit) && (OptionReceiveBufferLimit > 0))
+                {
+                    SendError(SocketError.NoBufferSpaceAvailable);
+                    Disconnect();
+                    return;
+                }
+
                 _receiveBuffer.Reserve(2 * size);
+            }
         }
 
         /// <summary>
