@@ -11,7 +11,6 @@ namespace UdsEchoServer
 
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {
-            Console.WriteLine($"OnReceived: size {size}");
             // Resend the message back to the client
             SendAsync(buffer, offset, size);
         }
