@@ -157,6 +157,13 @@
         protected virtual void OnReceivedRequestHeader(HttpRequest request) { }
 
         /// <summary>
+        /// Handle HTTP request received cache notification
+        /// </summary>
+        /// <remarks>Notification is called when HTTP request cache was received from the client.</remarks>
+        /// <param name="request">HTTP request</param>
+        protected virtual void OnReceivedRequestCache(HttpRequest request) {}
+
+        /// <summary>
         /// Handle HTTP request received notification
         /// </summary>
         /// <remarks>Notification is called when HTTP request was received from the client.</remarks>
@@ -181,6 +188,7 @@
                 var response = Cache.Find(request.Url);
                 if (response.Item1)
                 {
+                    OnReceivedRequestCache(request);
                     SendAsync(response.Item2);
                     return;
                 }
