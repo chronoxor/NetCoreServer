@@ -102,6 +102,9 @@
 
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {
+            // PreRequest Handler
+            OnReceivedPreRequest(Request);
+        
             // Receive HTTP request header
             if (Request.IsPendingHeader())
             {
@@ -148,6 +151,13 @@
                 return;
             }
         }
+
+        /// <summary>
+        /// PreRequest Handler
+        /// </summary>
+        /// <remarks>Notification is called when HTTP request received from the client.</remarks>
+        /// <param name="request">HTTP request</param>
+        protected virtual void OnReceivedPreRequest(HttpRequest request) {}
 
         /// <summary>
         /// Handle HTTP request header received notification
