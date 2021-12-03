@@ -32,6 +32,12 @@ namespace NetCoreServer
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">IP endpoint</param>
         public WssClient(SslContext context, IPEndPoint endpoint) : base(context, endpoint) { WebSocket = new WebSocket(this); }
+        /// <summary>
+        /// Initialize WebSocket client with a given DNS endpoint
+        /// </summary>
+        /// <param name="context">SSL context</param>
+        /// <param name="endpoint">DNS endpoint</param>
+        public WssClient(SslContext context, DnsEndPoint endpoint) : base(context, endpoint) { WebSocket = new WebSocket(this); }
 
         /// <summary>
         /// WebSocket random nonce

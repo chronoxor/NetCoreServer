@@ -31,6 +31,12 @@ namespace NetCoreServer
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">IP endpoint</param>
         public HttpsClient(SslContext context, IPEndPoint endpoint) : base(context, endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
+        /// <summary>
+        /// Initialize HTTPS client with a given DNS endpoint
+        /// </summary>
+        /// <param name="context">SSL context</param>
+        /// <param name="endpoint">DNS endpoint</param>
+        public HttpsClient(SslContext context, DnsEndPoint endpoint) : base(context, endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
 
         /// <summary>
         /// Get the HTTP request

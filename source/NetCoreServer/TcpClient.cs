@@ -29,7 +29,17 @@ namespace NetCoreServer
         /// Initialize TCP client with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public TcpClient(IPEndPoint endpoint)
+        public TcpClient(IPEndPoint endpoint) : this(endpoint as EndPoint) {}
+        /// <summary>
+        /// Initialize TCP client with a given DNS endpoint
+        /// </summary>
+        /// <param name="endpoint">DNS endpoint</param>
+        public TcpClient(DnsEndPoint endpoint) : this(endpoint as EndPoint) {}
+        /// <summary>
+        /// Initialize TCP client with a given endpoint
+        /// </summary>
+        /// <param name="endpoint">DNS endpoint</param>
+        private TcpClient(EndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Endpoint = endpoint;
@@ -43,7 +53,7 @@ namespace NetCoreServer
         /// <summary>
         /// IP endpoint
         /// </summary>
-        public IPEndPoint Endpoint { get; private set; }
+        public EndPoint Endpoint { get; private set; }
         /// <summary>
         /// Socket
         /// </summary>

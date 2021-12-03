@@ -29,6 +29,11 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
         public WsClient(IPEndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
+        /// <summary>
+        /// Initialize WebSocket client with a given DNS endpoint
+        /// </summary>
+        /// <param name="endpoint">DNS endpoint</param>
+        public WsClient(DnsEndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
 
         /// <summary>
         /// WebSocket random nonce

@@ -34,10 +34,27 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">IP endpoint</param>
-        public SslClient(SslContext context, IPEndPoint endpoint)
+        public SslClient(SslContext context, IPEndPoint endpoint) : this(context, endpoint as EndPoint)
+        {
+            Address = endpoint.Address.ToString();
+        }
+        /// <summary>
+        /// Initialize SSL client with a given DNS endpoint
+        /// </summary>
+        /// <param name="context">SSL context</param>
+        /// <param name="endpoint">DNS endpoint</param>
+        public SslClient(SslContext context, DnsEndPoint endpoint) : this(context, endpoint as EndPoint)
+        {
+            Address = endpoint.Host;
+        }
+        /// <summary>
+        /// Initialize SSL client with a given endpoint
+        /// </summary>
+        /// <param name="context">SSL context</param>
+        /// <param name="endpoint">Endpoint</param>
+        private SslClient(SslContext context, EndPoint endpoint)
         {
             Id = Guid.NewGuid();
-            Address = endpoint.Address.ToString();
             Context = context;
             Endpoint = endpoint;
         }
@@ -58,7 +75,7 @@ namespace NetCoreServer
         /// <summary>
         /// IP endpoint
         /// </summary>
-        public IPEndPoint Endpoint { get; private set; }
+        public EndPoint Endpoint { get; private set; }
         /// <summary>
         /// Socket
         /// </summary>
@@ -103,6 +120,13 @@ namespace NetCoreServer
         /// This option will enable/disable Nagle's algorithm for SSL protocol
         /// </remarks>
         public bool OptionNoDelay { get; set; }
+        /// <summary>
+        /// Option: use best protocol
+        /// </summary>
+        /// <remarks>
+        /// This option allows the operating system to choose the best protocol to use, and to block protocols that are not secure.
+        /// </remarks>
+        public bool OptionUseBestProtocol { get; set; }
         /// <summary>
         /// Option: receive buffer limit
         /// </summary>
@@ -257,7 +281,10 @@ namespace NetCoreServer
                 OnHandshaking();
 
                 // SSL handshake
-                _sslStream.AuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true);
+                if (OptionUseBestProtocol)
+                    _sslStream.AuthenticateAsClient(Address);
+                else
+                    _sslStream.AuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true);
             }
             catch (Exception)
             {
@@ -792,7 +819,10 @@ namespace NetCoreServer
 
                     // Begin the SSL handshake
                     IsHandshaking = true;
-                    _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, _sslStreamId);
+                    if (OptionUseBestProtocol)
+                        _sslStream.BeginAuthenticateAsClient(Address, ProcessHandshake, _sslStreamId);
+                    else
+                        _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, _sslStreamId);
                 }
                 catch (Exception)
                 {

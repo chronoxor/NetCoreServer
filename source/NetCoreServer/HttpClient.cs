@@ -28,6 +28,11 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
         public HttpClient(IPEndPoint endpoint) : base(endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
+        /// <summary>
+        /// Initialize HTTP client with a given DNS endpoint
+        /// </summary>
+        /// <param name="endpoint">DNS endpoint</param>
+        public HttpClient(DnsEndPoint endpoint) : base(endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
 
         /// <summary>
         /// Get the HTTP request

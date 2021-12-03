@@ -28,7 +28,17 @@ namespace NetCoreServer
         /// Initialize UDP client with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public UdpClient(IPEndPoint endpoint)
+        public UdpClient(IPEndPoint endpoint) : this(endpoint as EndPoint) {}
+        /// <summary>
+        /// Initialize UDP client with a given DNS endpoint
+        /// </summary>
+        /// <param name="endpoint">IP endpoint</param>
+        public UdpClient(DnsEndPoint endpoint) : this(endpoint as EndPoint) {}
+        /// <summary>
+        /// Initialize UDP client with a given endpoint
+        /// </summary>
+        /// <param name="endpoint">Endpoint</param>
+        private UdpClient(EndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Endpoint = endpoint;
@@ -42,7 +52,7 @@ namespace NetCoreServer
         /// <summary>
         /// IP endpoint
         /// </summary>
-        public IPEndPoint Endpoint { get; private set; }
+        public EndPoint Endpoint { get; private set; }
         /// <summary>
         /// Socket
         /// </summary>
