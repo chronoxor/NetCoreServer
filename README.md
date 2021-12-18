@@ -57,7 +57,7 @@ solution.
     * [Diffie-Hellman key exchange](#diffie-hellman-key-exchange)
 
 # Features
-* Cross platform (Linux, OSX, Windows)
+* Cross platform (Linux, MacOS, Windows)
 * Asynchronous communication
 * Supported transport protocols: [TCP](#example-tcp-chat-server), [SSL](#example-ssl-chat-server),
   [UDP](#example-udp-echo-server), [UDP multicast](#example-udp-multicast-server)
@@ -67,7 +67,7 @@ solution.
 
 # Requirements
 * Linux
-* OSX
+* MacOS
 * Windows 10
 * [.NET 5.0](https://dotnet.microsoft.com/download)
 * [7-Zip](https://www.7-zip.org)
@@ -92,7 +92,7 @@ cd build
 ./unix.sh
 ```
 
-### OSX
+### MacOS
 ```shell
 cd build
 ./unix.sh
