@@ -2276,7 +2276,7 @@ of errors.
 ### TCP echo server
 
 * [TcpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
-* [TcpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoClient/Program.cs) -c 1
+* [TcpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2297,7 +2297,7 @@ Message throughput: 9413997 msg/s
 ```
 
 * [TcpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoServer/Program.cs)
-* [TcpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoClient/Program.cs) -c 100
+* [TcpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpEchoClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2320,7 +2320,7 @@ Message throughput: 5847523 msg/s
 ### SSL echo server
 
 * [SslEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoServer/Program.cs)
-* [SslEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoClient/Program.cs) -c 1
+* [SslEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2341,7 +2341,7 @@ Message throughput: 4623352 msg/s
 ```
 
 * [SslEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoServer/Program.cs)
-* [SslEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoClient/Program.cs) -c 100
+* [SslEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslEchoClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2364,7 +2364,7 @@ Message throughput: 4873398 msg/s
 ### UDP echo server
 
 * [UdpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
-* [UdpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoClient/Program.cs) -c 1
+* [UdpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2385,7 +2385,7 @@ Message throughput: 110960 msg/s
 ```
 
 * [UdpEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoServer/Program.cs)
-* [UdpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoClient/Program.cs) -c 100
+* [UdpEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpEchoClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2408,7 +2408,7 @@ Message throughput: 62693 msg/s
 ### WebSocket echo server
 
 * [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
-* [WsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoClient/Program.cs) -c 1
+* [WsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2429,7 +2429,7 @@ Message throughput: 1137864 msg/s
 ```
 
 * [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
-* [WsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoClient/Program.cs) -c 100
+* [WsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2452,7 +2452,7 @@ Message throughput: 1387555 msg/s
 ### WebSocket secure echo server
 
 * [WssEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoServer/Program.cs)
-* [WssEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoClient/Program.cs) -c 1
+* [WssEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2473,7 +2473,7 @@ Message throughput: 647153 msg/s
 ```
 
 * [WssEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoServer/Program.cs)
-* [WssEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoClient/Program.cs) -c 100
+* [WssEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssEchoClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2505,7 +2505,7 @@ of errors.
 ### TCP multicast server
 
 * [TcpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
-* [TcpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastClient/Program.cs) -c 1
+* [TcpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2525,7 +2525,7 @@ Message throughput: 1330734 msg/s
 ```
 
 * [TcpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastServer/Program.cs)
-* [TcpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastClient/Program.cs) -c 100
+* [TcpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/TcpMulticastClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2547,7 +2547,7 @@ Message throughput: 1365280 msg/s
 ### SSL multicast server
 
 * [SslMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastServer/Program.cs)
-* [SslMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastClient/Program.cs) -c 1
+* [SslMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2567,7 +2567,7 @@ Message throughput: 1063075 msg/s
 ```
 
 * [SslMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastServer/Program.cs)
-* [SslMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastClient/Program.cs) -c 100
+* [SslMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/SslMulticastClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2589,7 +2589,7 @@ Message throughput: 1109393 msg/s
 ### UDP multicast server
 
 * [UdpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
-* [UdpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastClient/Program.cs) -c 1
+* [UdpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastClient/Program.cs) --clients 1
 
 ```
 Server address: 239.255.0.1
@@ -2609,7 +2609,7 @@ Message throughput: 43205 msg/s
 ```
 
 * [UdpMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastServer/Program.cs)
-* [UdpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastClient/Program.cs) -c 100
+* [UdpMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdpMulticastClient/Program.cs) --clients 100
 
 ```
 Server address: 239.255.0.1
@@ -2631,7 +2631,7 @@ Message throughput: 93606 msg/s
 ### WebSocket multicast server
 
 * [WsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastServer/Program.cs)
-* [WsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastClient/Program.cs) -c 1
+* [WsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2651,7 +2651,7 @@ Message throughput: 597121 msg/s
 ```
 
 * [WsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastServer/Program.cs)
-* [WsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastClient/Program.cs) -c 100
+* [WsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsMulticastClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2673,7 +2673,7 @@ Message throughput: 403466 msg/s
 ### WebSocket secure multicast server
 
 * [WssMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastServer/Program.cs)
-* [WssMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastClient/Program.cs) -c 1
+* [WssMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2693,7 +2693,7 @@ Message throughput: 601338 msg/s
 ```
 
 * [WssMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastServer/Program.cs)
-* [WssMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastClient/Program.cs) -c 100
+* [WssMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WssMulticastClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2717,7 +2717,7 @@ Message throughput: 1015763 msg/s
 ### HTTP Trace server
 
 * [HttpTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceServer/Program.cs)
-* [HttpTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceClient/Program.cs) -c 1
+* [HttpTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2737,7 +2737,7 @@ Message throughput: 10820 msg/s
 ```
 
 * [HttpTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceServer/Program.cs)
-* [HttpTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceClient/Program.cs) -c 100
+* [HttpTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpTraceClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
@@ -2759,7 +2759,7 @@ Message throughput: 39807 msg/s
 ### HTTPS Trace server
 
 * [HttpsTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceServer/Program.cs)
-* [HttpsTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceClient/Program.cs) -c 1
+* [HttpsTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceClient/Program.cs) --clients 1
 
 ```
 Server address: 127.0.0.1
@@ -2779,7 +2779,7 @@ Message throughput: 10189 msg/s
 ```
 
 * [HttpsTraceServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceServer/Program.cs)
-* [HttpsTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceClient/Program.cs) -c 100
+* [HttpsTraceClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/HttpsTraceClient/Program.cs) --clients 100
 
 ```
 Server address: 127.0.0.1
