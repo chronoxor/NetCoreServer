@@ -1,12 +1,18 @@
 # NetCoreServer
 
 [![Awesome .NET](https://awesome.re/badge.svg)](https://github.com/quozd/awesome-dotnet)
-[![NetCoreServer](https://github.com/chronoxor/NetCoreServer/actions/workflows/workflow.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/workflow.yml)
+<br/>
+![Linux](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-linux.yml/badge.svg)
+![MacOS](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-macos.yml/badge.svg)
+![Windows](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-windows.yml/badge.svg)
+<br/>
 [![NuGet](https://img.shields.io/nuget/v/NetCoreServer)](https://www.nuget.org/packages/NetCoreServer)
 
 Ultra fast and low latency asynchronous socket server & client C# .NET Core
 library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)
 solution.
+
+Has integration with message protocol based on [Fast Binary Encoding](https://github.com/chronoxor/FastBinaryEncoding)
 
 [NetCoreServer documentation](https://chronoxor.github.io/NetCoreServer)<br/>
 [NetCoreServer downloads](https://github.com/chronoxor/NetCoreServer/releases)<br/>
@@ -64,6 +70,7 @@ solution.
 * Supported Web protocols: [HTTP](#example-http-server), [HTTPS](#example-https-server),
   [WebSocket](#example-websocket-chat-server), [WebSocket secure](#example-websocket-secure-chat-server)
 * Supported [Swagger OpenAPI](https://swagger.io/specification/) iterative documentation
+* Supported message protocol based on [Fast Binary Encoding](https://github.com/chronoxor/FastBinaryEncoding)
 
 # Requirements
 * Linux

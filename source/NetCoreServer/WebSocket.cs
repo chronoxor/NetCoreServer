@@ -89,7 +89,7 @@ namespace NetCoreServer
                     // Calculate the original WebSocket hash
                     string wskey = Convert.ToBase64String(WsNonce) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                     string wshash;
-                    using (SHA1Managed sha1 = new SHA1Managed())
+                    using (SHA1 sha1 = SHA1.Create())
                     {
                         wshash = Encoding.UTF8.GetString(sha1.ComputeHash(Encoding.UTF8.GetBytes(wskey)));
                     }
@@ -185,7 +185,7 @@ namespace NetCoreServer
                     // Calculate the original WebSocket hash
                     string wskey = value + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                     byte[] wshash;
-                    using (SHA1Managed sha1 = new SHA1Managed())
+                    using (SHA1 sha1 = SHA1.Create())
                     {
                         wshash = sha1.ComputeHash(Encoding.UTF8.GetBytes(wskey));
                     }

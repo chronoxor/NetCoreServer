@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Version>5.1.0.0</Version>
+    <TargetFramework>net6.0</TargetFramework>
+    <Version>6.0.0.0</Version>
     <Authors>Ivan Shynkarenka</Authors>
-    <Copyright>Copyright (c) 2019-2021 Ivan Shynkarenka</Copyright>
+    <Copyright>Copyright (c) 2019-2022 Ivan Shynkarenka</Copyright>
     <RepositoryUrl>https://github.com/chronoxor/NetCoreServer</RepositoryUrl>
     <Description>Ultra fast and low latency asynchronous socket server &amp; client C# .NET Core library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket protocols and 10K connections problem solution</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
