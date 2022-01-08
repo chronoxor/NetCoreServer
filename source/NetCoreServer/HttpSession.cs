@@ -176,7 +176,7 @@
         /// </remarks>
         /// <param name="request">HTTP request</param>
         /// <param name="content">Cached response content</param>
-        protected virtual void OnReceivedCachedRequest(HttpRequest request, string content) { SendAsync(content); }
+        protected virtual void OnReceivedCachedRequest(HttpRequest request, byte[] content) { SendAsync(content); }
 
         /// <summary>
         /// Handle HTTP request error notification
