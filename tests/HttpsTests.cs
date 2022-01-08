@@ -115,8 +115,8 @@ namespace tests
             int port = 8443;
 
             // Create and prepare a new SSL server and client context
-            var server_context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
-            var client_context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+            var server_context = new SslContext(SslProtocols.Tls13, new X509Certificate2("server.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+            var client_context = new SslContext(SslProtocols.Tls13, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
 
             // Create and start HTTPS server
             var server = new HttpsCacheServer(server_context, IPAddress.Any, port);

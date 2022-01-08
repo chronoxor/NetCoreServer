@@ -172,7 +172,7 @@ namespace HttpsServer
             Console.WriteLine();
 
             // Create and prepare a new SSL server context
-            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
+            var context = new SslContext(SslProtocols.Tls13, new X509Certificate2("server.pfx", "qwerty"));
 
             // Create a new HTTP server
             var server = new HttpsCacheServer(context, IPAddress.Any, port);
