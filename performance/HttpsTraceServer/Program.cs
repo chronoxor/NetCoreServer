@@ -81,7 +81,7 @@ namespace HttpsTraceServer
             Console.WriteLine();
 
             // Create and prepare a new SSL server context
-            var context = new SslContext(SslProtocols.Tls13, new X509Certificate2("server.pfx", "qwerty"));
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
 
             // Create a new HTTPS server
             var server = new HttpsTraceServer(context, IPAddress.Any, port);
