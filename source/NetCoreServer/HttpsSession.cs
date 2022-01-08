@@ -154,14 +154,29 @@
         /// </summary>
         /// <remarks>Notification is called when HTTP request header was received from the client.</remarks>
         /// <param name="request">HTTP request</param>
-        protected virtual void OnReceivedRequestHeader(HttpRequest request) { }
+        protected virtual void OnReceivedRequestHeader(HttpRequest request) {}
 
         /// <summary>
         /// Handle HTTP request received notification
         /// </summary>
         /// <remarks>Notification is called when HTTP request was received from the client.</remarks>
         /// <param name="request">HTTP request</param>
-        protected virtual void OnReceivedRequest(HttpRequest request) { }
+        protected virtual void OnReceivedRequest(HttpRequest request) {}
+
+        /// <summary>
+        /// Handle HTTP cached request received notification
+        /// </summary>
+        /// <remarks>
+        /// Notification is called when HTTP request was received
+        /// from the client and the corresponding cached content
+        /// was found.
+        ///
+        /// Default behavior is just send cached response content
+        /// to the client.
+        /// </remarks>
+        /// <param name="request">HTTP request</param>
+        /// <param name="content">Cached response content</param>
+        protected virtual void OnReceivedCachedRequest(HttpRequest request, string content) { SendAsync(content); }
 
         /// <summary>
         /// Handle HTTP request error notification
@@ -169,7 +184,7 @@
         /// <remarks>Notification is called when HTTP request error was received from the client.</remarks>
         /// <param name="request">HTTP request</param>
         /// <param name="error">HTTP request error</param>
-        protected virtual void OnReceivedRequestError(HttpRequest request, string error) { }
+        protected virtual void OnReceivedRequestError(HttpRequest request, string error) {}
 
         #endregion
 
@@ -181,7 +196,8 @@
                 var response = Cache.Find(request.Url);
                 if (response.Item1)
                 {
-                    SendAsync(response.Item2);
+                    // Process the request with the cached response
+                    OnReceivedCachedRequest(request, response.Item2);
                     return;
                 }
             }

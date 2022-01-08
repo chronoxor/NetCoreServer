@@ -8,7 +8,7 @@ namespace WsChatServer
 {
     class ChatSession : WsSession
     {
-        public ChatSession(WsServer server) : base(server) { }
+        public ChatSession(WsServer server) : base(server) {}
 
         public override void OnWsConnected(HttpRequest request)
         {
@@ -45,7 +45,7 @@ namespace WsChatServer
 
     class ChatServer : WsServer
     {
-        public ChatServer(IPAddress address, int port) : base(address, port) { }
+        public ChatServer(IPAddress address, int port) : base(address, port) {}
 
         protected override TcpSession CreateSession() { return new ChatSession(this); }
 

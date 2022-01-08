@@ -12,7 +12,7 @@ namespace WssMulticastServer
 {
     class MulticastSession : WssSession
     {
-        public MulticastSession(WssServer server) : base(server) { }
+        public MulticastSession(WssServer server) : base(server) {}
 
         protected override void OnError(SocketError error)
         {
@@ -22,7 +22,7 @@ namespace WssMulticastServer
 
     class MulticastServer : WssServer
     {
-        public MulticastServer(SslContext context, IPAddress address, int port) : base(context, address, port) { }
+        public MulticastServer(SslContext context, IPAddress address, int port) : base(context, address, port) {}
 
         protected override SslSession CreateSession() { return new MulticastSession(this); }
 

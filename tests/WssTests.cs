@@ -19,7 +19,7 @@ namespace tests
         public int Received { get; set; }
         public bool Errors { get; set; }
 
-        public EchoWssClient(SslContext context, string address, int port) : base(context, address, port) { }
+        public EchoWssClient(SslContext context, string address, int port) : base(context, address, port) {}
 
         public static SslContext CreateContext()
         {
@@ -51,7 +51,7 @@ namespace tests
         public bool Disconnected { get; set; }
         public bool Errors { get; set; }
 
-        public EchoWssSession(WssServer server) : base(server) { }
+        public EchoWssSession(WssServer server) : base(server) {}
 
         public override void OnWsConnected(HttpResponse response) { Connected = true; }
         public override void OnWsDisconnected() { Disconnected = true; }
@@ -69,7 +69,7 @@ namespace tests
         public int Clients { get; set; }
         public bool Errors { get; set; }
 
-        public EchoWssServer(SslContext context, IPAddress address, int port) : base(context, address, port) { }
+        public EchoWssServer(SslContext context, IPAddress address, int port) : base(context, address, port) {}
 
         public static SslContext CreateContext()
         {

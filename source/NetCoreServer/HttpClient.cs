@@ -165,14 +165,14 @@ namespace NetCoreServer
         /// </summary>
         /// <remarks>Notification is called when HTTP response header was received from the server.</remarks>
         /// <param name="response">HTTP request</param>
-        protected virtual void OnReceivedResponseHeader(HttpResponse response) { }
+        protected virtual void OnReceivedResponseHeader(HttpResponse response) {}
 
         /// <summary>
         /// Handle HTTP response received notification
         /// </summary>
         /// <remarks>Notification is called when HTTP response was received from the server.</remarks>
         /// <param name="response">HTTP response</param>
-        protected virtual void OnReceivedResponse(HttpResponse response) { }
+        protected virtual void OnReceivedResponse(HttpResponse response) {}
 
         /// <summary>
         /// Handle HTTP response error notification
@@ -180,7 +180,7 @@ namespace NetCoreServer
         /// <remarks>Notification is called when HTTP response error was received from the server.</remarks>
         /// <param name="response">HTTP response</param>
         /// <param name="error">HTTP response error</param>
-        protected virtual void OnReceivedResponseError(HttpResponse response, string error) { }
+        protected virtual void OnReceivedResponseError(HttpResponse response, string error) {}
 
         #endregion
     }

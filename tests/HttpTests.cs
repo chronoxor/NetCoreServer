@@ -54,7 +54,7 @@ namespace tests
 
     class HttpCacheSession : HttpSession
     {
-        public HttpCacheSession(HttpServer server) : base(server) { }
+        public HttpCacheSession(HttpServer server) : base(server) {}
 
         protected override void OnReceivedRequest(HttpRequest request)
         {
@@ -139,7 +139,7 @@ namespace tests
 
     class HttpCacheServer : HttpServer
     {
-        public HttpCacheServer(IPAddress address, int port) : base(address, port) { }
+        public HttpCacheServer(IPAddress address, int port) : base(address, port) {}
 
         protected override TcpSession CreateSession() { return new HttpCacheSession(this); }
 

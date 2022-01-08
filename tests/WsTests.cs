@@ -17,7 +17,7 @@ namespace tests
         public int Received { get; set; }
         public bool Errors { get; set; }
 
-        public EchoWsClient(string address, int port) : base(address, port) { }
+        public EchoWsClient(string address, int port) : base(address, port) {}
 
         public override void OnWsConnecting(HttpRequest request)
         {
@@ -44,7 +44,7 @@ namespace tests
         public bool Disconnected { get; set; }
         public bool Errors { get; set; }
 
-        public EchoWsSession(WsServer server) : base(server) { }
+        public EchoWsSession(WsServer server) : base(server) {}
 
         public override void OnWsConnected(HttpResponse response) { Connected = true; }
         public override void OnWsDisconnected() { Disconnected = true; }
@@ -62,7 +62,7 @@ namespace tests
         public int Clients { get; set; }
         public bool Errors { get; set; }
 
-        public EchoWsServer(IPAddress address, int port) : base(address, port) { }
+        public EchoWsServer(IPAddress address, int port) : base(address, port) {}
 
         protected override TcpSession CreateSession() { return new EchoWsSession(this); }
 

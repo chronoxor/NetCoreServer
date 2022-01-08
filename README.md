@@ -1429,7 +1429,7 @@ namespace HttpsServer
 
     class HttpsCacheSession : HttpsSession
     {
-        public HttpsCacheSession(NetCoreServer.HttpsServer server) : base(server) { }
+        public HttpsCacheSession(NetCoreServer.HttpsServer server) : base(server) {}
 
         protected override void OnReceivedRequest(HttpRequest request)
         {
@@ -1732,7 +1732,7 @@ namespace WsChatServer
 {
     class ChatSession : WsSession
     {
-        public ChatSession(WsServer server) : base(server) { }
+        public ChatSession(WsServer server) : base(server) {}
 
         public override void OnWsConnected(HttpRequest request)
         {
@@ -1769,7 +1769,7 @@ namespace WsChatServer
 
     class ChatServer : WsServer
     {
-        public ChatServer(IPAddress address, int port) : base(address, port) { }
+        public ChatServer(IPAddress address, int port) : base(address, port) {}
 
         protected override TcpSession CreateSession() { return new ChatSession(this); }
 
@@ -1854,7 +1854,7 @@ namespace WsChatClient
 {
     class ChatClient : WsClient
     {
-        public ChatClient(string address, int port) : base(address, port) { }
+        public ChatClient(string address, int port) : base(address, port) {}
 
         public void DisconnectAndStop()
         {
@@ -1997,7 +1997,7 @@ namespace WssChatServer
 {
     class ChatSession : WssSession
     {
-        public ChatSession(WssServer server) : base(server) { }
+        public ChatSession(WssServer server) : base(server) {}
 
         public override void OnWsConnected(HttpRequest request)
         {
@@ -2034,7 +2034,7 @@ namespace WssChatServer
 
     class ChatServer : WssServer
     {
-        public ChatServer(SslContext context, IPAddress address, int port) : base(context, address, port) { }
+        public ChatServer(SslContext context, IPAddress address, int port) : base(context, address, port) {}
 
         protected override SslSession CreateSession() { return new ChatSession(this); }
 
@@ -2127,7 +2127,7 @@ namespace WssChatClient
 {
     class ChatClient : WssClient
     {
-        public ChatClient(SslContext context, string address, int port) : base(context, address, port) { }
+        public ChatClient(SslContext context, string address, int port) : base(context, address, port) {}
 
         public void DisconnectAndStop()
         {

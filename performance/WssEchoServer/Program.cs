@@ -10,7 +10,7 @@ namespace WssEchoServer
 {
     class EchoSession : WssSession
     {
-        public EchoSession(WssServer server) : base(server) { }
+        public EchoSession(WssServer server) : base(server) {}
 
         public override void OnWsReceived(byte[] buffer, long offset, long size)
         {
@@ -26,7 +26,7 @@ namespace WssEchoServer
 
     class EchoServer : WssServer
     {
-        public EchoServer(SslContext context, IPAddress address, int port) : base(context, address, port) { }
+        public EchoServer(SslContext context, IPAddress address, int port) : base(context, address, port) {}
 
         protected override SslSession CreateSession() { return new EchoSession(this); }
 

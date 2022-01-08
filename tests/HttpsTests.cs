@@ -11,7 +11,7 @@ namespace tests
 {
     class HttpsCacheSession : HttpsSession
     {
-        public HttpsCacheSession(HttpsServer server) : base(server) { }
+        public HttpsCacheSession(HttpsServer server) : base(server) {}
 
         protected override void OnReceivedRequest(HttpRequest request)
         {
@@ -96,7 +96,7 @@ namespace tests
 
     class HttpsCacheServer : HttpsServer
     {
-        public HttpsCacheServer(SslContext context, IPAddress address, int port) : base(context, address, port) { }
+        public HttpsCacheServer(SslContext context, IPAddress address, int port) : base(context, address, port) {}
 
         protected override SslSession CreateSession() { return new HttpsCacheSession(this); }
 

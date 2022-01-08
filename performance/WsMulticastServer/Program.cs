@@ -10,7 +10,7 @@ namespace WsMulticastServer
 {
     class MulticastSession : WsSession
     {
-        public MulticastSession(WsServer server) : base(server) { }
+        public MulticastSession(WsServer server) : base(server) {}
 
         protected override void OnError(SocketError error)
         {
@@ -20,7 +20,7 @@ namespace WsMulticastServer
 
     class MulticastServer : WsServer
     {
-        public MulticastServer(IPAddress address, int port) : base(address, port) { }
+        public MulticastServer(IPAddress address, int port) : base(address, port) {}
 
         protected override TcpSession CreateSession() { return new MulticastSession(this); }
 

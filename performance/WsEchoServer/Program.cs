@@ -8,7 +8,7 @@ namespace WsEchoServer
 {
     class EchoSession : WsSession
     {
-        public EchoSession(WsServer server) : base(server) { }
+        public EchoSession(WsServer server) : base(server) {}
 
         public override void OnWsReceived(byte[] buffer, long offset, long size)
         {
@@ -24,7 +24,7 @@ namespace WsEchoServer
 
     class EchoServer : WsServer
     {
-        public EchoServer(IPAddress address, int port) : base(address, port) { }
+        public EchoServer(IPAddress address, int port) : base(address, port) {}
 
         protected override TcpSession CreateSession() { return new EchoSession(this); }
 

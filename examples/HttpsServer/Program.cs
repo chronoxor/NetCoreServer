@@ -54,7 +54,7 @@ namespace HttpsServer
 
     class HttpsCacheSession : HttpsSession
     {
-        public HttpsCacheSession(NetCoreServer.HttpsServer server) : base(server) { }
+        public HttpsCacheSession(NetCoreServer.HttpsServer server) : base(server) {}
 
         protected override void OnReceivedRequest(HttpRequest request)
         {

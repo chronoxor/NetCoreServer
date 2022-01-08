@@ -8,7 +8,7 @@ namespace HttpTraceServer
 {
     class HttpTraceSession : HttpSession
     {
-        public HttpTraceSession(HttpServer server) : base(server) { }
+        public HttpTraceSession(HttpServer server) : base(server) {}
 
         protected override void OnReceivedRequest(HttpRequest request)
         {
@@ -32,7 +32,7 @@ namespace HttpTraceServer
 
     class HttpTraceServer : HttpServer
     {
-        public HttpTraceServer(IPAddress address, int port) : base(address, port) { }
+        public HttpTraceServer(IPAddress address, int port) : base(address, port) {}
 
         protected override TcpSession CreateSession() { return new HttpTraceSession(this); }
 

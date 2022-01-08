@@ -10,7 +10,7 @@ namespace HttpsTraceServer
 {
     class HttpsTraceSession : HttpsSession
     {
-        public HttpsTraceSession(HttpsServer server) : base(server) { }
+        public HttpsTraceSession(HttpsServer server) : base(server) {}
 
         protected override void OnReceivedRequest(HttpRequest request)
         {
@@ -34,7 +34,7 @@ namespace HttpsTraceServer
 
     class HttpsTraceServer : HttpsServer
     {
-        public HttpsTraceServer(SslContext context, IPAddress address, int port) : base(context, address, port) { }
+        public HttpsTraceServer(SslContext context, IPAddress address, int port) : base(context, address, port) {}
 
         protected override SslSession CreateSession() { return new HttpsTraceSession(this); }
 
