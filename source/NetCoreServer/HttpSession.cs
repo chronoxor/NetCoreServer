@@ -193,7 +193,8 @@
             // Try to get the cached response
             if (request.Method == "GET")
             {
-                var response = Cache.Find(request.Url);
+                var index = request.Url.IndexOf("?");
+                var response = Cache.Find((index < 0) ? request.Url : request.Url.Substring(0, index));
                 if (response.Item1)
                 {
                     // Process the request with the cached response
