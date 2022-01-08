@@ -24,10 +24,10 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public HttpClient(string address, int port) : base(address, port) { Request = new HttpRequest(); Response = new HttpResponse(); }
         /// <summary>
-        /// Initialize HTTP client with a given IP endpoint
+        /// Initialize HTTP client with a given network endpoint
         /// </summary>
-        /// <param name="endpoint">IP endpoint</param>
-        public HttpClient(IPEndPoint endpoint) : base(endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
+        /// <param name="endpoint">Network endpoint</param>
+        public HttpClient(EndPoint endpoint) : base(endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
 
         /// <summary>
         /// Get the HTTP request
@@ -204,10 +204,10 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public HttpClientEx(string address, int port) : base(address, port) {}
         /// <summary>
-        /// Initialize HTTP client with a given IP endpoint
+        /// Initialize HTTP client with a given network endpoint
         /// </summary>
-        /// <param name="endpoint">IP endpoint</param>
-        public HttpClientEx(IPEndPoint endpoint) : base(endpoint) {}
+        /// <param name="endpoint">Network endpoint</param>
+        public HttpClientEx(EndPoint endpoint) : base(endpoint) {}
 
         #region Send request
 

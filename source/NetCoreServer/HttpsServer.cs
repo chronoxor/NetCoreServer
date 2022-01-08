@@ -25,11 +25,11 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public HttpsServer(SslContext context, string address, int port) : base(context, address, port) { Cache = new FileCache(); }
         /// <summary>
-        /// Initialize HTTPS server with a given IP endpoint
+        /// Initialize HTTPS server with a given network endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
-        /// <param name="endpoint">IP endpoint</param>
-        public HttpsServer(SslContext context, IPEndPoint endpoint) : base(context, endpoint) { Cache = new FileCache(); }
+        /// <param name="endpoint">Network endpoint</param>
+        public HttpsServer(SslContext context, EndPoint endpoint) : base(context, endpoint) { Cache = new FileCache(); }
 
         /// <summary>
         /// Get the static content cache

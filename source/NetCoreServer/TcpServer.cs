@@ -27,10 +27,10 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public TcpServer(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
         /// <summary>
-        /// Initialize TCP server with a given IP endpoint
+        /// Initialize TCP server with a given network endpoint
         /// </summary>
-        /// <param name="endpoint">IP endpoint</param>
-        public TcpServer(IPEndPoint endpoint)
+        /// <param name="endpoint">Network endpoint</param>
+        public TcpServer(EndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Endpoint = endpoint;
@@ -42,9 +42,9 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
-        /// IP endpoint
+        /// Network endpoint
         /// </summary>
-        public IPEndPoint Endpoint { get; private set; }
+        public EndPoint Endpoint { get; private set; }
 
         /// <summary>
         /// Number of sessions connected to the server
@@ -175,10 +175,10 @@ namespace NetCoreServer
             if (_acceptorSocket.AddressFamily == AddressFamily.InterNetworkV6)
                 _acceptorSocket.DualMode = OptionDualMode;
 
-            // Bind the acceptor socket to the IP endpoint
+            // Bind the acceptor socket to the network endpoint
             _acceptorSocket.Bind(Endpoint);
             // Refresh the endpoint property based on the actual endpoint created
-            Endpoint = (IPEndPoint)_acceptorSocket.LocalEndPoint;
+            Endpoint = _acceptorSocket.LocalEndPoint;
 
             // Call the server starting handler
             OnStarting();

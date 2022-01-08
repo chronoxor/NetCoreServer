@@ -30,14 +30,25 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public SslClient(SslContext context, string address, int port) : this(context, new IPEndPoint(IPAddress.Parse(address), port)) { Address = address; }
         /// <summary>
+        /// Initialize SSL client with a given DNS endpoint
+        /// </summary>
+        /// <param name="context">SSL context</param>
+        /// <param name="endpoint">DNS endpoint</param>
+        public SslClient(SslContext context, DnsEndPoint endpoint) : this(context, endpoint as EndPoint) { Address = endpoint.Host; }
+        /// <summary>
         /// Initialize SSL client with a given IP endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">IP endpoint</param>
-        public SslClient(SslContext context, IPEndPoint endpoint)
+        public SslClient(SslContext context, IPEndPoint endpoint) : this(context, endpoint as EndPoint) { Address = endpoint.Address.ToString(); }
+        /// <summary>
+        /// Initialize SSL client with a given network endpoint
+        /// </summary>
+        /// <param name="context">SSL context</param>
+        /// <param name="endpoint">Network endpoint</param>
+        public SslClient(SslContext context, EndPoint endpoint)
         {
             Id = Guid.NewGuid();
-            Address = endpoint.Address.ToString();
             Context = context;
             Endpoint = endpoint;
         }
@@ -56,9 +67,9 @@ namespace NetCoreServer
         /// </summary>
         public SslContext Context { get; private set; }
         /// <summary>
-        /// IP endpoint
+        /// Network endpoint
         /// </summary>
-        public IPEndPoint Endpoint { get; private set; }
+        public EndPoint Endpoint { get; private set; }
         /// <summary>
         /// Socket
         /// </summary>
@@ -257,7 +268,12 @@ namespace NetCoreServer
                 OnHandshaking();
 
                 // SSL handshake
-                _sslStream.AuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true);
+                if (Context.Certificates != null)
+                    _sslStream.AuthenticateAsClient(Address, Context.Certificates, Context.Protocols, true);
+                else if (Context.Certificate != null)
+                    _sslStream.AuthenticateAsClient(Address, new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true);
+                else
+                    _sslStream.AuthenticateAsClient(Address);
             }
             catch (Exception)
             {
@@ -792,7 +808,12 @@ namespace NetCoreServer
 
                     // Begin the SSL handshake
                     IsHandshaking = true;
-                    _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates ?? new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, _sslStreamId);
+                    if (Context.Certificates != null)
+                        _sslStream.BeginAuthenticateAsClient(Address, Context.Certificates, Context.Protocols, true, ProcessHandshake, _sslStreamId);
+                    else if (Context.Certificate != null)
+                        _sslStream.BeginAuthenticateAsClient(Address, new X509CertificateCollection(new[] { Context.Certificate }), Context.Protocols, true, ProcessHandshake, _sslStreamId);
+                    else
+                        _sslStream.BeginAuthenticateAsClient(Address, ProcessHandshake, _sslStreamId);
                 }
                 catch (Exception)
                 {

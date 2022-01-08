@@ -26,11 +26,11 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public WssServer(SslContext context, string address, int port) : base(context, address, port) { WebSocket = new WebSocket(this); }
         /// <summary>
-        /// Initialize WebSocket server with a given IP endpoint
+        /// Initialize WebSocket server with a given network endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
-        /// <param name="endpoint">IP endpoint</param>
-        public WssServer(SslContext context, IPEndPoint endpoint) : base(context, endpoint) { WebSocket = new WebSocket(this); }
+        /// <param name="endpoint">Network endpoint</param>
+        public WssServer(SslContext context, EndPoint endpoint) : base(context, endpoint) { WebSocket = new WebSocket(this); }
 
         public virtual bool CloseAll(int status)
         {

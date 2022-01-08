@@ -30,11 +30,11 @@ namespace NetCoreServer
         public SslServer(SslContext context, string address, int port) : this(context, new IPEndPoint(IPAddress.Parse(address), port)) {}
 
         /// <summary>
-        /// Initialize SSL server with a given IP endpoint
+        /// Initialize SSL server with a given network endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
-        /// <param name="endpoint">IP endpoint</param>
-        public SslServer(SslContext context, IPEndPoint endpoint)
+        /// <param name="endpoint">Network endpoint</param>
+        public SslServer(SslContext context, EndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Context = context;
@@ -51,9 +51,9 @@ namespace NetCoreServer
         /// </summary>
         public SslContext Context { get; private set; }
         /// <summary>
-        /// IP endpoint
+        /// Network endpoint
         /// </summary>
-        public IPEndPoint Endpoint { get; private set; }
+        public EndPoint Endpoint { get; private set; }
 
         /// <summary>
         /// Number of sessions connected to the server
@@ -184,10 +184,10 @@ namespace NetCoreServer
             if (_acceptorSocket.AddressFamily == AddressFamily.InterNetworkV6)
                 _acceptorSocket.DualMode = OptionDualMode;
 
-            // Bind the acceptor socket to the IP endpoint
+            // Bind the acceptor socket to the network endpoint
             _acceptorSocket.Bind(Endpoint);
             // Refresh the endpoint property based on the actual endpoint created
-            Endpoint = (IPEndPoint)_acceptorSocket.LocalEndPoint;
+            Endpoint = _acceptorSocket.LocalEndPoint;
 
             // Call the server starting handler
             OnStarting();

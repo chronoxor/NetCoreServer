@@ -25,10 +25,10 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public WsClient(string address, int port) : base(address, port) { WebSocket = new WebSocket(this); }
         /// <summary>
-        /// Initialize WebSocket client with a given IP endpoint
+        /// Initialize WebSocket client with a given network endpoint
         /// </summary>
-        /// <param name="endpoint">IP endpoint</param>
-        public WsClient(IPEndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
+        /// <param name="endpoint">Network endpoint</param>
+        public WsClient(EndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
 
         /// <summary>
         /// WebSocket random nonce

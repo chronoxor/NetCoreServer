@@ -23,10 +23,10 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public HttpServer(string address, int port) : base(address, port) { Cache = new FileCache(); }
         /// <summary>
-        /// Initialize HTTP server with a given IP endpoint
+        /// Initialize HTTP server with a given network endpoint
         /// </summary>
-        /// <param name="endpoint">IP endpoint</param>
-        public HttpServer(IPEndPoint endpoint) : base(endpoint) { Cache = new FileCache(); }
+        /// <param name="endpoint">Network endpoint</param>
+        public HttpServer(EndPoint endpoint) : base(endpoint) { Cache = new FileCache(); }
 
         /// <summary>
         /// Get the static content cache

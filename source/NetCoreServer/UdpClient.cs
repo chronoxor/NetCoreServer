@@ -25,10 +25,10 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public UdpClient(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
         /// <summary>
-        /// Initialize UDP client with a given IP endpoint
+        /// Initialize UDP client with a given network endpoint
         /// </summary>
-        /// <param name="endpoint">IP endpoint</param>
-        public UdpClient(IPEndPoint endpoint)
+        /// <param name="endpoint">Network endpoint</param>
+        public UdpClient(EndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Endpoint = endpoint;
@@ -40,9 +40,9 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
-        /// IP endpoint
+        /// Network endpoint
         /// </summary>
-        public IPEndPoint Endpoint { get; private set; }
+        public EndPoint Endpoint { get; private set; }
         /// <summary>
         /// Socket
         /// </summary>
@@ -173,7 +173,7 @@ namespace NetCoreServer
 
             try
             {
-                // Bind the acceptor socket to the IP endpoint
+                // Bind the acceptor socket to the network endpoint
                 if (OptionMulticast)
                     Socket.Bind(Endpoint);
                 else

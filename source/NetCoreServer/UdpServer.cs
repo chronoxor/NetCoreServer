@@ -26,10 +26,10 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public UdpServer(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
         /// <summary>
-        /// Initialize UDP server with a given IP endpoint
+        /// Initialize UDP server with a given network endpoint
         /// </summary>
-        /// <param name="endpoint">IP endpoint</param>
-        public UdpServer(IPEndPoint endpoint)
+        /// <param name="endpoint">Network endpoint</param>
+        public UdpServer(EndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Endpoint = endpoint;
@@ -41,13 +41,13 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
-        /// IP endpoint
+        /// Network endpoint
         /// </summary>
-        public IPEndPoint Endpoint { get; private set; }
+        public EndPoint Endpoint { get; private set; }
         /// <summary>
-        /// Multicast IP endpoint
+        /// Multicast endpoint
         /// </summary>
-        public IPEndPoint MulticastEndpoint { get; private set; }
+        public EndPoint MulticastEndpoint { get; private set; }
         /// <summary>
         /// Socket
         /// </summary>
@@ -170,10 +170,10 @@ namespace NetCoreServer
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
 
-            // Bind the server socket to the IP endpoint
+            // Bind the server socket to the network endpoint
             Socket.Bind(Endpoint);
             // Refresh the endpoint property based on the actual endpoint created
-            Endpoint = (IPEndPoint)Socket.LocalEndPoint;
+            Endpoint = Socket.LocalEndPoint;
 
             // Call the server starting handler
             OnStarting();
@@ -220,9 +220,9 @@ namespace NetCoreServer
         /// <summary>
         /// Start the server with a given multicast endpoint (synchronous)
         /// </summary>
-        /// <param name="multicastEndpoint">Multicast IP endpoint</param>
+        /// <param name="multicastEndpoint">Multicast endpoint</param>
         /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
-        public virtual bool Start(IPEndPoint multicastEndpoint)
+        public virtual bool Start(EndPoint multicastEndpoint)
         {
             MulticastEndpoint = multicastEndpoint;
             return Start();

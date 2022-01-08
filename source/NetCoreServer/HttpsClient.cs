@@ -26,11 +26,23 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public HttpsClient(SslContext context, string address, int port) : base(context, address, port) { Request = new HttpRequest(); Response = new HttpResponse(); }
         /// <summary>
+        /// Initialize HTTPS client with a given DNS endpoint
+        /// </summary>
+        /// <param name="context">SSL context</param>
+        /// <param name="endpoint">DNS endpoint</param>
+        public HttpsClient(SslContext context, DnsEndPoint endpoint) : base(context, endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
+        /// <summary>
         /// Initialize HTTPS client with a given IP endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">IP endpoint</param>
         public HttpsClient(SslContext context, IPEndPoint endpoint) : base(context, endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
+        /// <summary>
+        /// Initialize HTTPS client with a given network endpoint
+        /// </summary>
+        /// <param name="context">SSL context</param>
+        /// <param name="endpoint">Network endpoint</param>
+        public HttpsClient(SslContext context, EndPoint endpoint) : base(context, endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
 
         /// <summary>
         /// Get the HTTP request
@@ -209,11 +221,11 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public HttpsClientEx(SslContext context, string address, int port) : base(context, address, port) {}
         /// <summary>
-        /// Initialize HTTPS client with a given IP endpoint
+        /// Initialize HTTPS client with a given network endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
-        /// <param name="endpoint">IP endpoint</param>
-        public HttpsClientEx(SslContext context, IPEndPoint endpoint) : base(context, endpoint) {}
+        /// <param name="endpoint">Network endpoint</param>
+        public HttpsClientEx(SslContext context, EndPoint endpoint) : base(context, endpoint) {}
 
         #region Send request
 
