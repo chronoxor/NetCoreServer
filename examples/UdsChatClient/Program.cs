@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using UdsClient = NetCoreServer.UdsClient;
+using NetCoreServer;
 
 namespace UdsChatClient
 {

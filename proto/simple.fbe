@@ -1,0 +1,62 @@
+/*
+   Simple Fast Binary Encoding protocol for CppServer
+   https://github.com/chronoxor/FastBinaryEncoding
+
+   Generate protocol command: fbec --csharp --proto --input=simple.fbe --output=.
+*/
+
+// Domain declaration
+domain com.chronoxor
+
+// Package declaration
+package simple
+
+// Protocol version
+version 1.0
+
+// Simple request message
+[request]
+[response(SimpleResponse)]
+[reject(SimpleReject)]
+message SimpleRequest
+{
+    // Request Id
+    uuid [id] = uuid1;
+    // Request message
+    string Message;
+}
+
+// Simple response
+message SimpleResponse
+{
+    // Response Id
+    uuid [id] = uuid1;
+    // Calculated message length
+    uint32 Length;
+    // Calculated message hash
+    uint32 Hash;
+}
+
+// Simple reject
+message SimpleReject
+{
+    // Reject Id
+    uuid [id] = uuid1;
+    // Error message
+    string Error;
+}
+
+// Simple notification
+message SimpleNotify
+{
+    // Server notification
+    string Notification;
+}
+
+// Disconnect request message
+[request]
+message DisconnectRequest
+{
+    // Request Id
+    uuid [id] = uuid1;
+}

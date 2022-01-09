@@ -32,6 +32,7 @@ Has integration with message protocol based on [Fast Binary Encoding](https://gi
     * [Example: UDP multicast client](#example-udp-multicast-client)
     * [Example: Unix Domain Socket chat server](#example-unix-domain-socket-chat-server)
     * [Example: Unix Domain Socket chat client](#example-unix-domain-socket-chat-client)
+    * [Example: Simple protocol](#example-simple-protocol)
     * [Example: HTTP server](#example-http-server)
     * [Example: HTTP client](#example-http-client)
     * [Example: HTTPS server](#example-https-server)
@@ -1255,6 +1256,74 @@ namespace UdsChatClient
             Console.WriteLine("Done!");
         }
     }
+}
+```
+
+## Example: Simple protocol
+Simple protocol is defined in [simple.fbe](https://github.com/chronoxor/NetCoreServer/blob/master/proto/simple.fbe) file:
+
+```proto
+/*
+   Simple Fast Binary Encoding protocol for CppServer
+   https://github.com/chronoxor/FastBinaryEncoding
+
+   Generate protocol command: fbec --csharp --proto --input=simple.fbe --output=.
+*/
+
+// Domain declaration
+domain com.chronoxor
+
+// Package declaration
+package simple
+
+// Protocol version
+version 1.0
+
+// Simple request message
+[request]
+[response(SimpleResponse)]
+[reject(SimpleReject)]
+message SimpleRequest
+{
+    // Request Id
+    uuid [id] = uuid1;
+    // Request message
+    string Message;
+}
+
+// Simple response
+message SimpleResponse
+{
+    // Response Id
+    uuid [id] = uuid1;
+    // Calculated message length
+    uint32 Length;
+    // Calculated message hash
+    uint32 Hash;
+}
+
+// Simple reject
+message SimpleReject
+{
+    // Reject Id
+    uuid [id] = uuid1;
+    // Error message
+    string Error;
+}
+
+// Simple notification
+message SimpleNotify
+{
+    // Server notification
+    string Notification;
+}
+
+// Disconnect request message
+[request]
+message DisconnectRequest
+{
+    // Request Id
+    uuid [id] = uuid1;
 }
 ```
 
