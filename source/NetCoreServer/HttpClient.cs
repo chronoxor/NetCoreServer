@@ -24,10 +24,15 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public HttpClient(string address, int port) : base(address, port) { Request = new HttpRequest(); Response = new HttpResponse(); }
         /// <summary>
-        /// Initialize HTTP client with a given network endpoint
+        /// Initialize HTTP client with a given DNS endpoint
         /// </summary>
-        /// <param name="endpoint">Network endpoint</param>
-        public HttpClient(EndPoint endpoint) : base(endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
+        /// <param name="endpoint">DNS endpoint</param>
+        public HttpClient(DnsEndPoint endpoint) : base(endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
+        /// <summary>
+        /// Initialize HTTP client with a given IP endpoint
+        /// </summary>
+        /// <param name="endpoint">IP endpoint</param>
+        public HttpClient(IPEndPoint endpoint) : base(endpoint) { Request = new HttpRequest(); Response = new HttpResponse(); }
 
         /// <summary>
         /// Get the HTTP request
@@ -204,10 +209,15 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public HttpClientEx(string address, int port) : base(address, port) {}
         /// <summary>
-        /// Initialize HTTP client with a given network endpoint
+        /// Initialize HTTP client with a given DNS endpoint
         /// </summary>
-        /// <param name="endpoint">Network endpoint</param>
-        public HttpClientEx(EndPoint endpoint) : base(endpoint) {}
+        /// <param name="endpoint">DNS endpoint</param>
+        public HttpClientEx(DnsEndPoint endpoint) : base(endpoint) {}
+        /// <summary>
+        /// Initialize HTTP client with a given IP endpoint
+        /// </summary>
+        /// <param name="endpoint">IP endpoint</param>
+        public HttpClientEx(IPEndPoint endpoint) : base(endpoint) {}
 
         #region Send request
 

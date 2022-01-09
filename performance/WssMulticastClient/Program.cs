@@ -12,9 +12,7 @@ namespace WssMulticastClient
 {
     class MulticastClient : WssClient
     {
-        public MulticastClient(SslContext context, string address, int port) : base(context, address, port)
-        {
-        }
+        public MulticastClient(SslContext context, string address, int port) : base(context, address, port) {}
 
         public override void OnWsConnecting(HttpRequest request)
         {

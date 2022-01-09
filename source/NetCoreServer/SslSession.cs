@@ -826,13 +826,6 @@ namespace NetCoreServer
             }
         }
 
-        // Use C# destructor syntax for finalization code.
-        ~SslSession()
-        {
-            // Simply call Dispose(false).
-            Dispose(false);
-        }
-
         #endregion
     }
 }

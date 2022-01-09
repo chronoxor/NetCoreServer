@@ -9,7 +9,7 @@
 [![NuGet](https://img.shields.io/nuget/v/NetCoreServer)](https://www.nuget.org/packages/NetCoreServer)
 
 Ultra fast and low latency asynchronous socket server & client C# .NET Core
-library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)
+library with support TCP, SSL, UDP, Unix Domain Socket, HTTP, HTTPS, WebSocket protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)
 solution.
 
 Has integration with message protocol based on [Fast Binary Encoding](https://github.com/chronoxor/FastBinaryEncoding)
@@ -30,6 +30,8 @@ Has integration with message protocol based on [Fast Binary Encoding](https://gi
     * [Example: UDP echo client](#example-udp-echo-client)
     * [Example: UDP multicast server](#example-udp-multicast-server)
     * [Example: UDP multicast client](#example-udp-multicast-client)
+    * [Example: Unix Domain Socket chat server](#example-unix-domain-socket-chat-server)
+    * [Example: Unix Domain Socket chat client](#example-unix-domain-socket-chat-client)
     * [Example: HTTP server](#example-http-server)
     * [Example: HTTP client](#example-http-client)
     * [Example: HTTPS server](#example-https-server)
@@ -66,7 +68,8 @@ Has integration with message protocol based on [Fast Binary Encoding](https://gi
 * Cross platform (Linux, MacOS, Windows)
 * Asynchronous communication
 * Supported transport protocols: [TCP](#example-tcp-chat-server), [SSL](#example-ssl-chat-server),
-  [UDP](#example-udp-echo-server), [UDP multicast](#example-udp-multicast-server)
+  [UDP](#example-udp-echo-server), [UDP multicast](#example-udp-multicast-server),
+  [Unix Domain Socket](#example-unix-domain-socket-chat-server)
 * Supported Web protocols: [HTTP](#example-http-server), [HTTPS](#example-https-server),
   [WebSocket](#example-websocket-chat-server), [WebSocket secure](#example-websocket-secure-chat-server)
 * Supported [Swagger OpenAPI](https://swagger.io/specification/) iterative documentation
@@ -1016,6 +1019,232 @@ namespace UdpMulticastClient
                     Console.WriteLine("Done!");
                     continue;
                 }
+            }
+
+            // Disconnect the client
+            Console.Write("Client disconnecting...");
+            client.DisconnectAndStop();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: Unix Domain Socket chat server
+Here comes the example of the  Unix  Domain  Socket  chat  server.  It  handles
+multiple Unix Domain Socket client sessions and multicast received message from
+any session to all ones. Also it is possible to  send  admin  message  directly
+from the server.
+
+```c#
+using System;
+using System.IO;
+using System.Net.Sockets;
+using System.Text;
+using NetCoreServer;
+
+namespace UdsChatServer
+{
+    class ChatSession : UdsSession
+    {
+        public ChatSession(UdsServer server) : base(server) {}
+
+        protected override void OnConnected()
+        {
+            Console.WriteLine($"Chat Unix Domain Socket session with Id {Id} connected!");
+
+            // Send invite message
+            string message = "Hello from Unix Domain Socket chat! Please send a message or '!' to disconnect the client!";
+            SendAsync(message);
+        }
+
+        protected override void OnDisconnected()
+        {
+            Console.WriteLine($"Chat Unix Domain Socket session with Id {Id} disconnected!");
+        }
+
+        protected override void OnReceived(byte[] buffer, long offset, long size)
+        {
+            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+            Console.WriteLine("Incoming: " + message);
+
+            // Multicast message to all connected sessions
+            Server.Multicast(message);
+
+            // If the buffer starts with '!' the disconnect the current session
+            if (message == "!")
+                Disconnect();
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat Unix Domain Socket session caught an error with code {error}");
+        }
+    }
+
+    class ChatServer : UdsServer
+    {
+        public ChatServer(string path) : base(path) {}
+
+        protected override UdsSession CreateSession() { return new ChatSession(this); }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat Unix Domain Socket server caught an error with code {error}");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Unix Domain Socket path
+            string path = Path.GetTempPath() + Path.DirectorySeparatorChar + "chat.sock";
+            if (args.Length > 0)
+                path = args[0];
+
+            Console.WriteLine($"Unix Domain Socket server path: {path}");
+
+            Console.WriteLine();
+
+            // Create a new Unix Domain Socket chat server
+            var server = new ChatServer(path);
+
+            // Start the server
+            Console.Write("Server starting...");
+            server.Start();
+            Console.WriteLine("Done!");
+
+            Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Restart the server
+                if (line == "!")
+                {
+                    Console.Write("Server restarting...");
+                    server.Restart();
+                    Console.WriteLine("Done!");
+                    continue;
+                }
+
+                // Multicast admin message to all sessions
+                line = "(admin) " + line;
+                server.Multicast(line);
+            }
+
+            // Stop the server
+            Console.Write("Server stopping...");
+            server.Stop();
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## Example: Unix Domain Socket chat client
+Here comes the example of the Unix Domain Socket chat client.  It  connects  to
+the Unix Domain Socket chat server and allows to send message to it and receive
+new messages.
+
+```c#
+using System;
+using System.IO;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using UdsClient = NetCoreServer.UdsClient;
+
+namespace UdsChatClient
+{
+    class ChatClient : UdsClient
+    {
+        public ChatClient(string path) : base(path) {}
+
+        public void DisconnectAndStop()
+        {
+            _stop = true;
+            DisconnectAsync();
+            while (IsConnected)
+                Thread.Yield();
+        }
+
+        protected override void OnConnected()
+        {
+            Console.WriteLine($"Chat Unix Domain Socket client connected a new session with Id {Id}");
+        }
+
+        protected override void OnDisconnected()
+        {
+            Console.WriteLine($"Chat Unix Domain Socket client disconnected a session with Id {Id}");
+
+            // Wait for a while...
+            Thread.Sleep(1000);
+
+            // Try to connect again
+            if (!_stop)
+                ConnectAsync();
+        }
+
+        protected override void OnReceived(byte[] buffer, long offset, long size)
+        {
+            Console.WriteLine(Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat Unix Domain Socket client caught an error with code {error}");
+        }
+
+        private bool _stop;
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Unix Domain Socket path
+            string path = Path.GetTempPath() + Path.DirectorySeparatorChar + "chat.sock";
+            if (args.Length > 0)
+                path = args[0];
+
+            Console.WriteLine($"Unix Domain Socket server path: {path}");
+
+            Console.WriteLine();
+
+            // Create a new Unix Domain Socket chat client
+            var client = new ChatClient(path);
+
+            // Connect the client
+            Console.Write("Client connecting...");
+            client.ConnectAsync();
+            Console.WriteLine("Done!");
+
+            Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
+
+            // Perform text input
+            for (;;)
+            {
+                string line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    break;
+
+                // Disconnect the client
+                if (line == "!")
+                {
+                    Console.Write("Client disconnecting...");
+                    client.DisconnectAsync();
+                    Console.WriteLine("Done!");
+                    continue;
+                }
+
+                // Send the entered text to the chat server
+                client.SendAsync(line);
             }
 
             // Disconnect the client

@@ -24,10 +24,15 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public WsServer(string address, int port) : base(address, port) { WebSocket = new WebSocket(this); }
         /// <summary>
-        /// Initialize WebSocket server with a given network endpoint
+        /// Initialize WebSocket server with a given DNS endpoint
         /// </summary>
-        /// <param name="endpoint">Network endpoint</param>
-        public WsServer(EndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
+        /// <param name="endpoint">DNS endpoint</param>
+        public WsServer(DnsEndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
+        /// <summary>
+        /// Initialize WebSocket server with a given IP endpoint
+        /// </summary>
+        /// <param name="endpoint">IP endpoint</param>
+        public WsServer(IPEndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
 
         public virtual bool CloseAll(int status)
         {

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29503.13
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreServer", "source\NetCoreServer\NetCoreServer.csproj", "{F338BFE3-6C55-4BB7-960D-0B2A81A011C3}"
 EndProject
@@ -90,6 +90,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WssMulticastClient", "performance\WssMulticastClient\WssMulticastClient.csproj", "{CA965D6F-FC0C-4D6F-B259-A6072E32DDD1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WssMulticastServer", "performance\WssMulticastServer\WssMulticastServer.csproj", "{20E95322-2F84-4147-8014-E50312D86CE5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdsChatClient", "examples\UdsChatClient\UdsChatClient.csproj", "{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdsChatServer", "examples\UdsChatServer\UdsChatServer.csproj", "{F69349F3-47EE-4C82-B714-83E9B6E931CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -435,6 +439,22 @@ Global
 		{20E95322-2F84-4147-8014-E50312D86CE5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{20E95322-2F84-4147-8014-E50312D86CE5}.Release|x64.ActiveCfg = Release|Any CPU
 		{20E95322-2F84-4147-8014-E50312D86CE5}.Release|x64.Build.0 = Release|Any CPU
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}.Debug|x64.Build.0 = Debug|Any CPU
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}.Release|x64.ActiveCfg = Release|Any CPU
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF}.Release|x64.Build.0 = Release|Any CPU
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC}.Debug|x64.Build.0 = Debug|Any CPU
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC}.Release|x64.ActiveCfg = Release|Any CPU
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -480,6 +500,8 @@ Global
 		{135A82CB-25DE-4EC6-BC0B-2C0F33BEFBEB} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
 		{CA965D6F-FC0C-4D6F-B259-A6072E32DDD1} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
 		{20E95322-2F84-4147-8014-E50312D86CE5} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
+		{7ED276AD-8EF0-44A5-87B6-60AAA822C5FF} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
+		{F69349F3-47EE-4C82-B714-83E9B6E931CC} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {64415837-63D9-474E-A25C-EE91C9CA90C5}

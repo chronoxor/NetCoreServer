@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -46,7 +45,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">Network endpoint</param>
-        public SslClient(SslContext context, EndPoint endpoint)
+        private SslClient(SslContext context, EndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Context = context;
@@ -1121,13 +1120,6 @@ namespace NetCoreServer
                 // Mark as disposed.
                 IsDisposed = true;
             }
-        }
-
-        // Use C# destructor syntax for finalization code.
-        ~SslClient()
-        {
-            // Simply call Dispose(false).
-            Dispose(false);
         }
 
         #endregion

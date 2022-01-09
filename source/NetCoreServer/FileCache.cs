@@ -438,13 +438,6 @@ namespace NetCoreServer
             }
         }
 
-        // Use C# destructor syntax for finalization code.
-        ~FileCache()
-        {
-            // Simply call Dispose(false).
-            Dispose(false);
-        }
-
         #endregion
     }
 

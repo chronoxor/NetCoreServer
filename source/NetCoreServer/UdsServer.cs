@@ -9,46 +9,23 @@ using System.Threading;
 namespace NetCoreServer
 {
     /// <summary>
-    /// SSL server is used to connect, disconnect and manage SSL sessions
+    /// Unix Domain Socket server is used to connect, disconnect and manage Unix Domain Socket sessions
     /// </summary>
     /// <remarks>Thread-safe</remarks>
-    public class SslServer : IDisposable
+    public class UdsServer : IDisposable
     {
         /// <summary>
-        /// Initialize SSL server with a given IP address and port number
+        /// Initialize Unix Domain Socket server with a given socket path
         /// </summary>
-        /// <param name="context">SSL context</param>
-        /// <param name="address">IP address</param>
-        /// <param name="port">Port number</param>
-        public SslServer(SslContext context, IPAddress address, int port) : this(context, new IPEndPoint(address, port)) {}
+        /// <param name="path">Socket path</param>
+        public UdsServer(string path) : this(new UnixDomainSocketEndPoint(path)) {}
         /// <summary>
-        /// Initialize SSL server with a given IP address and port number
+        /// Initialize Unix Domain Socket server with a given Unix Domain Socket endpoint
         /// </summary>
-        /// <param name="context">SSL context</param>
-        /// <param name="address">IP address</param>
-        /// <param name="port">Port number</param>
-        public SslServer(SslContext context, string address, int port) : this(context, new IPEndPoint(IPAddress.Parse(address), port)) {}
-        /// <summary>
-        /// Initialize SSL server with a given DNS endpoint
-        /// </summary>
-        /// <param name="context">SSL context</param>
-        /// <param name="endpoint">DNS endpoint</param>
-        public SslServer(SslContext context, DnsEndPoint endpoint) : this(context, endpoint as EndPoint) {}
-        /// <summary>
-        /// Initialize SSL server with a given IP endpoint
-        /// </summary>
-        /// <param name="context">SSL context</param>
-        /// <param name="endpoint">IP endpoint</param>
-        public SslServer(SslContext context, IPEndPoint endpoint) : this(context, endpoint as EndPoint) {}
-        /// <summary>
-        /// Initialize SSL server with a given network endpoint
-        /// </summary>
-        /// <param name="context">SSL context</param>
-        /// <param name="endpoint">Network endpoint</param>
-        private SslServer(SslContext context, EndPoint endpoint)
+        /// <param name="endpoint">Unix Domain Socket endpoint</param>
+        public UdsServer(UnixDomainSocketEndPoint endpoint)
         {
             Id = Guid.NewGuid();
-            Context = context;
             Endpoint = endpoint;
         }
 
@@ -57,10 +34,6 @@ namespace NetCoreServer
         /// </summary>
         public Guid Id { get; }
 
-        /// <summary>
-        /// SSL context
-        /// </summary>
-        public SslContext Context { get; private set; }
         /// <summary>
         /// Network endpoint
         /// </summary>
@@ -90,42 +63,6 @@ namespace NetCoreServer
         /// This option will set the listening socket's backlog size
         /// </remarks>
         public int OptionAcceptorBacklog { get; set; } = 1024;
-        /// <summary>
-        /// Option: dual mode socket
-        /// </summary>
-        /// <remarks>
-        /// Specifies whether the Socket is a dual-mode socket used for both IPv4 and IPv6.
-        /// Will work only if socket is bound on IPv6 address.
-        /// </remarks>
-        public bool OptionDualMode { get; set; }
-        /// <summary>
-        /// Option: keep alive
-        /// </summary>
-        /// <remarks>
-        /// This option will setup SO_KEEPALIVE if the OS support this feature
-        /// </remarks>
-        public bool OptionKeepAlive { get; set; }
-        /// <summary>
-        /// Option: no delay
-        /// </summary>
-        /// <remarks>
-        /// This option will enable/disable Nagle's algorithm for SSL protocol
-        /// </remarks>
-        public bool OptionNoDelay { get; set; }
-        /// <summary>
-        /// Option: reuse address
-        /// </summary>
-        /// <remarks>
-        /// This option will enable/disable SO_REUSEADDR if the OS support this feature
-        /// </remarks>
-        public bool OptionReuseAddress { get; set; }
-        /// <summary>
-        /// Option: enables a socket to be bound for exclusive access
-        /// </summary>
-        /// <remarks>
-        /// This option will enable/disable SO_EXCLUSIVEADDRUSE if the OS support this feature
-        /// </remarks>
-        public bool OptionExclusiveAddressUse { get; set; }
         /// <summary>
         /// Option: receive buffer size
         /// </summary>
@@ -164,7 +101,7 @@ namespace NetCoreServer
         /// <returns>Socket object</returns>
         protected virtual Socket CreateSocket()
         {
-            return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
         }
 
         /// <summary>
@@ -173,7 +110,7 @@ namespace NetCoreServer
         /// <returns>'true' if the server was successfully started, 'false' if the server failed to start</returns>
         public virtual bool Start()
         {
-            Debug.Assert(!IsStarted, "SSL server is already started!");
+            Debug.Assert(!IsStarted, "Unix Domain Socket server is already started!");
             if (IsStarted)
                 return false;
 
@@ -186,14 +123,6 @@ namespace NetCoreServer
 
             // Update the acceptor socket disposed flag
             IsSocketDisposed = false;
-
-            // Apply the option: reuse address
-            _acceptorSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, OptionReuseAddress);
-            // Apply the option: exclusive address use
-            _acceptorSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, OptionExclusiveAddressUse);
-            // Apply the option: dual mode (this option must be applied before listening)
-            if (_acceptorSocket.AddressFamily == AddressFamily.InterNetworkV6)
-                _acceptorSocket.DualMode = OptionDualMode;
 
             // Bind the acceptor socket to the network endpoint
             _acceptorSocket.Bind(Endpoint);
@@ -230,7 +159,7 @@ namespace NetCoreServer
         /// <returns>'true' if the server was successfully stopped, 'false' if the server is already stopped</returns>
         public virtual bool Stop()
         {
-            Debug.Assert(IsStarted, "SSL server is not started!");
+            Debug.Assert(IsStarted, "Unix Domain Socket server is not started!");
             if (!IsStarted)
                 return false;
 
@@ -344,17 +273,17 @@ namespace NetCoreServer
         #region Session factory
 
         /// <summary>
-        /// Create SSL session factory method
+        /// Create Unix Domain Socket session factory method
         /// </summary>
-        /// <returns>SSL session</returns>
-        protected virtual SslSession CreateSession() { return new SslSession(this); }
+        /// <returns>Unix Domain Socket session</returns>
+        protected virtual UdsSession CreateSession() { return new UdsSession(this); }
 
         #endregion
 
         #region Session management
 
         // Server sessions
-        protected readonly ConcurrentDictionary<Guid, SslSession> Sessions = new ConcurrentDictionary<Guid, SslSession>();
+        protected readonly ConcurrentDictionary<Guid, UdsSession> Sessions = new ConcurrentDictionary<Guid, UdsSession>();
 
         /// <summary>
         /// Disconnect all connected sessions
@@ -377,17 +306,17 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="id">Session Id</param>
         /// <returns>Session with a given Id or null if the session it not connected</returns>
-        public SslSession FindSession(Guid id)
+        public UdsSession FindSession(Guid id)
         {
             // Try to find the required session
-            return Sessions.TryGetValue(id, out SslSession result) ? result : null;
+            return Sessions.TryGetValue(id, out UdsSession result) ? result : null;
         }
 
         /// <summary>
         /// Register a new session
         /// </summary>
         /// <param name="session">Session to register</param>
-        internal void RegisterSession(SslSession session)
+        internal void RegisterSession(UdsSession session)
         {
             // Register a new session
             Sessions.TryAdd(session.Id, session);
@@ -400,7 +329,7 @@ namespace NetCoreServer
         internal void UnregisterSession(Guid id)
         {
             // Unregister session by Id
-            Sessions.TryRemove(id, out SslSession temp);
+            Sessions.TryRemove(id, out UdsSession temp);
         }
 
         #endregion
@@ -468,32 +397,22 @@ namespace NetCoreServer
         /// Handle session connecting notification
         /// </summary>
         /// <param name="session">Connecting session</param>
-        protected virtual void OnConnecting(SslSession session) {}
+        protected virtual void OnConnecting(UdsSession session) {}
         /// <summary>
         /// Handle session connected notification
         /// </summary>
         /// <param name="session">Connected session</param>
-        protected virtual void OnConnected(SslSession session) {}
-        /// <summary>
-        /// Handle session handshaking notification
-        /// </summary>
-        /// <param name="session">Handshaking session</param>
-        protected virtual void OnHandshaking(SslSession session) {}
-        /// <summary>
-        /// Handle session handshaked notification
-        /// </summary>
-        /// <param name="session">Handshaked session</param>
-        protected virtual void OnHandshaked(SslSession session) {}
+        protected virtual void OnConnected(UdsSession session) {}
         /// <summary>
         /// Handle session disconnecting notification
         /// </summary>
         /// <param name="session">Disconnecting session</param>
-        protected virtual void OnDisconnecting(SslSession session) {}
+        protected virtual void OnDisconnecting(UdsSession session) {}
         /// <summary>
         /// Handle session disconnected notification
         /// </summary>
         /// <param name="session">Disconnected session</param>
-        protected virtual void OnDisconnected(SslSession session) {}
+        protected virtual void OnDisconnected(UdsSession session) {}
 
         /// <summary>
         /// Handle error notification
@@ -501,12 +420,10 @@ namespace NetCoreServer
         /// <param name="error">Socket error code</param>
         protected virtual void OnError(SocketError error) {}
 
-        internal void OnConnectingInternal(SslSession session) { OnConnecting(session); }
-        internal void OnConnectedInternal(SslSession session) { OnConnected(session); }
-        internal void OnHandshakingInternal(SslSession session) { OnHandshaking(session); }
-        internal void OnHandshakedInternal(SslSession session) { OnHandshaked(session); }
-        internal void OnDisconnectingInternal(SslSession session) { OnDisconnecting(session); }
-        internal void OnDisconnectedInternal(SslSession session) { OnDisconnected(session); }
+        internal void OnConnectingInternal(UdsSession session) { OnConnecting(session); }
+        internal void OnConnectedInternal(UdsSession session) { OnConnected(session); }
+        internal void OnDisconnectingInternal(UdsSession session) { OnDisconnecting(session); }
+        internal void OnDisconnectedInternal(UdsSession session) { OnDisconnected(session); }
 
         #endregion
 

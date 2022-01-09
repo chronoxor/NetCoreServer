@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -26,10 +25,20 @@ namespace NetCoreServer
         /// <param name="port">Port number</param>
         public UdpServer(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
         /// <summary>
+        /// Initialize UDP server with a given DNS endpoint
+        /// </summary>
+        /// <param name="endpoint">DNS endpoint</param>
+        public UdpServer(DnsEndPoint endpoint) : this(endpoint as EndPoint) {}
+        /// <summary>
+        /// Initialize UDP server with a given IP endpoint
+        /// </summary>
+        /// <param name="endpoint">IP endpoint</param>
+        public UdpServer(IPEndPoint endpoint) : this(endpoint as EndPoint) {}
+        /// <summary>
         /// Initialize UDP server with a given network endpoint
         /// </summary>
         /// <param name="endpoint">Network endpoint</param>
-        public UdpServer(EndPoint endpoint)
+        private UdpServer(EndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Endpoint = endpoint;
@@ -849,13 +858,6 @@ namespace NetCoreServer
                 // Mark as disposed.
                 IsDisposed = true;
             }
-        }
-
-        // Use C# destructor syntax for finalization code.
-        ~UdpServer()
-        {
-            // Simply call Dispose(false).
-            Dispose(false);
         }
 
         #endregion

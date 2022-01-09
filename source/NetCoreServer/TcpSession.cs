@@ -2,7 +2,6 @@ using System;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
@@ -763,13 +762,6 @@ namespace NetCoreServer
                 // Mark as disposed.
                 IsDisposed = true;
             }
-        }
-
-        // Use C# destructor syntax for finalization code.
-        ~TcpSession()
-        {
-            // Simply call Dispose(false).
-            Dispose(false);
         }
 
         #endregion

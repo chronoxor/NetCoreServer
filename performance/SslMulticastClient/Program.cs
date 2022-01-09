@@ -11,9 +11,7 @@ namespace SslMulticastClient
 {
     class MulticastClient : SslClient
     {
-        public MulticastClient(SslContext context, string address, int port) : base(context, address, port)
-        {
-        }
+        public MulticastClient(SslContext context, string address, int port) : base(context, address, port) {}
 
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {

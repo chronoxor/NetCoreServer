@@ -10,9 +10,7 @@ namespace WsMulticastClient
 {
     class MulticastClient : WsClient
     {
-        public MulticastClient(string address, int port) : base(address, port)
-        {
-        }
+        public MulticastClient(string address, int port) : base(address, port) {}
 
         public override void OnWsConnecting(HttpRequest request)
         {

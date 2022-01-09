@@ -9,9 +9,7 @@ namespace TcpMulticastClient
 {
     class MulticastClient : NetCoreServer.TcpClient
     {
-        public MulticastClient(string address, int port) : base(address, port)
-        {
-        }
+        public MulticastClient(string address, int port) : base(address, port) {}
 
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {

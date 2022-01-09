@@ -3,43 +3,25 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NetCoreServer
 {
     /// <summary>
-    /// TCP client is used to read/write data from/into the connected TCP server
+    /// Unix Domain Socket client is used to read/write data from/into the connected Unix Domain Socket server
     /// </summary>
     /// <remarks>Thread-safe</remarks>
-    public class TcpClient : IDisposable
+    public class UdsClient : IDisposable
     {
         /// <summary>
-        /// Initialize TCP client with a given server IP address and port number
+        /// Initialize Unix Domain Socket client with a given socket path
         /// </summary>
-        /// <param name="address">IP address</param>
-        /// <param name="port">Port number</param>
-        public TcpClient(IPAddress address, int port) : this(new IPEndPoint(address, port)) {}
+        /// <param name="path">Socket path</param>
+        public UdsClient(string path) : this(new UnixDomainSocketEndPoint(path)) {}
         /// <summary>
-        /// Initialize TCP client with a given server IP address and port number
+        /// Initialize Unix Domain Socket client with a given Unix Domain Socket endpoint
         /// </summary>
-        /// <param name="address">IP address</param>
-        /// <param name="port">Port number</param>
-        public TcpClient(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
-        /// <summary>
-        /// Initialize TCP client with a given DNS endpoint
-        /// </summary>
-        /// <param name="endpoint">DNS endpoint</param>
-        public TcpClient(DnsEndPoint endpoint) : this(endpoint as EndPoint) {}
-        /// <summary>
-        /// Initialize TCP client with a given IP endpoint
-        /// </summary>
-        /// <param name="endpoint">IP endpoint</param>
-        public TcpClient(IPEndPoint endpoint) : this(endpoint as EndPoint) {}
-        /// <summary>
-        /// Initialize TCP client with a given network endpoint
-        /// </summary>
-        /// <param name="endpoint">Network endpoint</param>
-        private TcpClient(EndPoint endpoint)
+        /// <param name="endpoint">Unix Domain Socket endpoint</param>
+        public UdsClient(UnixDomainSocketEndPoint endpoint)
         {
             Id = Guid.NewGuid();
             Endpoint = endpoint;
@@ -76,28 +58,6 @@ namespace NetCoreServer
         /// </summary>
         public long BytesReceived { get; private set; }
 
-        /// <summary>
-        /// Option: dual mode socket
-        /// </summary>
-        /// <remarks>
-        /// Specifies whether the Socket is a dual-mode socket used for both IPv4 and IPv6.
-        /// Will work only if socket is bound on IPv6 address.
-        /// </remarks>
-        public bool OptionDualMode { get; set; }
-        /// <summary>
-        /// Option: keep alive
-        /// </summary>
-        /// <remarks>
-        /// This option will setup SO_KEEPALIVE if the OS support this feature
-        /// </remarks>
-        public bool OptionKeepAlive { get; set; }
-        /// <summary>
-        /// Option: no delay
-        /// </summary>
-        /// <remarks>
-        /// This option will enable/disable Nagle's algorithm for TCP protocol
-        /// </remarks>
-        public bool OptionNoDelay { get; set; }
         /// <summary>
         /// Option: receive buffer limit
         /// </summary>
@@ -137,7 +97,7 @@ namespace NetCoreServer
         /// <returns>Socket object</returns>
         protected virtual Socket CreateSocket()
         {
-            return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
         }
 
         /// <summary>
@@ -172,10 +132,6 @@ namespace NetCoreServer
 
             // Update the client socket disposed flag
             IsSocketDisposed = false;
-
-            // Apply the option: dual mode (this option must be applied before connecting)
-            if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
-                Socket.DualMode = OptionDualMode;
 
             // Call the client connecting handler
             OnConnecting();
@@ -214,13 +170,6 @@ namespace NetCoreServer
 
                 return false;
             }
-
-            // Apply the option: keep alive
-            if (OptionKeepAlive)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            // Apply the option: no delay
-            if (OptionNoDelay)
-                Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
 
             // Prepare receive & send buffers
             _receiveBuffer.Reserve(OptionReceiveBufferSize);
@@ -348,10 +297,6 @@ namespace NetCoreServer
 
             // Update the client socket disposed flag
             IsSocketDisposed = false;
-
-            // Apply the option: dual mode (this option must be applied before connecting)
-            if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
-                Socket.DualMode = OptionDualMode;
 
             // Update the connecting flag
             IsConnecting = true;
@@ -722,13 +667,6 @@ namespace NetCoreServer
 
             if (e.SocketError == SocketError.Success)
             {
-                // Apply the option: keep alive
-                if (OptionKeepAlive)
-                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-                // Apply the option: no delay
-                if (OptionNoDelay)
-                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-
                 // Prepare receive & send buffers
                 _receiveBuffer.Reserve(OptionReceiveBufferSize);
                 _sendBufferMain.Reserve(OptionSendBufferSize);
