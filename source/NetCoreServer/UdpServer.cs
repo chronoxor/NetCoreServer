@@ -28,19 +28,23 @@ namespace NetCoreServer
         /// Initialize UDP server with a given DNS endpoint
         /// </summary>
         /// <param name="endpoint">DNS endpoint</param>
-        public UdpServer(DnsEndPoint endpoint) : this(endpoint as EndPoint) {}
+        public UdpServer(DnsEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port) {}
         /// <summary>
         /// Initialize UDP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public UdpServer(IPEndPoint endpoint) : this(endpoint as EndPoint) {}
+        public UdpServer(IPEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port) {}
         /// <summary>
-        /// Initialize UDP server with a given network endpoint
+        /// Initialize UDP server with a given endpoint, address and port
         /// </summary>
-        /// <param name="endpoint">Network endpoint</param>
-        private UdpServer(EndPoint endpoint)
+        /// <param name="endpoint">Endpoint</param>
+        /// <param name="address">Server address</param>
+        /// <param name="port">Server port</param>
+        private UdpServer(EndPoint endpoint, string address, int port)
         {
             Id = Guid.NewGuid();
+            Address = address;
+            Port = port;
             Endpoint = endpoint;
         }
 
@@ -50,7 +54,15 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
-        /// Network endpoint
+        /// UDP server address
+        /// </summary>
+        public string Address { get; }
+        /// <summary>
+        /// UDP server port
+        /// </summary>
+        public int Port { get; }
+        /// <summary>
+        /// Endpoint
         /// </summary>
         public EndPoint Endpoint { get; private set; }
         /// <summary>
@@ -179,7 +191,7 @@ namespace NetCoreServer
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
 
-            // Bind the server socket to the network endpoint
+            // Bind the server socket to the endpoint
             Socket.Bind(Endpoint);
             // Refresh the endpoint property based on the actual endpoint created
             Endpoint = Socket.LocalEndPoint;

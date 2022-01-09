@@ -30,19 +30,23 @@ namespace NetCoreServer
         /// Initialize TCP server with a given DNS endpoint
         /// </summary>
         /// <param name="endpoint">DNS endpoint</param>
-        public TcpServer(DnsEndPoint endpoint) : this(endpoint as EndPoint) {}
+        public TcpServer(DnsEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port) {}
         /// <summary>
         /// Initialize TCP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public TcpServer(IPEndPoint endpoint) : this(endpoint as EndPoint) {}
+        public TcpServer(IPEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port) {}
         /// <summary>
-        /// Initialize TCP server with a given network endpoint
+        /// Initialize TCP server with a given endpoint, address and port
         /// </summary>
-        /// <param name="endpoint">Network endpoint</param>
-        private TcpServer(EndPoint endpoint)
+        /// <param name="endpoint">Endpoint</param>
+        /// <param name="address">Server address</param>
+        /// <param name="port">Server port</param>
+        private TcpServer(EndPoint endpoint, string address, int port)
         {
             Id = Guid.NewGuid();
+            Address = address;
+            Port = port;
             Endpoint = endpoint;
         }
 
@@ -52,7 +56,15 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
-        /// Network endpoint
+        /// TCP server address
+        /// </summary>
+        public string Address { get; }
+        /// <summary>
+        /// TCP server port
+        /// </summary>
+        public int Port { get; }
+        /// <summary>
+        /// Endpoint
         /// </summary>
         public EndPoint Endpoint { get; private set; }
 
@@ -185,7 +197,7 @@ namespace NetCoreServer
             if (_acceptorSocket.AddressFamily == AddressFamily.InterNetworkV6)
                 _acceptorSocket.DualMode = OptionDualMode;
 
-            // Bind the acceptor socket to the network endpoint
+            // Bind the acceptor socket to the endpoint
             _acceptorSocket.Bind(Endpoint);
             // Refresh the endpoint property based on the actual endpoint created
             Endpoint = _acceptorSocket.LocalEndPoint;

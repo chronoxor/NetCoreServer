@@ -33,21 +33,25 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">DNS endpoint</param>
-        public SslServer(SslContext context, DnsEndPoint endpoint) : this(context, endpoint as EndPoint) {}
+        public SslServer(SslContext context, DnsEndPoint endpoint) : this(context, endpoint as EndPoint, endpoint.Host, endpoint.Port) {}
         /// <summary>
         /// Initialize SSL server with a given IP endpoint
         /// </summary>
         /// <param name="context">SSL context</param>
         /// <param name="endpoint">IP endpoint</param>
-        public SslServer(SslContext context, IPEndPoint endpoint) : this(context, endpoint as EndPoint) {}
+        public SslServer(SslContext context, IPEndPoint endpoint) : this(context, endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port) {}
         /// <summary>
-        /// Initialize SSL server with a given network endpoint
+        /// Initialize SSL server with a given SSL context, endpoint, address and port
         /// </summary>
         /// <param name="context">SSL context</param>
-        /// <param name="endpoint">Network endpoint</param>
-        private SslServer(SslContext context, EndPoint endpoint)
+        /// <param name="endpoint">Endpoint</param>
+        /// <param name="address">Server address</param>
+        /// <param name="port">Server port</param>
+        private SslServer(SslContext context, EndPoint endpoint, string address, int port)
         {
             Id = Guid.NewGuid();
+            Address = address;
+            Port = port;
             Context = context;
             Endpoint = endpoint;
         }
@@ -58,11 +62,19 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
+        /// SSL server address
+        /// </summary>
+        public string Address { get; }
+        /// <summary>
+        /// SSL server port
+        /// </summary>
+        public int Port { get; }
+        /// <summary>
         /// SSL context
         /// </summary>
-        public SslContext Context { get; private set; }
+        public SslContext Context { get; }
         /// <summary>
-        /// Network endpoint
+        /// Endpoint
         /// </summary>
         public EndPoint Endpoint { get; private set; }
 
@@ -195,7 +207,7 @@ namespace NetCoreServer
             if (_acceptorSocket.AddressFamily == AddressFamily.InterNetworkV6)
                 _acceptorSocket.DualMode = OptionDualMode;
 
-            // Bind the acceptor socket to the network endpoint
+            // Bind the acceptor socket to the endpoint
             _acceptorSocket.Bind(Endpoint);
             // Refresh the endpoint property based on the actual endpoint created
             Endpoint = _acceptorSocket.LocalEndPoint;

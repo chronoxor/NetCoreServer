@@ -27,19 +27,23 @@ namespace NetCoreServer
         /// Initialize UDP client with a given DNS endpoint
         /// </summary>
         /// <param name="endpoint">DNS endpoint</param>
-        public UdpClient(DnsEndPoint endpoint) : this(endpoint as EndPoint) {}
+        public UdpClient(DnsEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port) {}
         /// <summary>
         /// Initialize UDP client with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public UdpClient(IPEndPoint endpoint) : this(endpoint as EndPoint) {}
+        public UdpClient(IPEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port) {}
         /// <summary>
-        /// Initialize UDP client with a given network endpoint
+        /// Initialize UDP client with a given endpoint, address and port
         /// </summary>
-        /// <param name="endpoint">Network endpoint</param>
-        private UdpClient(EndPoint endpoint)
+        /// <param name="endpoint">Endpoint</param>
+        /// <param name="address">Server address</param>
+        /// <param name="port">Server port</param>
+        private UdpClient(EndPoint endpoint, string address, int port)
         {
             Id = Guid.NewGuid();
+            Address = address;
+            Port = port;
             Endpoint = endpoint;
         }
 
@@ -49,7 +53,15 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
-        /// Network endpoint
+        /// UDP server address
+        /// </summary>
+        public string Address { get; }
+        /// <summary>
+        /// UDP server port
+        /// </summary>
+        public int Port { get; }
+        /// <summary>
+        /// Endpoint
         /// </summary>
         public EndPoint Endpoint { get; private set; }
         /// <summary>
@@ -182,7 +194,7 @@ namespace NetCoreServer
 
             try
             {
-                // Bind the acceptor socket to the network endpoint
+                // Bind the acceptor socket to the endpoint
                 if (OptionMulticast)
                     Socket.Bind(Endpoint);
                 else

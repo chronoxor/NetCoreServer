@@ -35,7 +35,7 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
-        /// Network endpoint
+        /// Endpoint
         /// </summary>
         public EndPoint Endpoint { get; private set; }
 
@@ -124,7 +124,7 @@ namespace NetCoreServer
             // Update the acceptor socket disposed flag
             IsSocketDisposed = false;
 
-            // Bind the acceptor socket to the network endpoint
+            // Bind the acceptor socket to the endpoint
             _acceptorSocket.Bind(Endpoint);
             // Refresh the endpoint property based on the actual endpoint created
             Endpoint = _acceptorSocket.LocalEndPoint;

@@ -33,7 +33,7 @@ namespace NetCoreServer
         public Guid Id { get; }
 
         /// <summary>
-        /// Network endpoint
+        /// Endpoint
         /// </summary>
         public EndPoint Endpoint { get; private set; }
         /// <summary>
