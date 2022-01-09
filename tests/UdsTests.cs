@@ -61,7 +61,7 @@ namespace tests
         [Fact(DisplayName = "Unix Domain Socket server test")]
         public void UdsServerTest()
         {
-            string path = Path.GetTempPath() + Path.DirectorySeparatorChar + "test.sock";
+            string path = Path.Combine(Path.GetTempPath(), "test.sock");
 
             // Create and start Echo server
             var server = new EchoUdsServer(path);
@@ -112,7 +112,7 @@ namespace tests
         [Fact(DisplayName = "Unix Domain Socket server multicast test")]
         public void UdsServerMulticastTest()
         {
-            string path = Path.GetTempPath() + Path.DirectorySeparatorChar + "test.sock";
+            string path = Path.Combine(Path.GetTempPath(), "test.sock");
 
             // Create and start Echo server
             var server = new EchoUdsServer(path);
@@ -217,7 +217,7 @@ namespace tests
         [Fact(DisplayName = "Unix Domain Socket server random test")]
         public void UdsServerRandomTest()
         {
-            string path = Path.GetTempPath() + Path.DirectorySeparatorChar + "test.sock";
+            string path = Path.Combine(Path.GetTempPath(), "test.sock");
 
             // Create and start Echo server
             var server = new EchoUdsServer(path);

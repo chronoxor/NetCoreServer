@@ -60,7 +60,7 @@ namespace UdsChatServer
         static void Main(string[] args)
         {
             // Unix Domain Socket path
-            string path = Path.GetTempPath() + Path.DirectorySeparatorChar + "chat.sock";
+            string path = Path.Combine(Path.GetTempPath(), "chat.sock");
             if (args.Length > 0)
                 path = args[0];
 

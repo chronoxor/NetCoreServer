@@ -45,12 +45,14 @@ Has integration with message protocol based on [Fast Binary Encoding](https://gi
       * [TCP echo server](#tcp-echo-server)
       * [SSL echo server](#ssl-echo-server)
       * [UDP echo server](#udp-echo-server)
+      * [Unix Domain Socket echo server](#unix-domain-socket-echo-server)
       * [WebSocket echo server](#websocket-echo-server)
       * [WebSocket secure echo server](#websocket-secure-echo-server)
     * [Benchmark: Multicast](#benchmark-multicast)
       * [TCP multicast server](#tcp-multicast-server)
       * [SSL multicast server](#ssl-multicast-server)
       * [UDP multicast server](#udp-multicast-server)
+      * [Unix Domain Socket multicast server](#unix-domain-socket-multicast-server)
       * [WebSocket multicast server](#websocket-multicast-server)
       * [WebSocket secure multicast server](#websocket-secure-multicast-server)
     * [Benchmark: Web Server](#benchmark-web-server)
@@ -2643,6 +2645,48 @@ Message latency: 15.950 mcs
 Message throughput: 62693 msg/s
 ```
 
+### Unix Domain Socket echo server
+
+* [UdsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdsEchoServer/Program.cs)
+* [UdsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdsEchoClient/Program.cs) --clients 1
+
+```
+Server Unix Domain Socket path: C:\Users\chronoxor\AppData\Local\Temp\echo.sock
+Working clients: 1
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.016 s
+Total data: 208.657 MiB
+Total messages: 6836769
+Data throughput: 20.850 MiB/s
+Message latency: 1.465 mcs
+Message throughput: 682575 msg/s
+```
+
+* [UdsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdsEchoServer/Program.cs)
+* [UdsEchoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdsEchoClient/Program.cs) --clients 100
+
+```
+Server Unix Domain Socket path: C:\Users\chronoxor\AppData\Local\Temp\echo.sock
+Working clients: 100
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 12.253 s
+Total data: 602.320 MiB
+Total messages: 19736578
+Data throughput: 49.157 MiB/s
+Message latency: 620 ns
+Message throughput: 1610666 msg/s
+```
+
 ### WebSocket echo server
 
 * [WsEchoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/WsEchoServer/Program.cs)
@@ -2864,6 +2908,46 @@ Total messages: 939408
 Data throughput: 2.877 MiB/s
 Message latency: 10.682 mcs
 Message throughput: 93606 msg/s
+```
+
+### Unix Domain Socket multicast server
+
+* [UdsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdsMulticastServer/Program.cs)
+* [UdsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdsMulticastClient/Program.cs) --clients 1
+
+```
+Server Unix Domain Socket path: C:\Users\chronoxor\AppData\Local\Temp\multicast.sock
+Working clients: 1
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.015 s
+Total data: 204.127 MiB
+Total messages: 6688763
+Data throughput: 20.390 MiB/s
+Message latency: 1.497 mcs
+Message throughput: 667869 msg/s
+```
+
+* [UdsMulticastServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdsMulticastServer/Program.cs)
+* [UdsMulticastClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/UdsMulticastClient/Program.cs) --clients 100
+
+```
+Server Unix Domain Socket path: C:\Users\chronoxor\AppData\Local\Temp\multicast.sock
+Working clients: 100
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.033 s
+Total data: 124.463 MiB
+Total messages: 4078051
+Data throughput: 12.413 MiB/s
+Message latency: 2.460 mcs
+Message throughput: 406451 msg/s
 ```
 
 ### WebSocket multicast server
