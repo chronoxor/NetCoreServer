@@ -331,6 +331,8 @@ namespace ProtoClient
             client.ConnectAndStart();
             Console.WriteLine("Done!");
 
+            client.StartWatchdog();
+
             Console.WriteLine("Press Enter to stop the client or '!' to reconnect the client...");
 
             // Perform text input
@@ -357,6 +359,8 @@ namespace ProtoClient
                 // Show string hash calculation result
                 Console.WriteLine($"Hash of '{line}' = 0x{response.Hash:X8}");
             }
+
+            client.StopWatchdog();
 
             // Disconnect the client
             Console.Write("Client disconnecting...");
