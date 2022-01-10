@@ -111,6 +111,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "proto", "proto\proto.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtoClient", "examples\ProtoClient\ProtoClient.csproj", "{6F0566A8-39A6-4910-BBE9-8F0B2CAEF50F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtoServer", "examples\ProtoServer\ProtoServer.csproj", "{8E48ACC4-F944-44BA-AEF7-3417D60160F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -519,6 +521,14 @@ Global
 		{6F0566A8-39A6-4910-BBE9-8F0B2CAEF50F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F0566A8-39A6-4910-BBE9-8F0B2CAEF50F}.Release|x64.ActiveCfg = Release|Any CPU
 		{6F0566A8-39A6-4910-BBE9-8F0B2CAEF50F}.Release|x64.Build.0 = Release|Any CPU
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3}.Debug|x64.Build.0 = Debug|Any CPU
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3}.Release|x64.ActiveCfg = Release|Any CPU
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -573,6 +583,7 @@ Global
 		{80C95510-AF12-4CF0-8852-B21241F6C1F3} = {8965E5CD-E36E-4DC5-A36E-827AFFC642D1}
 		{0A31A021-B53C-4B1B-A408-A46ABC97C93F} = {7535CE12-3B22-4473-890A-980B72E5D27A}
 		{6F0566A8-39A6-4910-BBE9-8F0B2CAEF50F} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
+		{8E48ACC4-F944-44BA-AEF7-3417D60160F3} = {81ED94B5-0C65-432C-AEF5-67C3DFF7F2EE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {64415837-63D9-474E-A25C-EE91C9CA90C5}

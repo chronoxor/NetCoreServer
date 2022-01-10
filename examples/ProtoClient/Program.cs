@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Threading;
 using TcpClient = NetCoreServer.TcpClient;
 
-namespace TcpChatClient
+namespace ProtoClient
 {
     public class TcpProtoClient : TcpClient
     {
