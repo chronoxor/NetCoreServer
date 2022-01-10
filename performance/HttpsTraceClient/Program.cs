@@ -149,7 +149,7 @@ namespace HttpsTraceClient
             // Disconnect clients
             Console.Write("Clients disconnecting...");
             foreach (var client in httpsClients)
-                client.Disconnect();
+                client.DisconnectAsync();
             Console.WriteLine("Done!");
             foreach (var client in httpsClients)
                 while (client.IsConnected)

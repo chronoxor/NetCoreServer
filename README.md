@@ -49,6 +49,7 @@ Has integration with message protocol based on [Fast Binary Encoding](https://gi
       * [SSL echo server](#ssl-echo-server)
       * [UDP echo server](#udp-echo-server)
       * [Unix Domain Socket echo server](#unix-domain-socket-echo-server)
+      * [Simple protocol server](#simple-protocol-server)
       * [WebSocket echo server](#websocket-echo-server)
       * [WebSocket secure echo server](#websocket-secure-echo-server)
     * [Benchmark: Multicast](#benchmark-multicast)
@@ -3322,6 +3323,50 @@ Total messages: 19736578
 Data throughput: 49.157 MiB/s
 Message latency: 620 ns
 Message throughput: 1610666 msg/s
+```
+
+### Simple protocol server
+
+* [ProtoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/ProtoServer/Program.cs)
+* [ProtoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/ProtoClient/Program.cs) --clients 1
+
+```
+Server address: 127.0.0.1
+Server port: 4444
+Working clients: 1
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 10.015 s
+Total data: 100.568 MiB
+Total messages: 3294993
+Data throughput: 10.040 MiB/s
+Message latency: 3.039 mcs
+Message throughput: 328978 msg/s
+```
+
+* [ProtoServer](https://github.com/chronoxor/NetCoreServer/blob/master/performance/ProtoServer/Program.cs)
+* [ProtoClient](https://github.com/chronoxor/NetCoreServer/blob/master/performance/ProtoClient/Program.cs) --clients 100
+
+```
+Server address: 127.0.0.1
+Server port: 4444
+Working clients: 100
+Working messages: 1000
+Message size: 32
+Seconds to benchmarking: 10
+
+Errors: 0
+
+Total time: 12.530 s
+Total data: 207.994 MiB
+Total messages: 6814785
+Data throughput: 16.611 MiB/s
+Message latency: 1.838 mcs
+Message throughput: 543858 msg/s
 ```
 
 ### WebSocket echo server

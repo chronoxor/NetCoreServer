@@ -144,7 +144,7 @@ namespace TcpEchoClient
             // Disconnect clients
             Console.Write("Clients disconnecting...");
             foreach (var client in echoClients)
-                client.Disconnect();
+                client.DisconnectAsync();
             Console.WriteLine("Done!");
             foreach (var client in echoClients)
                 while (client.IsConnected)
