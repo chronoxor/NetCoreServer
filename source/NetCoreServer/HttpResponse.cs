@@ -267,6 +267,8 @@ namespace NetCoreServer
             // Base content types
             if (extension == ".html")
                 return SetHeader("Content-Type", "text/html");
+            else if (extension == ".vue")
+                return SetHeader("Content-Type", "text/html");
             else if (extension == ".css")
                 return SetHeader("Content-Type", "text/css");
             else if (extension == ".js")
