@@ -11,6 +11,80 @@ namespace NetCoreServer
     /// <remarks>Not thread-safe.</remarks>
     public class HttpResponse
     {
+        static HttpResponse()
+        {
+            _mimeTable = new Dictionary<string, string>
+            {
+                // Base content types
+                { ".html",      "text/html" },
+                { ".css",       "text/css" },
+                { ".js",        "text/javascript" },
+                { ".vue",       "text/html" },
+                { ".xml",       "text/xml" },
+
+                // Application content types
+                { ".atom",      "application/atom+xml" },
+                { ".fastsoap",  "application/fastsoap" },
+                { ".gzip",      "application/gzip" },
+                { ".json",      "application/json" },
+                { ".map",       "application/json" },
+                { ".pdf",       "application/pdf" },
+                { ".ps",        "application/postscript" },
+                { ".soap",      "application/soap+xml" },
+                { ".sql",       "application/sql" },
+                { ".xslt",      "application/xslt+xml" },
+                { ".zip",       "application/zip" },
+                { ".zlib",      "application/zlib" },
+
+                // Audio content types
+                { ".aac",       "audio/aac" },
+                { ".ac3",       "audio/ac3" },
+                { ".mp3",       "audio/mpeg" },
+                { ".ogg",       "audio/ogg" },
+
+                // Font content types
+                { ".ttf",       "font/ttf" },
+
+                // Image content types
+                { ".bmp",       "image/bmp" },
+                { ".emf",       "image/emf" },
+                { ".gif",       "image/gif" },
+                { ".jpg",       "image/jpeg" },
+                { ".jpm",       "image/jpm" },
+                { ".jpx",       "image/jpx" },
+                { ".jrx",       "image/jrx" },
+                { ".png",       "image/png" },
+                { ".svg",       "image/svg+xml" },
+                { ".tiff",      "image/tiff" },
+                { ".wmf",       "image/wmf" },
+
+                // Message content types
+                { ".http",      "message/http" },
+                { ".s-http",    "message/s-http" },
+
+                // Model content types
+                { ".mesh",      "model/mesh" },
+                { ".vrml",      "model/vrml" },
+
+                // Text content types
+                { ".csv",       "text/csv" },
+                { ".plain",     "text/plain" },
+                { ".richtext",  "text/richtext" },
+                { ".rtf",       "text/rtf" },
+                { ".rtx",       "text/rtx" },
+                { ".sgml",      "text/sgml" },
+                { ".strings",   "text/strings" },
+                { ".url",       "text/uri-list" },
+
+                // Video content types
+                { ".H264",      "video/H264" },
+                { ".H265",      "video/H265" },
+                { ".mp4",       "video/mp4" },
+                { ".mpeg",      "video/mpeg" },
+                { ".raw",       "video/raw" }
+            };
+        }
+
         /// <summary>
         /// Initialize an empty HTTP response
         /// </summary>
@@ -264,123 +338,9 @@ namespace NetCoreServer
         /// <param name="extension">Content extension</param>
         public HttpResponse SetContentType(string extension)
         {
-            // Base content types
-            if (extension == ".html")
-                return SetHeader("Content-Type", "text/html");
-            else if (extension == ".vue")
-                return SetHeader("Content-Type", "text/html");
-            else if (extension == ".css")
-                return SetHeader("Content-Type", "text/css");
-            else if (extension == ".js")
-                return SetHeader("Content-Type", "text/javascript");
-            else if (extension == ".xml")
-                return SetHeader("Content-Type", "text/xml");
-
-            // Application content types
-            if (extension == ".atom")
-                return SetHeader("Content-Type", "application/atom+xml");
-            else if (extension == ".fastsoap")
-                return SetHeader("Content-Type", "application/fastsoap");
-            else if (extension == ".gzip")
-                return SetHeader("Content-Type", "application/gzip");
-            else if (extension == ".json")
-                return SetHeader("Content-Type", "application/json");
-            else if (extension == ".map")
-                return SetHeader("Content-Type", "application/json");
-            else if (extension == ".pdf")
-                return SetHeader("Content-Type", "application/pdf");
-            else if (extension == ".ps")
-                return SetHeader("Content-Type", "application/postscript");
-            else if (extension == ".soap")
-                return SetHeader("Content-Type", "application/soap+xml");
-            else if (extension == ".sql")
-                return SetHeader("Content-Type", "application/sql");
-            else if (extension == ".xslt")
-                return SetHeader("Content-Type", "application/xslt+xml");
-            else if (extension == ".zip")
-                return SetHeader("Content-Type", "application/zip");
-            else if (extension == ".zlib")
-                return SetHeader("Content-Type", "application/zlib");
-
-            // Audio content types
-            if (extension == ".aac")
-                return SetHeader("Content-Type", "audio/aac");
-            else if (extension == ".ac3")
-                return SetHeader("Content-Type", "audio/ac3");
-            else if (extension == ".mp3")
-                return SetHeader("Content-Type", "audio/mpeg");
-            else if (extension == ".ogg")
-                return SetHeader("Content-Type", "audio/ogg");
-
-            // Font content types
-            if (extension == ".ttf")
-                return SetHeader("Content-Type", "font/ttf");
-
-            // Image content types
-            if (extension == ".bmp")
-                return SetHeader("Content-Type", "image/bmp");
-            else if (extension == ".emf")
-                return SetHeader("Content-Type", "image/emf");
-            else if (extension == ".gif")
-                return SetHeader("Content-Type", "image/gif");
-            else if (extension == ".jpg")
-                return SetHeader("Content-Type", "image/jpeg");
-            else if (extension == ".jpm")
-                return SetHeader("Content-Type", "image/jpm");
-            else if (extension == ".jpx")
-                return SetHeader("Content-Type", "image/jpx");
-            else if (extension == ".jrx")
-                return SetHeader("Content-Type", "image/jrx");
-            else if (extension == ".png")
-                return SetHeader("Content-Type", "image/png");
-            else if (extension == ".svg")
-                return SetHeader("Content-Type", "image/svg+xml");
-            else if (extension == ".tiff")
-                return SetHeader("Content-Type", "image/tiff");
-            else if (extension == ".wmf")
-                return SetHeader("Content-Type", "image/wmf");
-
-            // Message content types
-            if (extension == ".http")
-                return SetHeader("Content-Type", "message/http");
-            else if (extension == ".s-http")
-                return SetHeader("Content-Type", "message/s-http");
-
-            // Model content types
-            if (extension == ".mesh")
-                return SetHeader("Content-Type", "model/mesh");
-            else if (extension == ".vrml")
-                return SetHeader("Content-Type", "model/vrml");
-
-            // Text content types
-            if (extension == ".csv")
-                return SetHeader("Content-Type", "text/csv");
-            else if (extension == ".plain")
-                return SetHeader("Content-Type", "text/plain");
-            else if (extension == ".richtext")
-                return SetHeader("Content-Type", "text/richtext");
-            else if (extension == ".rtf")
-                return SetHeader("Content-Type", "text/rtf");
-            else if (extension == ".rtx")
-                return SetHeader("Content-Type", "text/rtx");
-            else if (extension == ".sgml")
-                return SetHeader("Content-Type", "text/sgml");
-            else if (extension == ".strings")
-                return SetHeader("Content-Type", "text/strings");
-            else if (extension == ".url")
-                return SetHeader("Content-Type", "text/uri-list");
-
-            // Video content types
-            if (extension == ".H264")
-                return SetHeader("Content-Type", "video/H264");
-            else if (extension == ".H265")
-                return SetHeader("Content-Type", "video/H265");
-            else if (extension == ".mp4")
-                return SetHeader("Content-Type", "video/mp4");
-            else if (extension == ".mpeg")
-                return SetHeader("Content-Type", "video/mpeg");
-            else if (extension == ".raw")
-                return SetHeader("Content-Type", "video/raw");
+            // Try to lookup the content type in mime table
+            if (_mimeTable.TryGetValue(extension, out string mime))
+                return SetHeader("Content-Type", mime);
 
             return this;
         }
@@ -711,6 +671,9 @@ namespace NetCoreServer
         // HTTP response cache
         private Buffer _cache = new Buffer();
         private int _cacheSize;
+
+        // HTTP response mime table
+        private static readonly Dictionary<string, string> _mimeTable;
 
         // Is pending parts of HTTP response
         internal bool IsPendingHeader()
