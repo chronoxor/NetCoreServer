@@ -304,8 +304,8 @@ namespace NetCoreServer
         {
             try
             {
-                key = key.Replace('\\', '/');
-                file = file.Replace('\\', '/');
+                key = key.Replace('\\', '/').Replace("//", "/");
+                file = file.Replace('\\', '/').Replace("//", "/");
 
                 // Load the cache file content
                 var content = File.ReadAllBytes(file);
