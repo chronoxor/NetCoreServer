@@ -242,8 +242,8 @@ namespace NetCoreServer
 
             private static void OnCreated(object sender, FileSystemEventArgs e, FileCache cache, FileCacheEntry entry)
             {
-                var key = e.FullPath.Replace(entry._path, entry._prefix);
-                var file = e.FullPath;
+                var key = e.FullPath.Replace('\\', '/').Replace(entry._path + "/", entry._prefix);
+                var file = e.FullPath.Replace('\\', '/');
 
                 // Skip missing files
                 if (!File.Exists(file))
@@ -260,8 +260,8 @@ namespace NetCoreServer
                 if (e.ChangeType != WatcherChangeTypes.Changed)
                     return;
 
-                var key = e.FullPath.Replace(entry._path, entry._prefix);
-                var file = e.FullPath;
+                var key = e.FullPath.Replace('\\', '/').Replace(entry._path + "/", entry._prefix);
+                var file = e.FullPath.Replace('\\', '/');
 
                 // Skip missing files
                 if (!File.Exists(file))
@@ -275,18 +275,18 @@ namespace NetCoreServer
 
             private static void OnDeleted(object sender, FileSystemEventArgs e, FileCache cache, FileCacheEntry entry)
             {
-                var key = e.FullPath.Replace(entry._path, entry._prefix);
-                var file = e.FullPath;
+                var key = e.FullPath.Replace('\\', '/').Replace(entry._path + "/", entry._prefix);
+                var file = e.FullPath.Replace('\\', '/');
 
                 cache.RemoveFileInternal(entry._path, key);
             }
 
             private static void OnRenamed(object sender, RenamedEventArgs e, FileCache cache, FileCacheEntry entry)
             {
-                var oldKey = e.OldFullPath.Replace(entry._path, entry._prefix);
-                var oldFile = e.OldFullPath;
-                var newKey = e.FullPath.Replace(entry._path, entry._prefix);
-                var newFile = e.FullPath;
+                var oldKey = e.OldFullPath.Replace('\\', '/').Replace(entry._path + "/", entry._prefix);
+                var oldFile = e.OldFullPath.Replace('\\', '/');
+                var newKey = e.FullPath.Replace('\\', '/').Replace(entry._path + "/", entry._prefix);
+                var newFile = e.FullPath.Replace('\\', '/');
 
                 // Skip missing files
                 if (!File.Exists(newFile))
@@ -304,9 +304,6 @@ namespace NetCoreServer
         {
             try
             {
-                key = key.Replace('\\', '/');
-                file = file.Replace('\\', '/');
-
                 // Load the cache file content
                 var content = File.ReadAllBytes(file);
                 if (!handler(this, key, content, timeout))
@@ -327,8 +324,6 @@ namespace NetCoreServer
         {
             try
             {
-                key = key.Replace('\\', '/');
-
                 using (new WriteLock(_lockEx))
                 {
                     // Update entries by path map
