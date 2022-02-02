@@ -12,7 +12,7 @@ Ultra fast and low latency asynchronous socket server & client C# .NET Core
 library with support TCP, SSL, UDP, Unix Domain Socket, HTTP, HTTPS, WebSocket protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)
 solution.
 
-Has integration with message protocol based on [Fast Binary Encoding](https://github.com/chronoxor/FastBinaryEncoding)
+Has integration with high-level message protocol based on [Fast Binary Encoding](https://github.com/chronoxor/FastBinaryEncoding)
 
 [NetCoreServer documentation](https://chronoxor.github.io/NetCoreServer)<br/>
 [NetCoreServer downloads](https://github.com/chronoxor/NetCoreServer/releases)<br/>
