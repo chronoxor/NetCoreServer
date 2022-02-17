@@ -51,12 +51,12 @@ namespace NetCoreServer
 
             bool Handler(FileCache cache, string key, byte[] value, TimeSpan timespan)
             {
-                HttpResponse header = new HttpResponse();
-                header.SetBegin(200);
-                header.SetContentType(Path.GetExtension(key));
-                header.SetHeader("Cache-Control", $"max-age={timespan.Seconds}");
-                header.SetBody(value);
-                return cache.Add(key, header.Cache.Data, timespan);
+                var response = new HttpResponse();
+                response.SetBegin(200);
+                response.SetContentType(Path.GetExtension(key));
+                response.SetHeader("Cache-Control", $"max-age={timespan.Seconds}");
+                response.SetBody(value);
+                return cache.Add(key, response.Cache.Data, timespan);
             }
 
             Cache.InsertPath(path, prefix, filter, timeout.Value, Handler);
