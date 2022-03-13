@@ -84,8 +84,8 @@ Has integration with high-level message protocol based on [Fast Binary Encoding]
 # Requirements
 * Linux
 * MacOS
-* Windows 10
-* [.NET 5.0](https://dotnet.microsoft.com/download)
+* Windows
+* [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 * [7-Zip](https://www.7-zip.org)
 * [cmake](https://www.cmake.org)
 * [git](https://git-scm.com)
