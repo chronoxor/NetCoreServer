@@ -171,7 +171,7 @@ namespace HttpServer
 
             // Create a new HTTP server
             var server = new HttpCacheServer(IPAddress.Any, port);
-            server.AddStaticContent(www, "/");
+            server.AddStaticContent(www, "/api");
 
             // Start the server
             Console.Write("Server starting...");
