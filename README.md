@@ -4,7 +4,7 @@
 <br/>
 [![Linux](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-linux.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-linux.yml)
 [![MacOS](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-macos.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-macos.yml)
-[![Windows](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-windows.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-windows.yml)
+[![Windows (Visual Studio)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-windows.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-windows.yml)
 <br/>
 [![NuGet](https://img.shields.io/nuget/v/NetCoreServer)](https://www.nuget.org/packages/NetCoreServer)
 
