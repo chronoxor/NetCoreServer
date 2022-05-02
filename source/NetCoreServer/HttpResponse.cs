@@ -376,8 +376,9 @@ namespace NetCoreServer
         /// <param name="path">Cookie path (default is "")</param>
         /// <param name="domain">Cookie domain (default is "")</param>
         /// <param name="secure">Cookie secure flag (default is true)</param>
-        /// <param name="httpOnly">Cookie HTTP-only flag (default is false)</param>
-        public HttpResponse SetCookie(string name, string value, int maxAge = 86400, string path = "", string domain = "", bool secure = true, bool httpOnly = false)
+        /// <param name="strict">Cookie strict flag (default is true)</param>
+        /// <param name="httpOnly">Cookie HTTP-only flag (default is true)</param>
+        public HttpResponse SetCookie(string name, string value, int maxAge = 86400, string path = "", string domain = "", bool secure = true, bool strict = true, bool httpOnly = true)
         {
             string key = "Set-Cookie";
 
@@ -407,6 +408,8 @@ namespace NetCoreServer
             }
             if (secure)
                 _cache.Append("; Secure");
+            if (strict)
+                _cache.Append("; SameSite=Strict");
             if (httpOnly)
                 _cache.Append("; HttpOnly");
 
