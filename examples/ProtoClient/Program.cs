@@ -3,6 +3,9 @@ using System.Net.Sockets;
 using System.Threading;
 using TcpClient = NetCoreServer.TcpClient;
 
+using com.chronoxor.simple;
+using com.chronoxor.simple.FBE;
+
 namespace ProtoClient
 {
     public class TcpProtoClient : TcpClient
@@ -120,7 +123,7 @@ namespace ProtoClient
         #endregion
     }
 
-    public class SimpleProtoClient : FBE.simple.Client, FBE.simple.ISenderListener, FBE.simple.IReceiverListener, IDisposable
+    public class SimpleProtoClient : Client, ISenderListener, IReceiverListener, IDisposable
     {
         private readonly TcpProtoClient _tcpProtoClient;
 
@@ -251,10 +254,10 @@ namespace ProtoClient
 
         #region Protocol handlers
 
-        private void HandleDisconnectRequest(simple.DisconnectRequest request) { Console.WriteLine($"Received: {request}"); _tcpProtoClient.DisconnectAsync(); }
-        private void HandleSimpleResponse(simple.SimpleResponse response) { Console.WriteLine($"Received: {response}"); }
-        private void HandleSimpleReject(simple.SimpleReject reject) { Console.WriteLine($"Received: {reject}"); }
-        private void HandleSimpleNotify(simple.SimpleNotify notify) { Console.WriteLine($"Received: {notify}"); }
+        private void HandleDisconnectRequest(DisconnectRequest request) { Console.WriteLine($"Received: {request}"); _tcpProtoClient.DisconnectAsync(); }
+        private void HandleSimpleResponse(SimpleResponse response) { Console.WriteLine($"Received: {response}"); }
+        private void HandleSimpleReject(SimpleReject reject) { Console.WriteLine($"Received: {reject}"); }
+        private void HandleSimpleNotify(SimpleNotify notify) { Console.WriteLine($"Received: {notify}"); }
 
         #endregion
 
@@ -352,7 +355,7 @@ namespace ProtoClient
                 }
 
                 // Send request to the simple protocol server
-                simple.SimpleRequest request = simple.SimpleRequest.Default;
+                SimpleRequest request = SimpleRequest.Default;
                 request.Message = line;
                 var response = client.Request(request).Result;
 

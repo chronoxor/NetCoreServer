@@ -6,6 +6,9 @@ using System.Threading;
 using NetCoreServer;
 using Xunit;
 
+using com.chronoxor.simple;
+using com.chronoxor.simple.FBE;
+
 namespace tests
 {
     class TcpProtoClient : NetCoreServer.TcpClient
@@ -45,7 +48,7 @@ namespace tests
         protected override void OnError(SocketError error) { Errors = true; }
     }
 
-    class ProtoClient : FBE.simple.Client, FBE.simple.ISenderListener, FBE.simple.IReceiverListener, IDisposable
+    class ProtoClient : Client, ISenderListener, IReceiverListener, IDisposable
     {
         private readonly TcpProtoClient _tcpProtoClient;
 
@@ -116,10 +119,10 @@ namespace tests
 
         #region Protocol handlers
 
-        private void HandleDisconnectRequest(simple.DisconnectRequest request) { _tcpProtoClient.DisconnectAsync(); }
-        private void HandleSimpleResponse(simple.SimpleResponse response) {}
-        private void HandleSimpleReject(simple.SimpleReject reject) {}
-        private void HandleSimpleNotify(simple.SimpleNotify notify) {}
+        private void HandleDisconnectRequest(DisconnectRequest request) { _tcpProtoClient.DisconnectAsync(); }
+        private void HandleSimpleResponse(SimpleResponse response) {}
+        private void HandleSimpleReject(SimpleReject reject) {}
+        private void HandleSimpleNotify(SimpleNotify notify) {}
 
         #endregion
 
@@ -169,7 +172,7 @@ namespace tests
         #endregion
     }
 
-    class ProtoSessionSender : FBE.simple.Sender, FBE.simple.ISenderListener
+    class ProtoSessionSender : Sender, ISenderListener
     {
         public ProtoSession Session { get; }
 
@@ -181,13 +184,13 @@ namespace tests
         }
     }
 
-    class ProtoSessionReceiver : FBE.simple.Receiver, FBE.simple.IReceiverListener
+    class ProtoSessionReceiver : Receiver, IReceiverListener
     {
         public ProtoSession Session { get; }
 
         public ProtoSessionReceiver(ProtoSession session) { Session = session; }
 
-        public void OnReceive(simple.SimpleRequest request) { Session.OnReceive(request); }
+        public void OnReceive(SimpleRequest request) { Session.OnReceive(request); }
     }
 
     class ProtoSession : TcpSession
@@ -207,10 +210,10 @@ namespace tests
         }
 
         // Protocol handlers
-        public void OnReceive(simple.SimpleRequest request)
+        public void OnReceive(SimpleRequest request)
         {
             // Send response
-            simple.SimpleResponse response = simple.SimpleResponse.Default;
+            SimpleResponse response = SimpleResponse.Default;
             response.id = request.id;
             response.Hash = 0;
             response.Length = (uint)request.Message.Length;
@@ -218,7 +221,7 @@ namespace tests
         }
     }
 
-    class ProtoSender : FBE.simple.Sender, FBE.simple.ISenderListener
+    class ProtoSender : Sender, ISenderListener
     {
         public ProtoServer Server { get; }
 
@@ -277,7 +280,7 @@ namespace tests
                 Thread.Yield();
 
             // Send a request to the protocol server
-            simple.SimpleRequest request = simple.SimpleRequest.Default;
+            SimpleRequest request = SimpleRequest.Default;
             request.Message = "test";
             var response = client.Request(request).Result;
             Assert.Equal(request.id, response.id);
@@ -330,7 +333,7 @@ namespace tests
                 Thread.Yield();
 
             // Create a server notification
-            simple.SimpleNotify notify = simple.SimpleNotify.Default;
+            SimpleNotify notify = SimpleNotify.Default;
             notify.Notification = "test";
 
             // Multicast the notification to all clients
@@ -487,7 +490,7 @@ namespace tests
                 // Multicast a notification to all clients
                 else if ((rand.Next() % 10) == 0)
                 {
-                    simple.SimpleNotify notify = simple.SimpleNotify.Default;
+                    SimpleNotify notify = SimpleNotify.Default;
                     notify.Notification = "test";
                     server.Sender.Send(notify);
                 }
@@ -500,7 +503,7 @@ namespace tests
                         var client = clients[index];
                         if (client.IsConnected)
                         {
-                            simple.SimpleRequest request = simple.SimpleRequest.Default;
+                            SimpleRequest request = SimpleRequest.Default;
                             request.Message = "test";
                             client.Request(request);
                         }

@@ -5,6 +5,9 @@ using System.Threading;
 using NetCoreServer;
 using NDesk.Options;
 
+using com.chronoxor.simple;
+using com.chronoxor.simple.FBE;
+
 namespace ProtoClient
 {
     class TcpProtoClient : NetCoreServer.TcpClient
@@ -42,7 +45,7 @@ namespace ProtoClient
         }
     }
 
-    class ProtoClient : FBE.simple.Client, FBE.simple.ISenderListener, FBE.simple.IReceiverListener, IDisposable
+    class ProtoClient : Client, ISenderListener, IReceiverListener, IDisposable
     {
         private readonly TcpProtoClient _tcpProtoClient;
 
@@ -83,7 +86,7 @@ namespace ProtoClient
 
         private void SendMessage()
         {
-            simple.SimpleRequest message = simple.SimpleRequest.Default;
+            SimpleRequest message = SimpleRequest.Default;
             message.Message = Program.MessageToSend;
             Request(message);
         }
@@ -129,10 +132,10 @@ namespace ProtoClient
 
         #region Protocol handlers
 
-        private void HandleDisconnectRequest(simple.DisconnectRequest request) { _tcpProtoClient.DisconnectAsync(); }
-        private void HandleSimpleResponse(simple.SimpleResponse response) { SendMessage(); }
-        private void HandleSimpleReject(simple.SimpleReject reject) {}
-        private void HandleSimpleNotify(simple.SimpleNotify notify) {}
+        private void HandleDisconnectRequest(DisconnectRequest request) { _tcpProtoClient.DisconnectAsync(); }
+        private void HandleSimpleResponse(SimpleResponse response) { SendMessage(); }
+        private void HandleSimpleReject(SimpleReject reject) {}
+        private void HandleSimpleNotify(SimpleNotify notify) {}
 
         #endregion
 
