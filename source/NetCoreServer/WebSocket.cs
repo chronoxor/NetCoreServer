@@ -510,20 +510,14 @@ namespace NetCoreServer
         /// </summary>
         public void ClearWsBuffers()
         {
-            lock (WsSendLock)
-            {
-                WsSendBuffer.Clear();
-                Array.Clear(WsSendMask, 0, WsSendMask.Length);
-            }
-
-            // Sometimes on disconnect the receive lock could be taken by receive thread.
-            // In this case we'll skip the receive buffer clearing. It will happen on
-            // re-connect then or in GC.
-
+            // Clear the receive buffer
             bool acquiredReceiveLock = false;
 
             try
             {
+                // Sometimes on disconnect the receive lock could be taken by receive thread.
+                // In this case we'll skip the receive buffer clearing. It will happen on
+                // re-connect then or in GC.
                 Monitor.TryEnter(WsReceiveLock, ref acquiredReceiveLock);
                 if (acquiredReceiveLock)
                 {
@@ -540,6 +534,13 @@ namespace NetCoreServer
             {
                 if (acquiredReceiveLock)
                     Monitor.Exit(WsReceiveLock);
+            }
+
+            // Clear the send buffer
+            lock (WsSendLock)
+            {
+                WsSendBuffer.Clear();
+                Array.Clear(WsSendMask, 0, WsSendMask.Length);
             }
         }
 
