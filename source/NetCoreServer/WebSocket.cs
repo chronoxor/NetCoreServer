@@ -515,15 +515,30 @@ namespace NetCoreServer
                 Array.Clear(WsSendMask, 0, WsSendMask.Length);
             }
 
-            lock (WsReceiveLock)
+            // Sometimes on disconnect the receive lock could be taken by receive thread.
+            // In this case we'll skip the receive buffer clearing. It will happen on
+            // re-connect then or in GC.
+
+            bool acquiredReceiveLock = false;
+
+            try
             {
-                WsFrameReceived = false;
-                WsFinalReceived = false;
-                WsHeaderSize = 0;
-                WsPayloadSize = 0;
-                WsReceiveFrameBuffer.Clear();
-                WsReceiveFinalBuffer.Clear();
-                Array.Clear(WsReceiveMask, 0, WsReceiveMask.Length);
+                Monitor.TryEnter(WsReceiveLock, ref acquiredReceiveLock);
+                if (acquiredReceiveLock)
+                {
+                    WsFrameReceived = false;
+                    WsFinalReceived = false;
+                    WsHeaderSize = 0;
+                    WsPayloadSize = 0;
+                    WsReceiveFrameBuffer.Clear();
+                    WsReceiveFinalBuffer.Clear();
+                    Array.Clear(WsReceiveMask, 0, WsReceiveMask.Length);
+                }
+            }
+            finally
+            {
+                if (acquiredReceiveLock)
+                    Monitor.Exit(WsReceiveLock);
             }
         }
 
