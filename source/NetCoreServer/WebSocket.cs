@@ -509,6 +509,12 @@ namespace NetCoreServer
         /// </summary>
         public void ClearWsBuffers()
         {
+            lock (WsSendLock)
+            {
+                WsSendBuffer.Clear();
+                Array.Clear(WsSendMask, 0, WsSendMask.Length);
+            }
+
             lock (WsReceiveLock)
             {
                 WsFrameReceived = false;
@@ -518,12 +524,6 @@ namespace NetCoreServer
                 WsReceiveFrameBuffer.Clear();
                 WsReceiveFinalBuffer.Clear();
                 Array.Clear(WsReceiveMask, 0, WsReceiveMask.Length);
-            }
-
-            lock (WsSendLock)
-            {
-                WsSendBuffer.Clear();
-                Array.Clear(WsSendMask, 0, WsSendMask.Length);
             }
         }
 
