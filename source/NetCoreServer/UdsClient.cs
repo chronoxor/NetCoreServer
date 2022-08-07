@@ -315,7 +315,7 @@ namespace NetCoreServer
         /// Disconnect the client (asynchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully disconnected, 'false' if the client is already disconnected</returns>
-        public virtual bool DisconnectAsync() { return Disconnect(); }
+        public virtual bool DisconnectAsync() => Disconnect();
 
         /// <summary>
         /// Reconnect the client (asynchronous)
@@ -353,7 +353,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="buffer">Buffer to send</param>
         /// <returns>Size of sent data</returns>
-        public virtual long Send(byte[] buffer) { return Send(buffer, 0, buffer.Length); }
+        public virtual long Send(byte[] buffer) => Send(buffer.AsSpan());
 
         /// <summary>
         /// Send data to the server (synchronous)
@@ -362,16 +362,23 @@ namespace NetCoreServer
         /// <param name="offset">Buffer offset</param>
         /// <param name="size">Buffer size</param>
         /// <returns>Size of sent data</returns>
-        public virtual long Send(byte[] buffer, long offset, long size)
+        public virtual long Send(byte[] buffer, long offset, long size) => Send(buffer.AsSpan((int)offset, (int)size));
+
+        /// <summary>
+        /// Send data to the server (synchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send as a span of bytes</param>
+        /// <returns>Size of sent data</returns>
+        public virtual long Send(ReadOnlySpan<byte> buffer)
         {
             if (!IsConnected)
                 return 0;
 
-            if (size == 0)
+            if (buffer.IsEmpty)
                 return 0;
 
             // Sent data to the server
-            long sent = Socket.Send(buffer, (int)offset, (int)size, SocketFlags.None, out SocketError ec);
+            long sent = Socket.Send(buffer, SocketFlags.None, out SocketError ec);
             if (sent > 0)
             {
                 // Update statistic
@@ -396,14 +403,21 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="text">Text string to send</param>
         /// <returns>Size of sent text</returns>
-        public virtual long Send(string text) { return Send(Encoding.UTF8.GetBytes(text)); }
+        public virtual long Send(string text) => Send(Encoding.UTF8.GetBytes(text));
+
+        /// <summary>
+        /// Send text to the server (synchronous)
+        /// </summary>
+        /// <param name="text">Text to send as a span of characters</param>
+        /// <returns>Size of sent text</returns>
+        public virtual long Send(ReadOnlySpan<char> text) => Send(Encoding.UTF8.GetBytes(text.ToArray()));
 
         /// <summary>
         /// Send data to the server (asynchronous)
         /// </summary>
         /// <param name="buffer">Buffer to send</param>
         /// <returns>'true' if the data was successfully sent, 'false' if the client is not connected</returns>
-        public virtual bool SendAsync(byte[] buffer) { return SendAsync(buffer, 0, buffer.Length); }
+        public virtual bool SendAsync(byte[] buffer) => SendAsync(buffer.AsSpan());
 
         /// <summary>
         /// Send data to the server (asynchronous)
@@ -412,25 +426,32 @@ namespace NetCoreServer
         /// <param name="offset">Buffer offset</param>
         /// <param name="size">Buffer size</param>
         /// <returns>'true' if the data was successfully sent, 'false' if the client is not connected</returns>
-        public virtual bool SendAsync(byte[] buffer, long offset, long size)
+        public virtual bool SendAsync(byte[] buffer, long offset, long size) => SendAsync(buffer.AsSpan((int)offset, (int)size));
+
+        /// <summary>
+        /// Send data to the server (asynchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send as a span of bytes</param>
+        /// <returns>'true' if the data was successfully sent, 'false' if the client is not connected</returns>
+        public virtual bool SendAsync(ReadOnlySpan<byte> buffer)
         {
             if (!IsConnected)
                 return false;
 
-            if (size == 0)
+            if (buffer.IsEmpty)
                 return true;
 
             lock (_sendLock)
             {
                 // Check the send buffer limit
-                if (((_sendBufferMain.Size + size) > OptionSendBufferLimit) && (OptionSendBufferLimit > 0))
+                if (((_sendBufferMain.Size + buffer.Length) > OptionSendBufferLimit) && (OptionSendBufferLimit > 0))
                 {
                     SendError(SocketError.NoBufferSpaceAvailable);
                     return false;
                 }
 
                 // Fill the main send buffer
-                _sendBufferMain.Append(buffer, offset, size);
+                _sendBufferMain.Append(buffer);
 
                 // Update statistic
                 BytesPending = _sendBufferMain.Size;
@@ -453,7 +474,14 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="text">Text string to send</param>
         /// <returns>'true' if the text was successfully sent, 'false' if the client is not connected</returns>
-        public virtual bool SendAsync(string text) { return SendAsync(Encoding.UTF8.GetBytes(text)); }
+        public virtual bool SendAsync(string text) => SendAsync(Encoding.UTF8.GetBytes(text));
+
+        /// <summary>
+        /// Send text to the server (asynchronous)
+        /// </summary>
+        /// <param name="text">Text to send as a span of characters</param>
+        /// <returns>'true' if the text was successfully sent, 'false' if the client is not connected</returns>
+        public virtual bool SendAsync(ReadOnlySpan<char> text) => SendAsync(Encoding.UTF8.GetBytes(text.ToArray()));
 
         /// <summary>
         /// Receive data from the server (synchronous)

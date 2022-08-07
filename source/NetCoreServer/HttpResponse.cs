@@ -428,9 +428,15 @@ namespace NetCoreServer
         /// Set the HTTP response body
         /// </summary>
         /// <param name="body">Body string content (default is "")</param>
-        public HttpResponse SetBody(string body = "")
+        public HttpResponse SetBody(string body = "") => SetBody(body.AsSpan());
+
+        /// <summary>
+        /// Set the HTTP response body
+        /// </summary>
+        /// <param name="body">Body string content as a span of characters</param>
+        public HttpResponse SetBody(ReadOnlySpan<char> body)
         {
-            int length = string.IsNullOrEmpty(body) ? 0 : Encoding.UTF8.GetByteCount(body);
+            int length = body.IsEmpty ? 0 : Encoding.UTF8.GetByteCount(body);
 
             // Append content length header
             SetHeader("Content-Length", length.ToString());
@@ -452,7 +458,13 @@ namespace NetCoreServer
         /// Set the HTTP response body
         /// </summary>
         /// <param name="body">Body binary content</param>
-        public HttpResponse SetBody(byte[] body)
+        public HttpResponse SetBody(byte[] body) => SetBody(body.AsSpan());
+
+        /// <summary>
+        /// Set the HTTP response body
+        /// </summary>
+        /// <param name="body">Body binary content as a span of bytes</param>
+        public HttpResponse SetBody(ReadOnlySpan<byte> body)
         {
             // Append content length header
             SetHeader("Content-Length", body.Length.ToString());
@@ -466,28 +478,6 @@ namespace NetCoreServer
             _bodyIndex = index;
             _bodySize = body.Length;
             _bodyLength = body.Length;
-            _bodyLengthProvided = true;
-            return this;
-        }
-
-        /// <summary>
-        /// Set the HTTP response body
-        /// </summary>
-        /// <param name="body">Body buffer content</param>
-        public HttpResponse SetBody(Buffer body)
-        {
-            // Append content length header
-            SetHeader("Content-Length", body.Size.ToString());
-
-            _cache.Append("\r\n");
-
-            int index = (int)_cache.Size;
-
-            // Append the HTTP response body
-            _cache.Append(body.Data, body.Offset, body.Size);
-            _bodyIndex = index;
-            _bodySize = (int)body.Size;
-            _bodyLength = (int)body.Size;
             _bodyLengthProvided = true;
             return this;
         }
@@ -567,7 +557,14 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="content">String content (default is "")</param>
         /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
-        public HttpResponse MakeGetResponse(string content = "", string contentType = "text/plain; charset=UTF-8")
+        public HttpResponse MakeGetResponse(string content = "", string contentType = "text/plain; charset=UTF-8") => MakeGetResponse(content.AsSpan(), contentType);
+
+        /// <summary>
+        /// Make GET response
+        /// </summary>
+        /// <param name="content">String content as a span of characters</param>
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpResponse MakeGetResponse(ReadOnlySpan<char> content, string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
             SetBegin(200);
@@ -580,24 +577,16 @@ namespace NetCoreServer
         /// <summary>
         /// Make GET response
         /// </summary>
-        /// <param name="content">String content</param>
+        /// <param name="content">Binary content</param>
         /// <param name="contentType">Content type (default is "")</param>
-        public HttpResponse MakeGetResponse(byte[] content, string contentType = "")
-        {
-            Clear();
-            SetBegin(200);
-            if (!string.IsNullOrEmpty(contentType))
-                SetHeader("Content-Type", contentType);
-            SetBody(content);
-            return this;
-        }
+        public HttpResponse MakeGetResponse(byte[] content, string contentType = "") => MakeGetResponse(content.AsSpan(), contentType);
 
         /// <summary>
         /// Make GET response
         /// </summary>
-        /// <param name="content">String content</param>
+        /// <param name="content">Binary content as a span of bytes</param>
         /// <param name="contentType">Content type (default is "")</param>
-        public HttpResponse MakeGetResponse(Buffer content, string contentType = "")
+        public HttpResponse MakeGetResponse(ReadOnlySpan<byte> content, string contentType = "")
         {
             Clear();
             SetBegin(200);
@@ -623,41 +612,46 @@ namespace NetCoreServer
         /// <summary>
         /// Make TRACE response
         /// </summary>
-        /// <param name="request">Request string content</param>
-        public HttpResponse MakeTraceResponse(string request)
+        /// <param name="content">String content</param>
+        public HttpResponse MakeTraceResponse(string content) => MakeTraceResponse(content.AsSpan());
+
+        /// <summary>
+        /// Make TRACE response
+        /// </summary>
+        /// <param name="content">String content as a span of characters</param>
+        public HttpResponse MakeTraceResponse(ReadOnlySpan<char> content)
         {
             Clear();
             SetBegin(200);
             SetHeader("Content-Type", "message/http");
-            SetBody(request);
+            SetBody(content);
             return this;
         }
 
         /// <summary>
         /// Make TRACE response
         /// </summary>
-        /// <param name="request">Request binary content</param>
-        public HttpResponse MakeTraceResponse(byte[] request)
+        /// <param name="content">Binary content</param>
+        public HttpResponse MakeTraceResponse(byte[] content) => MakeTraceResponse(content.AsSpan());
+
+        /// <summary>
+        /// Make TRACE response
+        /// </summary>
+        /// <param name="content">Binary content as a span of bytes</param>
+        public HttpResponse MakeTraceResponse(ReadOnlySpan<byte> content)
         {
             Clear();
             SetBegin(200);
             SetHeader("Content-Type", "message/http");
-            SetBody(request);
+            SetBody(content);
             return this;
         }
 
         /// <summary>
         /// Make TRACE response
         /// </summary>
-        /// <param name="request">Request buffer content</param>
-        public HttpResponse MakeTraceResponse(Buffer request)
-        {
-            Clear();
-            SetBegin(200);
-            SetHeader("Content-Type", "message/http");
-            SetBody(request);
-            return this;
-        }
+        /// <param name="request">HTTP request</param>
+        public HttpResponse MakeTraceResponse(HttpRequest request) => MakeTraceResponse(request.Cache.AsSpan());
 
         // HTTP response status phrase
         private string _statusPhrase;

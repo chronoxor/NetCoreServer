@@ -37,7 +37,7 @@ namespace NetCoreServer
         /// <summary>
         /// Buffer indexer operator
         /// </summary>
-        public byte this[int index] => _data[index];
+        public byte this[long index] => _data[index];
 
         /// <summary>
         /// Initialize a new expandable buffer with zero capacity
@@ -55,7 +55,15 @@ namespace NetCoreServer
         #region Memory buffer methods
 
         /// <summary>
-        /// Get string from the current buffer
+        /// Get a span of bytes from the current buffer
+        /// </summary>
+        public Span<byte> AsSpan()
+        {
+            return new Span<byte>(_data, (int)_offset, (int)_size);
+        }
+
+        /// <summary>
+        /// Get a string from the current buffer
         /// </summary>
         public override string ToString()
         {
@@ -138,6 +146,19 @@ namespace NetCoreServer
         #region Buffer I/O methods
 
         /// <summary>
+        /// Append the single byte
+        /// </summary>
+        /// <param name="value">Byte value to append</param>
+        /// <returns>Count of append bytes</returns>
+        public long Append(byte value)
+        {
+            Reserve(_size + 1);
+            _data[_size] = value;
+            _size += 1;
+            return 1;
+        }
+
+        /// <summary>
         /// Append the given buffer
         /// </summary>
         /// <param name="buffer">Buffer to append</param>
@@ -166,14 +187,49 @@ namespace NetCoreServer
         }
 
         /// <summary>
+        /// Append the given span of bytes
+        /// </summary>
+        /// <param name="buffer">Buffer to append as a span of bytes</param>
+        /// <returns>Count of append bytes</returns>
+        public long Append(ReadOnlySpan<byte> buffer)
+        {
+            Reserve(_size + buffer.Length);
+            buffer.CopyTo(new Span<byte>(_data, (int)_size, buffer.Length));
+            _size += buffer.Length;
+            return buffer.Length;
+        }
+
+        /// <summary>
+        /// Append the given buffer
+        /// </summary>
+        /// <param name="buffer">Buffer to append</param>
+        /// <returns>Count of append bytes</returns>
+        public long Append(Buffer buffer) => Append(buffer.AsSpan());
+
+        /// <summary>
         /// Append the given text in UTF-8 encoding
         /// </summary>
         /// <param name="text">Text to append</param>
         /// <returns>Count of append bytes</returns>
         public long Append(string text)
         {
-            Reserve(_size + Encoding.UTF8.GetMaxByteCount(text.Length));
+            int length = Encoding.UTF8.GetMaxByteCount(text.Length);
+            Reserve(_size + length);
             long result = Encoding.UTF8.GetBytes(text, 0, text.Length, _data, (int)_size);
+            _size += result;
+            return result;
+        }
+
+        /// <summary>
+        /// Append the given text in UTF-8 encoding
+        /// </summary>
+        /// <param name="text">Text to append as a span of characters</param>
+        /// <returns>Count of append bytes</returns>
+        public long Append(ReadOnlySpan<char> text)
+        {
+            int length = Encoding.UTF8.GetMaxByteCount(text.Length);
+            Reserve(_size + length);
+            long result = Encoding.UTF8.GetBytes(text, new Span<byte>(_data, (int)_size, length));
             _size += result;
             return result;
         }
