@@ -27,7 +27,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, true, buffer);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, buffer);
                 return base.Send(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -40,7 +40,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, true, buffer);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, buffer);
                 return base.SendAsync(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -58,7 +58,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, true, buffer);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, buffer);
                 return base.Send(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -71,7 +71,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, true, buffer);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, buffer);
                 return base.SendAsync(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -89,7 +89,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, true, buffer, status);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, false, buffer, status);
                 return base.Send(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -102,7 +102,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, true, buffer, status);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, false, buffer, status);
                 return base.SendAsync(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -120,7 +120,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, true, buffer);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, buffer);
                 return base.Send(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -133,7 +133,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, true, buffer);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, buffer);
                 return base.SendAsync(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -151,7 +151,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, true, buffer);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, false, buffer);
                 return base.Send(WebSocket.WsSendBuffer.AsSpan());
             }
         }
@@ -164,7 +164,7 @@ namespace NetCoreServer
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, true, buffer);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, false, buffer);
                 return base.SendAsync(WebSocket.WsSendBuffer.AsSpan());
             }
         }
