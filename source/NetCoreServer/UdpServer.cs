@@ -473,7 +473,7 @@ namespace NetCoreServer
             try
             {
                 // Sent datagram to the client
-                int sent = Socket.SendTo(buffer, SocketFlags.None, endpoint);
+                int sent = Socket.SendTo(buffer.ToArray(), SocketFlags.None, endpoint);
                 if (sent > 0)
                 {
                     // Update statistic
