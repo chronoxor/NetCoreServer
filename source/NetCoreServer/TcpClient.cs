@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading;
 
@@ -12,28 +13,32 @@ namespace NetCoreServer
     /// <remarks>Thread-safe</remarks>
     public class TcpClient : IDisposable
     {
+        private int _optionKeepAliveTimeout = 300; // Default is 2 hours but recommended is 5 minutes
+        private int _optionKeepAliveInterval = 1; // Default is 1 second
+        private int _optionKeepAliveRetryCount = 10; // Default is 10
+
         /// <summary>
         /// Initialize TCP client with a given server IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public TcpClient(IPAddress address, int port) : this(new IPEndPoint(address, port)) {}
+        public TcpClient(IPAddress address, int port) : this(new IPEndPoint(address, port)) { }
         /// <summary>
         /// Initialize TCP client with a given server IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public TcpClient(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
+        public TcpClient(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) { }
         /// <summary>
         /// Initialize TCP client with a given DNS endpoint
         /// </summary>
         /// <param name="endpoint">DNS endpoint</param>
-        public TcpClient(DnsEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port) {}
+        public TcpClient(DnsEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port) { }
         /// <summary>
         /// Initialize TCP client with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public TcpClient(IPEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port) {}
+        public TcpClient(IPEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port) { }
         /// <summary>
         /// Initialize TCP client with a given endpoint, address and port
         /// </summary>
@@ -102,6 +107,57 @@ namespace NetCoreServer
         /// This option will setup SO_KEEPALIVE if the OS support this feature
         /// </remarks>
         public bool OptionKeepAlive { get; set; }
+        /// <summary>
+        /// Option: keep alive timeout duration
+        /// </summary>
+        /// <remarks>
+        /// This option will setup timeout in seconds 
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveTimeout
+        {
+            get => _optionKeepAliveTimeout;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveTimeout = value;
+            }
+        }
+        /// <summary>
+        /// Option: keep alive timeout duration
+        /// </summary>
+        /// <remarks>
+        /// This option will setup keep alive interval in seconds 
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveInterval
+        {
+            get => _optionKeepAliveInterval;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveInterval = value;
+            }
+        }
+        /// <summary>
+        /// Option: keep alive retry count
+        /// </summary>
+        /// <remarks>
+        /// This option will setup keep alive retry count
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveRetryCount
+        {
+            get => _optionKeepAliveRetryCount;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveRetryCount = value;
+            }
+        }
         /// <summary>
         /// Option: no delay
         /// </summary>
@@ -228,7 +284,21 @@ namespace NetCoreServer
 
             // Apply the option: keep alive
             if (OptionKeepAlive)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            {
+                try
+                {
+                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, OptionKeepAliveTimeout);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, OptionKeepAliveInterval);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, OptionKeepAliveRetryCount);
+                }
+                catch (Exception)
+                {
+                    // keepalive not supported on this platform
+                    OptionKeepAlive = false;
+                }
+            }
+
             // Apply the option: no delay
             if (OptionNoDelay)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
@@ -285,7 +355,7 @@ namespace NetCoreServer
                     // Shutdown the socket associated with the client
                     Socket.Shutdown(SocketShutdown.Both);
                 }
-                catch (SocketException) {}
+                catch (SocketException) { }
 
                 // Close the client socket
                 Socket.Close();
@@ -301,7 +371,7 @@ namespace NetCoreServer
                 // Update the client socket disposed flag
                 IsSocketDisposed = true;
             }
-            catch (ObjectDisposedException) {}
+            catch (ObjectDisposedException) { }
 
             // Update the connected flag
             IsConnected = false;
@@ -638,7 +708,7 @@ namespace NetCoreServer
                     if (!Socket.ReceiveAsync(_receiveEventArg))
                         process = ProcessReceive(_receiveEventArg);
                 }
-                catch (ObjectDisposedException) {}
+                catch (ObjectDisposedException) { }
             }
         }
 
@@ -698,7 +768,7 @@ namespace NetCoreServer
                     if (!Socket.SendAsync(_sendEventArg))
                         process = ProcessSend(_sendEventArg);
                 }
-                catch (ObjectDisposedException) {}
+                catch (ObjectDisposedException) { }
             }
         }
 
@@ -712,7 +782,7 @@ namespace NetCoreServer
                 // Clear send buffers
                 _sendBufferMain.Clear();
                 _sendBufferFlush.Clear();
-                _sendBufferFlushOffset= 0;
+                _sendBufferFlushOffset = 0;
 
                 // Update statistic
                 BytesPending = 0;
@@ -763,7 +833,21 @@ namespace NetCoreServer
             {
                 // Apply the option: keep alive
                 if (OptionKeepAlive)
-                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                {
+                    try
+                    {
+                        Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                        Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, OptionKeepAliveTimeout);
+                        Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, OptionKeepAliveInterval);
+                        Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, OptionKeepAliveRetryCount);
+                    }
+                    catch (Exception)
+                    {
+                        // keepalive not supported on this platform
+                        OptionKeepAlive = false;
+                    }
+                }
+
                 // Apply the option: no delay
                 if (OptionNoDelay)
                     Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
@@ -908,19 +992,19 @@ namespace NetCoreServer
         /// <summary>
         /// Handle client connecting notification
         /// </summary>
-        protected virtual void OnConnecting() {}
+        protected virtual void OnConnecting() { }
         /// <summary>
         /// Handle client connected notification
         /// </summary>
-        protected virtual void OnConnected() {}
+        protected virtual void OnConnected() { }
         /// <summary>
         /// Handle client disconnecting notification
         /// </summary>
-        protected virtual void OnDisconnecting() {}
+        protected virtual void OnDisconnecting() { }
         /// <summary>
         /// Handle client disconnected notification
         /// </summary>
-        protected virtual void OnDisconnected() {}
+        protected virtual void OnDisconnected() { }
 
         /// <summary>
         /// Handle buffer received notification
@@ -931,7 +1015,7 @@ namespace NetCoreServer
         /// <remarks>
         /// Notification is called when another chunk of buffer was received from the server
         /// </remarks>
-        protected virtual void OnReceived(byte[] buffer, long offset, long size) {}
+        protected virtual void OnReceived(byte[] buffer, long offset, long size) { }
         /// <summary>
         /// Handle buffer sent notification
         /// </summary>
@@ -941,7 +1025,7 @@ namespace NetCoreServer
         /// Notification is called when another chunk of buffer was sent to the server.
         /// This handler could be used to send another buffer to the server for instance when the pending size is zero.
         /// </remarks>
-        protected virtual void OnSent(long sent, long pending) {}
+        protected virtual void OnSent(long sent, long pending) { }
 
         /// <summary>
         /// Handle empty send buffer notification
@@ -950,13 +1034,13 @@ namespace NetCoreServer
         /// Notification is called when the send buffer is empty and ready for a new data to send.
         /// This handler could be used to send another buffer to the server.
         /// </remarks>
-        protected virtual void OnEmpty() {}
+        protected virtual void OnEmpty() { }
 
         /// <summary>
         /// Handle error notification
         /// </summary>
         /// <param name="error">Socket error code</param>
-        protected virtual void OnError(SocketError error) {}
+        protected virtual void OnError(SocketError error) { }
 
         #endregion
 

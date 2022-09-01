@@ -14,6 +14,10 @@ namespace NetCoreServer
     /// <remarks>Thread-safe</remarks>
     public class SslServer : IDisposable
     {
+        private int _optionKeepAliveTimeout = 300; // Default is 2 hours but recommended is 5 minutes
+        private int _optionKeepAliveInterval = 1; // Default is 1 second
+        private int _optionKeepAliveRetryCount = 10; // Default is 10
+
         /// <summary>
         /// Initialize SSL server with a given IP address and port number
         /// </summary>
@@ -118,11 +122,62 @@ namespace NetCoreServer
         /// </remarks>
         public bool OptionKeepAlive { get; set; }
         /// <summary>
-        /// Option: no delay
+        /// Option: keep alive timeout duration
         /// </summary>
         /// <remarks>
-        /// This option will enable/disable Nagle's algorithm for SSL protocol
+        /// This option will setup timeout in seconds 
+        /// Only valid if OptionKeepAlive is true
         /// </remarks>
+        public int OptionKeepAliveTimeout
+        {
+            get => _optionKeepAliveTimeout;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveTimeout = value;
+            }
+        }
+        /// <summary>
+        /// Option: keep alive timeout duration
+        /// </summary>
+        /// <remarks>
+        /// This option will setup keep alive interval in seconds 
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveInterval
+        {
+            get => _optionKeepAliveInterval;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveInterval = value;
+            }
+        }
+        /// <summary>
+        /// Option: keep alive retry count
+        /// </summary>
+        /// <remarks>
+        /// This option will setup keep alive retry count
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveRetryCount
+        {
+            get => _optionKeepAliveRetryCount;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveRetryCount = value;
+            }
+        }
+        /// <summary>
+                 /// Option: no delay
+                 /// </summary>
+                 /// <remarks>
+                 /// This option will enable/disable Nagle's algorithm for SSL protocol
+                 /// </remarks>
         public bool OptionNoDelay { get; set; }
         /// <summary>
         /// Option: reuse address

@@ -105,7 +105,21 @@ namespace NetCoreServer
 
             // Apply the option: keep alive
             if (Server.OptionKeepAlive)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            {
+                try
+                {
+                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, Server.OptionKeepAliveTimeout);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, Server.OptionKeepAliveInterval);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, Server.OptionKeepAliveRetryCount);
+                }
+                catch (Exception)
+                {
+                    // keepalive not supported on this platform
+                    Server.OptionKeepAlive = false;
+                }
+            }
+
             // Apply the option: no delay
             if (Server.OptionNoDelay)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);

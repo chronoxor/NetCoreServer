@@ -14,28 +14,32 @@ namespace NetCoreServer
     /// <remarks>Thread-safe</remarks>
     public class TcpServer : IDisposable
     {
+        private int _optionKeepAliveTimeout = 300; // Default is 2 hours but recommended is 5 minutes
+        private int _optionKeepAliveInterval = 1; // Default is 1 second
+        private int _optionKeepAliveRetryCount = 10; // Default is 10
+
         /// <summary>
         /// Initialize TCP server with a given IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public TcpServer(IPAddress address, int port) : this(new IPEndPoint(address, port)) {}
+        public TcpServer(IPAddress address, int port) : this(new IPEndPoint(address, port)) { }
         /// <summary>
         /// Initialize TCP server with a given IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public TcpServer(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) {}
+        public TcpServer(string address, int port) : this(new IPEndPoint(IPAddress.Parse(address), port)) { }
         /// <summary>
         /// Initialize TCP server with a given DNS endpoint
         /// </summary>
         /// <param name="endpoint">DNS endpoint</param>
-        public TcpServer(DnsEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port) {}
+        public TcpServer(DnsEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port) { }
         /// <summary>
         /// Initialize TCP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public TcpServer(IPEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port) {}
+        public TcpServer(IPEndPoint endpoint) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port) { }
         /// <summary>
         /// Initialize TCP server with a given endpoint, address and port
         /// </summary>
@@ -107,6 +111,57 @@ namespace NetCoreServer
         /// This option will setup SO_KEEPALIVE if the OS support this feature
         /// </remarks>
         public bool OptionKeepAlive { get; set; }
+        /// <summary>
+        /// Option: keep alive timeout duration
+        /// </summary>
+        /// <remarks>
+        /// This option will setup timeout in seconds 
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveTimeout
+        {
+            get => _optionKeepAliveTimeout;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveTimeout = value;
+            }
+        }
+        /// <summary>
+        /// Option: keep alive timeout duration
+        /// </summary>
+        /// <remarks>
+        /// This option will setup keep alive interval in seconds 
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveInterval
+        {
+            get => _optionKeepAliveInterval;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveInterval = value;
+            }
+        }
+        /// <summary>
+        /// Option: keep alive retry count
+        /// </summary>
+        /// <remarks>
+        /// This option will setup keep alive retry count
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveRetryCount
+        {
+            get => _optionKeepAliveRetryCount;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveRetryCount = value;
+            }
+        }
         /// <summary>
         /// Option: no delay
         /// </summary>
@@ -259,7 +314,7 @@ namespace NetCoreServer
                 // Update the acceptor socket disposed flag
                 IsSocketDisposed = true;
             }
-            catch (ObjectDisposedException) {}
+            catch (ObjectDisposedException) { }
 
             // Disconnect all sessions
             DisconnectAll();
@@ -466,46 +521,46 @@ namespace NetCoreServer
         /// <summary>
         /// Handle server starting notification
         /// </summary>
-        protected virtual void OnStarting() {}
+        protected virtual void OnStarting() { }
         /// <summary>
         /// Handle server started notification
         /// </summary>
-        protected virtual void OnStarted() {}
+        protected virtual void OnStarted() { }
         /// <summary>
         /// Handle server stopping notification
         /// </summary>
-        protected virtual void OnStopping() {}
+        protected virtual void OnStopping() { }
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
-        protected virtual void OnStopped() {}
+        protected virtual void OnStopped() { }
 
         /// <summary>
         /// Handle session connecting notification
         /// </summary>
         /// <param name="session">Connecting session</param>
-        protected virtual void OnConnecting(TcpSession session) {}
+        protected virtual void OnConnecting(TcpSession session) { }
         /// <summary>
         /// Handle session connected notification
         /// </summary>
         /// <param name="session">Connected session</param>
-        protected virtual void OnConnected(TcpSession session) {}
+        protected virtual void OnConnected(TcpSession session) { }
         /// <summary>
         /// Handle session disconnecting notification
         /// </summary>
         /// <param name="session">Disconnecting session</param>
-        protected virtual void OnDisconnecting(TcpSession session) {}
+        protected virtual void OnDisconnecting(TcpSession session) { }
         /// <summary>
         /// Handle session disconnected notification
         /// </summary>
         /// <param name="session">Disconnected session</param>
-        protected virtual void OnDisconnected(TcpSession session) {}
+        protected virtual void OnDisconnected(TcpSession session) { }
 
         /// <summary>
         /// Handle error notification
         /// </summary>
         /// <param name="error">Socket error code</param>
-        protected virtual void OnError(SocketError error) {}
+        protected virtual void OnError(SocketError error) { }
 
         internal void OnConnectingInternal(TcpSession session) { OnConnecting(session); }
         internal void OnConnectedInternal(TcpSession session) { OnConnected(session); }

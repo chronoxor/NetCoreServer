@@ -14,6 +14,10 @@ namespace NetCoreServer
     /// <remarks>Thread-safe</remarks>
     public class SslClient : IDisposable
     {
+        private int _optionKeepAliveTimeout = 300; // Default is 2 hours but recommended is 5 minutes
+        private int _optionKeepAliveInterval = 1; // Default is 1 second
+        private int _optionKeepAliveRetryCount = 10; // Default is 10
+
         /// <summary>
         /// Initialize SSL client with a given server IP address and port number
         /// </summary>
@@ -114,6 +118,57 @@ namespace NetCoreServer
         /// This option will setup SO_KEEPALIVE if the OS support this feature
         /// </remarks>
         public bool OptionKeepAlive { get; set; }
+        /// <summary>
+        /// Option: keep alive timeout duration
+        /// </summary>
+        /// <remarks>
+        /// This option will setup timeout in seconds 
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveTimeout
+        {
+            get => _optionKeepAliveTimeout;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveTimeout = value;
+            }
+        }
+        /// <summary>
+        /// Option: keep alive timeout duration
+        /// </summary>
+        /// <remarks>
+        /// This option will setup keep alive interval in seconds 
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveInterval
+        {
+            get => _optionKeepAliveInterval;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveInterval = value;
+            }
+        }
+        /// <summary>
+        /// Option: keep alive retry count
+        /// </summary>
+        /// <remarks>
+        /// This option will setup keep alive retry count
+        /// Only valid if OptionKeepAlive is true
+        /// </remarks>
+        public int OptionKeepAliveRetryCount
+        {
+            get => _optionKeepAliveRetryCount;
+            set
+            {
+                // Must be bigger than 0
+                if (value > 0)
+                    _optionKeepAliveRetryCount = value;
+            }
+        }
         /// <summary>
         /// Option: no delay
         /// </summary>
@@ -243,7 +298,21 @@ namespace NetCoreServer
 
             // Apply the option: keep alive
             if (OptionKeepAlive)
-                Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            {
+                try
+                {
+                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, OptionKeepAliveTimeout);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, OptionKeepAliveInterval);
+                    Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, OptionKeepAliveRetryCount);
+                }
+                catch (Exception)
+                {
+                    // keepalive not supported on this platform
+                    OptionKeepAlive = false;
+                }
+            }
+            
             // Apply the option: no delay
             if (OptionNoDelay)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
@@ -812,7 +881,21 @@ namespace NetCoreServer
             {
                 // Apply the option: keep alive
                 if (OptionKeepAlive)
-                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                {
+                    try
+                    {
+                        Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                        Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, OptionKeepAliveTimeout);
+                        Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, OptionKeepAliveInterval);
+                        Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, OptionKeepAliveRetryCount);
+                    }
+                    catch (Exception)
+                    {
+                        // keepalive not supported on this platform
+                        OptionKeepAlive = false;
+                    }
+                }
+                
                 // Apply the option: no delay
                 if (OptionNoDelay)
                     Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
