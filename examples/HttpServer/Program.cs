@@ -122,7 +122,7 @@ namespace HttpServer
             else if (request.Method == "OPTIONS")
                 SendResponseAsync(Response.MakeOptionsResponse());
             else if (request.Method == "TRACE")
-                SendResponseAsync(Response.MakeTraceResponse(request.Cache.Data));
+                SendResponseAsync(Response.MakeTraceResponse(request));
             else
                 SendResponseAsync(Response.MakeErrorResponse("Unsupported HTTP method: " + request.Method));
         }

@@ -54,26 +54,32 @@ namespace NetCoreServer
         /// Send the current HTTP request (synchronous)
         /// </summary>
         /// <returns>Size of sent data</returns>
-        public long SendRequest() { return SendRequest(Request); }
+        public long SendRequest() => SendRequest(Request);
         /// <summary>
         /// Send the HTTP request (synchronous)
         /// </summary>
         /// <param name="request">HTTP request</param>
         /// <returns>Size of sent data</returns>
-        public long SendRequest(HttpRequest request) { return Send(request.Cache.Data, request.Cache.Offset, request.Cache.Size); }
+        public long SendRequest(HttpRequest request) => Send(request.Cache.Data, request.Cache.Offset, request.Cache.Size);
 
         /// <summary>
         /// Send the HTTP request body (synchronous)
         /// </summary>
         /// <param name="body">HTTP request body</param>
         /// <returns>Size of sent data</returns>
-        public long SendRequestBody(string body) { return Send(body); }
+        public long SendRequestBody(string body) => Send(body);
+        /// <summary>
+        /// Send the HTTP request body (synchronous)
+        /// </summary>
+        /// <param name="body">HTTP request body as a span of characters</param>
+        /// <returns>Size of sent data</returns>
+        public long SendRequestBody(ReadOnlySpan<char> body) => Send(body);
         /// <summary>
         /// Send the HTTP request body (synchronous)
         /// </summary>
         /// <param name="buffer">HTTP request body buffer</param>
         /// <returns>Size of sent data</returns>
-        public long SendRequestBody(byte[] buffer) { return Send(buffer); }
+        public long SendRequestBody(byte[] buffer) => Send(buffer);
         /// <summary>
         /// Send the HTTP request body (synchronous)
         /// </summary>
@@ -81,32 +87,45 @@ namespace NetCoreServer
         /// <param name="offset">HTTP request body buffer offset</param>
         /// <param name="size">HTTP request body size</param>
         /// <returns>Size of sent data</returns>
-        public long SendRequestBody(byte[] buffer, long offset, long size) { return Send(buffer, offset, size); }
+        public long SendRequestBody(byte[] buffer, long offset, long size) => Send(buffer, offset, size);
+
+        /// <summary>
+        /// Send the HTTP request body (synchronous)
+        /// </summary>
+        /// <param name="buffer">HTTP request body buffer as a span of bytes</param>
+        /// <returns>Size of sent data</returns>
+        public long SendRequestBody(ReadOnlySpan<byte> buffer) => Send(buffer);
 
         /// <summary>
         /// Send the current HTTP request (asynchronous)
         /// </summary>
         /// <returns>'true' if the current HTTP request was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendRequestAsync() { return SendRequestAsync(Request); }
+        public bool SendRequestAsync() => SendRequestAsync(Request);
         /// <summary>
         /// Send the HTTP request (asynchronous)
         /// </summary>
         /// <param name="request">HTTP request</param>
         /// <returns>'true' if the current HTTP request was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendRequestAsync(HttpRequest request) { return SendAsync(request.Cache.Data, request.Cache.Offset, request.Cache.Size); }
+        public bool SendRequestAsync(HttpRequest request) => SendAsync(request.Cache.Data, request.Cache.Offset, request.Cache.Size);
 
         /// <summary>
         /// Send the HTTP request body (asynchronous)
         /// </summary>
         /// <param name="body">HTTP request body</param>
         /// <returns>'true' if the HTTP request body was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendRequestBodyAsync(string body) { return SendAsync(body); }
+        public bool SendRequestBodyAsync(string body) => SendAsync(body);
+        /// <summary>
+        /// Send the HTTP request body (asynchronous)
+        /// </summary>
+        /// <param name="body">HTTP request body as a span of characters</param>
+        /// <returns>'true' if the HTTP request body was successfully sent, 'false' if the session is not connected</returns>
+        public bool SendRequestBodyAsync(ReadOnlySpan<char> body) => SendAsync(body);
         /// <summary>
         /// Send the HTTP request body (asynchronous)
         /// </summary>
         /// <param name="buffer">HTTP request body buffer</param>
         /// <returns>'true' if the HTTP request body was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendRequestBodyAsync(byte[] buffer) { return SendAsync(buffer); }
+        public bool SendRequestBodyAsync(byte[] buffer) => SendAsync(buffer);
         /// <summary>
         /// Send the HTTP request body (asynchronous)
         /// </summary>
@@ -114,7 +133,13 @@ namespace NetCoreServer
         /// <param name="offset">HTTP request body buffer offset</param>
         /// <param name="size">HTTP request body size</param>
         /// <returns>'true' if the HTTP request body was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendRequestBodyAsync(byte[] buffer, long offset, long size) { return SendAsync(buffer, offset, size); }
+        public bool SendRequestBodyAsync(byte[] buffer, long offset, long size) => SendAsync(buffer, offset, size);
+        /// <summary>
+        /// Send the HTTP request body (asynchronous)
+        /// </summary>
+        /// <param name="buffer">HTTP request body buffer as a span of bytes</param>
+        /// <returns>'true' if the HTTP request body was successfully sent, 'false' if the session is not connected</returns>
+        public bool SendRequestBodyAsync(ReadOnlySpan<byte> buffer) => SendAsync(buffer);
 
         #endregion
 
@@ -234,7 +259,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendRequest(TimeSpan? timeout = null) { return SendRequest(Request, timeout); }
+        public Task<HttpResponse> SendRequest(TimeSpan? timeout = null) => SendRequest(Request, timeout);
         /// <summary>
         /// Send HTTP request
         /// </summary>
@@ -298,14 +323,14 @@ namespace NetCoreServer
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendHeadRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeHeadRequest(url), timeout); }
+        public Task<HttpResponse> SendHeadRequest(string url, TimeSpan? timeout = null) => SendRequest(Request.MakeHeadRequest(url), timeout);
         /// <summary>
         /// Send GET request
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendGetRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeGetRequest(url), timeout); }
+        public Task<HttpResponse> SendGetRequest(string url, TimeSpan? timeout = null) => SendRequest(Request.MakeGetRequest(url), timeout);
         /// <summary>
         /// Send POST request
         /// </summary>
@@ -313,7 +338,7 @@ namespace NetCoreServer
         /// <param name="content">Content</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendPostRequest(string url, string content, TimeSpan? timeout = null) { return SendRequest(Request.MakePostRequest(url, content), timeout); }
+        public Task<HttpResponse> SendPostRequest(string url, string content, TimeSpan? timeout = null) => SendRequest(Request.MakePostRequest(url, content), timeout);
         /// <summary>
         /// Send PUT request
         /// </summary>
@@ -321,28 +346,28 @@ namespace NetCoreServer
         /// <param name="content">Content</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendPutRequest(string url, string content, TimeSpan? timeout = null) { return SendRequest(Request.MakePutRequest(url, content), timeout); }
+        public Task<HttpResponse> SendPutRequest(string url, string content, TimeSpan? timeout = null) => SendRequest(Request.MakePutRequest(url, content), timeout);
         /// <summary>
         /// Send DELETE request
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendDeleteRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeDeleteRequest(url), timeout); }
+        public Task<HttpResponse> SendDeleteRequest(string url, TimeSpan? timeout = null) => SendRequest(Request.MakeDeleteRequest(url), timeout);
         /// <summary>
         /// Send OPTIONS request
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendOptionsRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeOptionsRequest(url), timeout); }
+        public Task<HttpResponse> SendOptionsRequest(string url, TimeSpan? timeout = null) => SendRequest(Request.MakeOptionsRequest(url), timeout);
         /// <summary>
         /// Send TRACE request
         /// </summary>
         /// <param name="url">URL to request</param>
         /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
         /// <returns>HTTP request Task</returns>
-        public Task<HttpResponse> SendTraceRequest(string url, TimeSpan? timeout = null) { return SendRequest(Request.MakeTraceRequest(url), timeout); }
+        public Task<HttpResponse> SendTraceRequest(string url, TimeSpan? timeout = null) => SendRequest(Request.MakeTraceRequest(url), timeout);
 
         #endregion
 

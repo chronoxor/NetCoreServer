@@ -245,9 +245,15 @@ namespace NetCoreServer
         /// Set the HTTP request body
         /// </summary>
         /// <param name="body">Body string content (default is "")</param>
-        public HttpRequest SetBody(string body = "")
+        public HttpRequest SetBody(string body = "") => SetBody(body.AsSpan());
+
+        /// <summary>
+        /// Set the HTTP request body
+        /// </summary>
+        /// <param name="body">Body string content as a span of characters</param>
+        public HttpRequest SetBody(ReadOnlySpan<char> body)
         {
-            int length = string.IsNullOrEmpty(body) ? 0 : Encoding.UTF8.GetByteCount(body);
+            int length = body.IsEmpty ? 0 : Encoding.UTF8.GetByteCount(body);
 
             // Append content length header
             SetHeader("Content-Length", length.ToString());
@@ -269,7 +275,13 @@ namespace NetCoreServer
         /// Set the HTTP request body
         /// </summary>
         /// <param name="body">Body binary content</param>
-        public HttpRequest SetBody(byte[] body)
+        public HttpRequest SetBody(byte[] body) => SetBody(body.AsSpan());
+
+        /// <summary>
+        /// Set the HTTP request body
+        /// </summary>
+        /// <param name="body">Body binary content as a span of bytes</param>
+        public HttpRequest SetBody(ReadOnlySpan<byte> body)
         {
             // Append content length header
             SetHeader("Content-Length", body.Length.ToString());
@@ -283,28 +295,6 @@ namespace NetCoreServer
             _bodyIndex = index;
             _bodySize = body.Length;
             _bodyLength = body.Length;
-            _bodyLengthProvided = true;
-            return this;
-        }
-
-        /// <summary>
-        /// Set the HTTP request body
-        /// </summary>
-        /// <param name="body">Body buffer content</param>
-        public HttpRequest SetBody(Buffer body)
-        {
-            // Append content length header
-            SetHeader("Content-Length", body.Size.ToString());
-
-            _cache.Append("\r\n");
-
-            int index = (int)_cache.Size;
-
-            // Append the HTTP request body
-            _cache.Append(body.Data, body.Offset, body.Size);
-            _bodyIndex = index;
-            _bodySize = (int)body.Size;
-            _bodyLength = (int)body.Size;
             _bodyLengthProvided = true;
             return this;
         }
@@ -360,7 +350,15 @@ namespace NetCoreServer
         /// <param name="url">URL to request</param>
         /// <param name="content">String content</param>
         /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
-        public HttpRequest MakePostRequest(string url, string content, string contentType = "text/plain; charset=UTF-8")
+        public HttpRequest MakePostRequest(string url, string content, string contentType = "text/plain; charset=UTF-8") => MakePostRequest(url, content.AsSpan(), contentType);
+
+        /// <summary>
+        /// Make POST request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">String content as a span of characters</param>
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpRequest MakePostRequest(string url, ReadOnlySpan<char> content, string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
             SetBegin("POST", url);
@@ -376,23 +374,15 @@ namespace NetCoreServer
         /// <param name="url">URL to request</param>
         /// <param name="content">Binary content</param>
         /// <param name="contentType">Content type (default is "")</param>
-        public HttpRequest MakePostRequest(string url, byte[] content, string contentType = "")
-        {
-            Clear();
-            SetBegin("POST", url);
-            if (!string.IsNullOrEmpty(contentType))
-                SetHeader("Content-Type", contentType);
-            SetBody(content);
-            return this;
-        }
+        public HttpRequest MakePostRequest(string url, byte[] content, string contentType = "") => MakePostRequest(url, content.AsSpan(), contentType);
 
         /// <summary>
         /// Make POST request
         /// </summary>
         /// <param name="url">URL to request</param>
-        /// <param name="content">Buffer content</param>
+        /// <param name="content">Binary content as a span of bytes</param>
         /// <param name="contentType">Content type (default is "")</param>
-        public HttpRequest MakePostRequest(string url, Buffer content, string contentType = "")
+        public HttpRequest MakePostRequest(string url, ReadOnlySpan<byte> content, string contentType = "")
         {
             Clear();
             SetBegin("POST", url);
@@ -408,7 +398,15 @@ namespace NetCoreServer
         /// <param name="url">URL to request</param>
         /// <param name="content">String content</param>
         /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
-        public HttpRequest MakePutRequest(string url, string content, string contentType = "text/plain; charset=UTF-8")
+        public HttpRequest MakePutRequest(string url, string content, string contentType = "text/plain; charset=UTF-8") => MakePutRequest(url, content.AsSpan(), contentType);
+
+        /// <summary>
+        /// Make PUT request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">String content as a span of characters</param>
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpRequest MakePutRequest(string url, ReadOnlySpan<char> content, string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
             SetBegin("PUT", url);
@@ -424,23 +422,15 @@ namespace NetCoreServer
         /// <param name="url">URL to request</param>
         /// <param name="content">Binary content</param>
         /// <param name="contentType">Content type (default is "")</param>
-        public HttpRequest MakePutRequest(string url, byte[] content, string contentType = "")
-        {
-            Clear();
-            SetBegin("PUT", url);
-            if (!string.IsNullOrEmpty(contentType))
-                SetHeader("Content-Type", contentType);
-            SetBody(content);
-            return this;
-        }
+        public HttpRequest MakePutRequest(string url, byte[] content, string contentType = "") => MakePutRequest(url, content.AsSpan(), contentType);
 
         /// <summary>
         /// Make PUT request
         /// </summary>
         /// <param name="url">URL to request</param>
-        /// <param name="content">Buffer content</param>
+        /// <param name="content">Binary content as a span of bytes</param>
         /// <param name="contentType">Content type (default is "")</param>
-        public HttpRequest MakePutRequest(string url, Buffer content, string contentType = "")
+        public HttpRequest MakePutRequest(string url, ReadOnlySpan<byte> content, string contentType = "")
         {
             Clear();
             SetBegin("PUT", url);

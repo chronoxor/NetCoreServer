@@ -4,9 +4,12 @@ using System.Net.Sockets;
 using NetCoreServer;
 using NDesk.Options;
 
+using com.chronoxor.simple;
+using com.chronoxor.simple.FBE;
+
 namespace ProtoServer
 {
-    class ProtoSessionSender : FBE.simple.Sender, FBE.simple.ISenderListener
+    class ProtoSessionSender : Sender, ISenderListener
     {
         public ProtoSession Session { get; }
 
@@ -18,13 +21,13 @@ namespace ProtoServer
         }
     }
 
-    class ProtoSessionReceiver : FBE.simple.Receiver, FBE.simple.IReceiverListener
+    class ProtoSessionReceiver : Receiver, IReceiverListener
     {
         public ProtoSession Session { get; }
 
         public ProtoSessionReceiver(ProtoSession session) { Session = session; }
 
-        public void OnReceive(simple.SimpleRequest request) { Session.OnReceive(request); }
+        public void OnReceive(SimpleRequest request) { Session.OnReceive(request); }
     }
 
     class ProtoSession : TcpSession
@@ -49,10 +52,10 @@ namespace ProtoServer
         }
 
         // Protocol handlers
-        public void OnReceive(simple.SimpleRequest request)
+        public void OnReceive(SimpleRequest request)
         {
             // Send response
-            simple.SimpleResponse response = simple.SimpleResponse.Default;
+            SimpleResponse response = SimpleResponse.Default;
             response.id = request.id;
             response.Hash = 0;
             response.Length = (uint)request.Message.Length;
@@ -60,7 +63,7 @@ namespace ProtoServer
         }
     }
 
-    class ProtoSender : FBE.simple.Sender, FBE.simple.ISenderListener
+    class ProtoSender : Sender, ISenderListener
     {
         public ProtoServer Server { get; }
 

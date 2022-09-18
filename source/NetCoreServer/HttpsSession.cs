@@ -1,4 +1,6 @@
-﻿namespace NetCoreServer
+﻿using System;
+
+namespace NetCoreServer
 {
     /// <summary>
     /// HTTPS session is used to receive/send HTTP requests/responses from the connected HTTPS client.
@@ -34,26 +36,32 @@
         /// Send the current HTTP response (synchronous)
         /// </summary>
         /// <returns>Size of sent data</returns>
-        public long SendResponse() { return SendResponse(Response); }
+        public long SendResponse() => SendResponse(Response);
         /// <summary>
         /// Send the HTTP response (synchronous)
         /// </summary>
         /// <param name="response">HTTP response</param>
         /// <returns>Size of sent data</returns>
-        public long SendResponse(HttpResponse response) { return Send(response.Cache.Data, response.Cache.Offset, response.Cache.Size); }
+        public long SendResponse(HttpResponse response) => Send(response.Cache.Data, response.Cache.Offset, response.Cache.Size);
 
         /// <summary>
         /// Send the HTTP response body (synchronous)
         /// </summary>
         /// <param name="body">HTTP response body</param>
         /// <returns>Size of sent data</returns>
-        public long SendResponseBody(string body) { return Send(body); }
+        public long SendResponseBody(string body) => Send(body);
+        /// <summary>
+        /// Send the HTTP response body (synchronous)
+        /// </summary>
+        /// <param name="body">HTTP response body as a span of characters</param>
+        /// <returns>Size of sent data</returns>
+        public long SendResponseBody(ReadOnlySpan<char> body) => Send(body);
         /// <summary>
         /// Send the HTTP response body (synchronous)
         /// </summary>
         /// <param name="buffer">HTTP response body buffer</param>
         /// <returns>Size of sent data</returns>
-        public long SendResponseBody(byte[] buffer) { return Send(buffer); }
+        public long SendResponseBody(byte[] buffer) => Send(buffer);
         /// <summary>
         /// Send the HTTP response body (synchronous)
         /// </summary>
@@ -61,32 +69,45 @@
         /// <param name="offset">HTTP response body buffer offset</param>
         /// <param name="size">HTTP response body size</param>
         /// <returns>Size of sent data</returns>
-        public long SendResponseBody(byte[] buffer, long offset, long size) { return Send(buffer, offset, size); }
+        public long SendResponseBody(byte[] buffer, long offset, long size) => Send(buffer, offset, size);
+
+        /// <summary>
+        /// Send the HTTP response body (synchronous)
+        /// </summary>
+        /// <param name="buffer">HTTP response body buffer as a span of bytes</param>
+        /// <returns>Size of sent data</returns>
+        public long SendResponseBody(ReadOnlySpan<byte> buffer) => Send(buffer);
 
         /// <summary>
         /// Send the current HTTP response (asynchronous)
         /// </summary>
         /// <returns>'true' if the current HTTP response was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendResponseAsync() { return SendResponseAsync(Response); }
+        public bool SendResponseAsync() => SendResponseAsync(Response);
         /// <summary>
         /// Send the HTTP response (asynchronous)
         /// </summary>
         /// <param name="response">HTTP response</param>
         /// <returns>'true' if the current HTTP response was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendResponseAsync(HttpResponse response) { return SendAsync(response.Cache.Data, response.Cache.Offset, response.Cache.Size); }
+        public bool SendResponseAsync(HttpResponse response) => SendAsync(response.Cache.Data, response.Cache.Offset, response.Cache.Size);
 
         /// <summary>
         /// Send the HTTP response body (asynchronous)
         /// </summary>
         /// <param name="body">HTTP response body</param>
         /// <returns>'true' if the HTTP response body was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendResponseBodyAsync(string body) { return SendAsync(body); }
+        public bool SendResponseBodyAsync(string body) => SendAsync(body);
+        /// <summary>
+        /// Send the HTTP response body (asynchronous)
+        /// </summary>
+        /// <param name="body">HTTP response body as a span of characters</param>
+        /// <returns>'true' if the HTTP response body was successfully sent, 'false' if the session is not connected</returns>
+        public bool SendResponseBodyAsync(ReadOnlySpan<char> body) => SendAsync(body);
         /// <summary>
         /// Send the HTTP response body (asynchronous)
         /// </summary>
         /// <param name="buffer">HTTP response body buffer</param>
         /// <returns>'true' if the HTTP response body was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendResponseBodyAsync(byte[] buffer) { return SendAsync(buffer); }
+        public bool SendResponseBodyAsync(byte[] buffer) => SendAsync(buffer);
         /// <summary>
         /// Send the HTTP response body (asynchronous)
         /// </summary>
@@ -94,7 +115,13 @@
         /// <param name="offset">HTTP response body buffer offset</param>
         /// <param name="size">HTTP response body size</param>
         /// <returns>'true' if the HTTP response body was successfully sent, 'false' if the session is not connected</returns>
-        public bool SendResponseBodyAsync(byte[] buffer, long offset, long size) { return SendAsync(buffer, offset, size); }
+        public bool SendResponseBodyAsync(byte[] buffer, long offset, long size) => SendAsync(buffer, offset, size);
+        /// <summary>
+        /// Send the HTTP response body (asynchronous)
+        /// </summary>
+        /// <param name="buffer">HTTP response body buffer as a span of bytes</param>
+        /// <returns>'true' if the HTTP response body was successfully sent, 'false' if the session is not connected</returns>
+        public bool SendResponseBodyAsync(ReadOnlySpan<byte> buffer) => SendAsync(buffer);
 
         #endregion
 

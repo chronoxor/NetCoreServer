@@ -118,6 +118,27 @@ namespace NetCoreServer
         /// </remarks>
         public bool OptionKeepAlive { get; set; }
         /// <summary>
+        /// Option: TCP keep alive time
+        /// </summary>
+        /// <remarks>
+        /// The number of seconds a TCP connection will remain alive/idle before keepalive probes are sent to the remote
+        /// </remarks>
+        public int OptionTcpKeepAliveTime { get; set; } = -1;
+        /// <summary>
+        /// Option: TCP keep alive interval
+        /// </summary>
+        /// <remarks>
+        /// The number of seconds a TCP connection will wait for a keepalive response before sending another keepalive probe
+        /// </remarks>
+        public int OptionTcpKeepAliveInterval { get; set; } = -1;
+        /// <summary>
+        /// Option: TCP keep alive retry count
+        /// </summary>
+        /// <remarks>
+        /// The number of TCP keep alive probes that will be sent before the connection is terminated
+        /// </remarks>
+        public int OptionTcpKeepAliveRetryCount { get; set; } = -1;
+        /// <summary>
         /// Option: no delay
         /// </summary>
         /// <remarks>
@@ -412,7 +433,7 @@ namespace NetCoreServer
         internal void UnregisterSession(Guid id)
         {
             // Unregister session by Id
-            Sessions.TryRemove(id, out SslSession temp);
+            Sessions.TryRemove(id, out SslSession _);
         }
 
         #endregion
@@ -424,7 +445,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="buffer">Buffer to multicast</param>
         /// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
-        public virtual bool Multicast(byte[] buffer) { return Multicast(buffer, 0, buffer.Length); }
+        public virtual bool Multicast(byte[] buffer) => Multicast(buffer.AsSpan());
 
         /// <summary>
         /// Multicast data to all connected clients
@@ -433,17 +454,24 @@ namespace NetCoreServer
         /// <param name="offset">Buffer offset</param>
         /// <param name="size">Buffer size</param>
         /// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
-        public virtual bool Multicast(byte[] buffer, long offset, long size)
+        public virtual bool Multicast(byte[] buffer, long offset, long size) => Multicast(buffer.AsSpan((int)offset, (int)size));
+
+        /// <summary>
+        /// Multicast data to all connected clients
+        /// </summary>
+        /// <param name="buffer">Buffer to send as a span of bytes</param>
+        /// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
+        public virtual bool Multicast(ReadOnlySpan<byte> buffer)
         {
             if (!IsStarted)
                 return false;
 
-            if (size == 0)
+            if (buffer.IsEmpty)
                 return true;
 
             // Multicast data to all sessions
             foreach (var session in Sessions.Values)
-                session.SendAsync(buffer, offset, size);
+                session.SendAsync(buffer);
 
             return true;
         }
@@ -453,7 +481,14 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="text">Text string to multicast</param>
         /// <returns>'true' if the text was successfully multicasted, 'false' if the text was not multicasted</returns>
-        public virtual bool Multicast(string text) { return Multicast(Encoding.UTF8.GetBytes(text)); }
+        public virtual bool Multicast(string text) => Multicast(Encoding.UTF8.GetBytes(text));
+
+        /// <summary>
+        /// Multicast text to all connected clients
+        /// </summary>
+        /// <param name="text">Text to multicast as a span of characters</param>
+        /// <returns>'true' if the text was successfully multicasted, 'false' if the text was not multicasted</returns>
+        public virtual bool Multicast(ReadOnlySpan<char> text) => Multicast(Encoding.UTF8.GetBytes(text.ToArray()));
 
         #endregion
 

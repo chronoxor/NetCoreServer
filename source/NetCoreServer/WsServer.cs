@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Text;
 
 namespace NetCoreServer
@@ -34,24 +35,30 @@ namespace NetCoreServer
         /// <param name="endpoint">IP endpoint</param>
         public WsServer(IPEndPoint endpoint) : base(endpoint) { WebSocket = new WebSocket(this); }
 
+        #region Session management
+
         public virtual bool CloseAll(int status)
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, false, null, 0, 0, status);
-                if (!Multicast(WebSocket.WsSendBuffer.ToArray()))
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, false, Span<byte>.Empty, status);
+                if (!Multicast(WebSocket.WsSendBuffer.AsSpan()))
                     return false;
 
                 return base.DisconnectAll();
             }
         }
 
-        public override bool Multicast(byte[] buffer, long offset, long size)
+        #endregion
+
+        #region Multicasting
+
+        public override bool Multicast(ReadOnlySpan<byte> buffer)
         {
             if (!IsStarted)
                 return false;
 
-            if (size == 0)
+            if (buffer.IsEmpty)
                 return true;
 
             // Multicast data to all WebSocket sessions
@@ -60,100 +67,63 @@ namespace NetCoreServer
                 if (session is WsSession wsSession)
                 {
                     if (wsSession.WebSocket.WsHandshaked)
-                        wsSession.SendAsync(buffer, offset, size);
+                        wsSession.SendAsync(buffer);
                 }
             }
 
             return true;
         }
 
+        #endregion
+
         #region WebSocket multicast text methods
 
-        public bool MulticastText(byte[] buffer, long offset, long size)
+        public bool MulticastText(string text) => MulticastText(Encoding.UTF8.GetBytes(text));
+        public bool MulticastText(ReadOnlySpan<char> text) => MulticastText(Encoding.UTF8.GetBytes(text.ToArray()));
+        public bool MulticastText(byte[] buffer) => MulticastText(buffer.AsSpan());
+        public bool MulticastText(byte[] buffer, long offset, long size) => MulticastText(buffer.AsSpan((int)offset, (int)size));
+        public bool MulticastText(ReadOnlySpan<byte> buffer)
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, buffer, offset, size);
-                return Multicast(WebSocket.WsSendBuffer.ToArray());
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, buffer);
+                return Multicast(WebSocket.WsSendBuffer.AsSpan());
             }
         }
 
-        public bool MulticastText(string text)
-        {
-            lock (WebSocket.WsSendLock)
-            {
-                var data = Encoding.UTF8.GetBytes(text);
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_TEXT, false, data, 0, data.Length);
-                return Multicast(WebSocket.WsSendBuffer.ToArray());
-            }
-        }
 
         #endregion
 
         #region WebSocket multicast binary methods
 
-        public bool MulticastBinary(byte[] buffer, long offset, long size)
+        public bool MulticastBinary(string text) => MulticastBinary(Encoding.UTF8.GetBytes(text));
+        public bool MulticastBinary(ReadOnlySpan<char> text) => MulticastBinary(Encoding.UTF8.GetBytes(text.ToArray()));
+        public bool MulticastBinary(byte[] buffer) => MulticastBinary(buffer.AsSpan());
+        public bool MulticastBinary(byte[] buffer, long offset, long size) => MulticastBinary(buffer.AsSpan((int)offset, (int)size));
+        public bool MulticastBinary(ReadOnlySpan<byte> buffer)
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, buffer, offset, size);
-                return Multicast(WebSocket.WsSendBuffer.ToArray());
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, buffer);
+                return Multicast(WebSocket.WsSendBuffer.AsSpan());
             }
         }
 
-        public bool MulticastBinary(string text)
-        {
-            lock (WebSocket.WsSendLock)
-            {
-                var data = Encoding.UTF8.GetBytes(text);
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_BINARY, false, data, 0, data.Length);
-                return Multicast(WebSocket.WsSendBuffer.ToArray());
-            }
-        }
 
         #endregion
 
         #region WebSocket multicast ping methods
 
-        public bool SendPing(byte[] buffer, long offset, long size)
+        public bool MulticastPing(string text) => MulticastPing(Encoding.UTF8.GetBytes(text));
+        public bool MulticastPing(ReadOnlySpan<char> text) => MulticastPing(Encoding.UTF8.GetBytes(text.ToArray()));
+        public bool MulticastPing(byte[] buffer) => MulticastPing(buffer.AsSpan());
+        public bool MulticastPing(byte[] buffer, long offset, long size) => MulticastPing(buffer.AsSpan((int)offset, (int)size));
+        public bool MulticastPing(ReadOnlySpan<byte> buffer)
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, buffer, offset, size);
-                return Multicast(WebSocket.WsSendBuffer.ToArray());
-            }
-        }
-
-        public bool SendPing(string text)
-        {
-            lock (WebSocket.WsSendLock)
-            {
-                var data = Encoding.UTF8.GetBytes(text);
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, data, 0, data.Length);
-                return Multicast(WebSocket.WsSendBuffer.ToArray());
-            }
-        }
-
-        #endregion
-
-        #region WebSocket multicast pong methods
-
-        public bool SendPong(byte[] buffer, long offset, long size)
-        {
-            lock (WebSocket.WsSendLock)
-            {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, false, buffer, offset, size);
-                return Multicast(WebSocket.WsSendBuffer.ToArray());
-            }
-        }
-
-        public bool SendPong(string text)
-        {
-            lock (WebSocket.WsSendLock)
-            {
-                var data = Encoding.UTF8.GetBytes(text);
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PONG, false, data, 0, data.Length);
-                return Multicast(WebSocket.WsSendBuffer.ToArray());
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_PING, false, buffer);
+                return Multicast(WebSocket.WsSendBuffer.AsSpan());
             }
         }
 

@@ -3,9 +3,12 @@ using System.Net;
 using System.Net.Sockets;
 using NetCoreServer;
 
+using com.chronoxor.simple;
+using com.chronoxor.simple.FBE;
+
 namespace ProtoServer
 {
-    public class SimpleProtoSessionSender : FBE.simple.Sender, FBE.simple.ISenderListener
+    public class SimpleProtoSessionSender : Sender, ISenderListener
     {
         public SimpleProtoSession Session { get; }
 
@@ -17,14 +20,14 @@ namespace ProtoServer
         }
     }
 
-    public class SimpleProtoSessionReceiver : FBE.simple.Receiver, FBE.simple.IReceiverListener
+    public class SimpleProtoSessionReceiver : Receiver, IReceiverListener
     {
         public SimpleProtoSession Session { get; }
 
         public SimpleProtoSessionReceiver(SimpleProtoSession session) { Session = session; }
 
-        public void OnReceive(simple.DisconnectRequest request) { Session.OnReceive(request); }
-        public void OnReceive(simple.SimpleRequest request) { Session.OnReceive(request); }
+        public void OnReceive(DisconnectRequest request) { Session.OnReceive(request); }
+        public void OnReceive(SimpleRequest request) { Session.OnReceive(request); }
     }
 
     public class SimpleProtoSession : TcpSession
@@ -43,7 +46,7 @@ namespace ProtoServer
             Console.WriteLine($"TCP protocol session with Id '{Id}' connected to remote address '{(Socket.RemoteEndPoint as IPEndPoint)?.Address}' and port {(Socket.RemoteEndPoint as IPEndPoint)?.Port}");
 
             // Send invite notification
-            simple.SimpleNotify notify = simple.SimpleNotify.Default;
+            SimpleNotify notify = SimpleNotify.Default;
             notify.Notification = "Hello from Simple protocol server! Please send a message or '!' to disconnect the client!";
             Sender.Send(notify);
         }
@@ -64,8 +67,8 @@ namespace ProtoServer
         }
 
         // Protocol handlers
-        public void OnReceive(simple.DisconnectRequest request) { Disconnect(); }
-        public void OnReceive(simple.SimpleRequest request) 
+        public void OnReceive(DisconnectRequest request) { Disconnect(); }
+        public void OnReceive(SimpleRequest request) 
         {
             Console.WriteLine($"Received: {request}");
 
@@ -73,7 +76,7 @@ namespace ProtoServer
             if (string.IsNullOrEmpty(request.Message))
             {
                 // Send reject
-                simple.SimpleReject reject = simple.SimpleReject.Default;
+                SimpleReject reject = SimpleReject.Default;
                 reject.id = request.id;
                 reject.Error = "Request message is empty!";
                 Sender.Send(reject);
@@ -81,7 +84,7 @@ namespace ProtoServer
             }
 
             // Send response
-            simple.SimpleResponse response = simple.SimpleResponse.Default;
+            SimpleResponse response = SimpleResponse.Default;
             response.id = request.id;
             response.Hash = (uint)request.Message.GetHashCode();
             response.Length = (uint)request.Message.Length;
@@ -89,7 +92,7 @@ namespace ProtoServer
         }
     }
 
-    public class SimpleProtoSender : FBE.simple.Sender, FBE.simple.ISenderListener
+    public class SimpleProtoSender : Sender, ISenderListener
     {
         public SimpleProtoServer Server { get; }
 
@@ -169,7 +172,7 @@ namespace ProtoServer
                 }
 
                 // Multicast admin notification to all sessions
-                simple.SimpleNotify notify = simple.SimpleNotify.Default;
+                SimpleNotify notify = SimpleNotify.Default;
                 notify.Notification = "(admin) " + line;
                 server.Sender.Send(notify);
             }

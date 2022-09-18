@@ -16,7 +16,7 @@ namespace HttpsTraceServer
         {
             // Process HTTP request methods
             if (request.Method == "TRACE")
-                SendResponseAsync(Response.MakeTraceResponse(request.Cache));
+                SendResponseAsync(Response.MakeTraceResponse(request));
             else
                 SendResponseAsync(Response.MakeErrorResponse("Unsupported HTTP method: " + request.Method));
         }
