@@ -253,7 +253,7 @@ namespace NetCoreServer
         /// <param name="status">WebSocket status (default is 0)</param>
         public void PrepareSendFrame(byte opcode, bool mask, ReadOnlySpan<byte> buffer, int status = 0)
         {
-            int size = buffer.Length;
+            long size = buffer.Length;
 
             // Clear the previous WebSocket send buffer
             WsSendBuffer.Clear();
