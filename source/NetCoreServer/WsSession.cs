@@ -187,9 +187,9 @@ namespace NetCoreServer
             {
                 while (!WebSocket.WsFrameReceived)
                 {
-                    int required = WebSocket.RequiredReceiveFrameSize();
+                    long required = WebSocket.RequiredReceiveFrameSize();
                     cache.Resize(required);
-                    int received = (int)base.Receive(cache.Data, 0, required);
+                    long received = base.Receive(cache.Data, 0, required);
                     if (received != required)
                         return result.ExtractString(0, result.Data.Length);
                     WebSocket.PrepareReceiveFrame(cache.Data, 0, received);
@@ -218,9 +218,9 @@ namespace NetCoreServer
             {
                 while (!WebSocket.WsFrameReceived)
                 {
-                    int required = WebSocket.RequiredReceiveFrameSize();
+                    long required = WebSocket.RequiredReceiveFrameSize();
                     cache.Resize(required);
-                    int received = (int)base.Receive(cache.Data, 0, required);
+                    long received = base.Receive(cache.Data, 0, required);
                     if (received != required)
                         return result;
                     WebSocket.PrepareReceiveFrame(cache.Data, 0, received);
@@ -330,7 +330,7 @@ namespace NetCoreServer
         public virtual void OnWsDisconnecting() {}
         public virtual void OnWsDisconnected() {}
         public virtual void OnWsReceived(byte[] buffer, long offset, long size) {}
-        public virtual void OnWsClose(byte[] buffer, long offset, long size) { Close(1000); }
+        public virtual void OnWsClose(byte[] buffer, long offset, long size, int status = 1000) { Close(status); }
         public virtual void OnWsPing(byte[] buffer, long offset, long size) { SendPongAsync(buffer, offset, size); }
         public virtual void OnWsPong(byte[] buffer, long offset, long size) {}
         public virtual void OnWsError(string error) { OnError(SocketError.SocketError); }

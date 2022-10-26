@@ -473,7 +473,7 @@ namespace NetCoreServer
             try
             {
                 // Sent datagram to the client
-                int sent = Socket.SendTo(buffer, SocketFlags.None, endpoint);
+                long sent = Socket.SendTo(buffer, SocketFlags.None, endpoint);
                 if (sent > 0)
                 {
                     // Update statistic
@@ -610,7 +610,7 @@ namespace NetCoreServer
             try
             {
                 // Receive datagram from the client
-                int received = Socket.ReceiveFrom(buffer, (int)offset, (int)size, SocketFlags.None, ref endpoint);
+                long received = Socket.ReceiveFrom(buffer, (int)offset, (int)size, SocketFlags.None, ref endpoint);
 
                 // Update statistic
                 DatagramsReceived++;
