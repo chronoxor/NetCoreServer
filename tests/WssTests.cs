@@ -22,7 +22,7 @@ namespace tests
 
         public static SslContext CreateContext()
         {
-            return new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+            return new SslContext(SslProtocols.Tls13, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
         }
 
         public override void OnWsConnecting(HttpRequest request)
@@ -72,7 +72,7 @@ namespace tests
 
         public static SslContext CreateContext()
         {
-            return new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+            return new SslContext(SslProtocols.Tls13, new X509Certificate2("server.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
         }
 
         protected override SslSession CreateSession() { return new EchoWssSession(this); }
