@@ -118,7 +118,7 @@ namespace HttpsTraceClient
             Console.WriteLine();
 
             // Create and prepare a new SSL client context
-            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+            var context = new SslContext(SslProtocols.Tls13, new X509Certificate2("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
 
             // Create HTTPS clients
             var httpsClients = new List<HttpsTraceClient>();

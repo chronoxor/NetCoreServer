@@ -53,7 +53,8 @@ namespace NetCoreServer
         /// <param name="buffer">Received buffer</param>
         /// <param name="offset">Received buffer offset</param>
         /// <param name="size">Received buffer size</param>
-        void OnWsClose(byte[] buffer, long offset, long size) {}
+        /// <param name="status">WebSocket close status (default is 1000)</param>
+        void OnWsClose(byte[] buffer, long offset, long size, int status = 1000) {}
 
         /// <summary>
         /// Handle WebSocket ping notification

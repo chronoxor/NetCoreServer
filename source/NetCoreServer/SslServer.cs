@@ -118,6 +118,27 @@ namespace NetCoreServer
         /// </remarks>
         public bool OptionKeepAlive { get; set; }
         /// <summary>
+        /// Option: TCP keep alive time
+        /// </summary>
+        /// <remarks>
+        /// The number of seconds a TCP connection will remain alive/idle before keepalive probes are sent to the remote
+        /// </remarks>
+        public int OptionTcpKeepAliveTime { get; set; } = -1;
+        /// <summary>
+        /// Option: TCP keep alive interval
+        /// </summary>
+        /// <remarks>
+        /// The number of seconds a TCP connection will wait for a keepalive response before sending another keepalive probe
+        /// </remarks>
+        public int OptionTcpKeepAliveInterval { get; set; } = -1;
+        /// <summary>
+        /// Option: TCP keep alive retry count
+        /// </summary>
+        /// <remarks>
+        /// The number of TCP keep alive probes that will be sent before the connection is terminated
+        /// </remarks>
+        public int OptionTcpKeepAliveRetryCount { get; set; } = -1;
+        /// <summary>
         /// Option: no delay
         /// </summary>
         /// <remarks>

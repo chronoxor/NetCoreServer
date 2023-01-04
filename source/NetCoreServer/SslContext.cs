@@ -12,7 +12,13 @@ namespace NetCoreServer
         /// <summary>
         /// Initialize SSL context with default protocols
         /// </summary>
-        public SslContext() : this(SslProtocols.Tls12) {}
+        public SslContext() : this(
+#if NET6_0_OR_GREATER
+            SslProtocols.Tls13
+#else
+            SslProtocols.Tls12
+#endif
+        ) {}
         /// <summary>
         /// Initialize SSL context with given protocols
         /// </summary>
