@@ -19,6 +19,16 @@ namespace NetCoreServer
         /// <param name="protocols">SSL protocols</param>
         public SslContext(SslProtocols protocols) { Protocols = protocols; }
         /// <summary>
+        /// Initialize SSL context with given protocols and validation callback
+        /// </summary>
+        /// <param name="protocols">SSL protocols</param>
+        /// <param name="certificateValidationCallback">SSL certificate</param>
+        public SslContext(SslProtocols protocols, RemoteCertificateValidationCallback certificateValidationCallback)
+        {
+            Protocols = protocols;
+            CertificateValidationCallback = certificateValidationCallback;
+        }
+        /// <summary>
         /// Initialize SSL context with given protocols and certificate
         /// </summary>
         /// <param name="protocols">SSL protocols</param>
