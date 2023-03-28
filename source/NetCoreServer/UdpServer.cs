@@ -313,7 +313,7 @@ namespace NetCoreServer
 
         #endregion
 
-        #region Send/Recieve data
+        #region Send/Receive data
 
         // Receive and send endpoints
         EndPoint _receiveEndpoint;

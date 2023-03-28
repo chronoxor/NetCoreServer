@@ -427,7 +427,7 @@ namespace NetCoreServer
 
         #endregion
 
-        #region Send/Recieve data
+        #region Send/Receive data
 
         // Receive buffer
         private bool _receiving;
