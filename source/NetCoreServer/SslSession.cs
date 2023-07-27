@@ -106,12 +106,14 @@ namespace NetCoreServer
             // Apply the option: keep alive
             if (Server.OptionKeepAlive)
                 Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+#if NET6_0_OR_GREATER
             if (Server.OptionTcpKeepAliveTime >= 0)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, Server.OptionTcpKeepAliveTime);
             if (Server.OptionTcpKeepAliveInterval >= 0)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, Server.OptionTcpKeepAliveInterval);
             if (Server.OptionTcpKeepAliveRetryCount >= 0)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, Server.OptionTcpKeepAliveRetryCount);
+#endif
             // Apply the option: no delay
             if (Server.OptionNoDelay)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);

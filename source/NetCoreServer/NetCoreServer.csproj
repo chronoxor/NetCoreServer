@@ -1,15 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
     <Version>7.0.0.0</Version>
-    <Authors>Ivan Shynkarenka</Authors>
-    <Copyright>Copyright (c) 2019-2022 Ivan Shynkarenka</Copyright>
-    <RepositoryUrl>https://github.com/chronoxor/NetCoreServer</RepositoryUrl>
-    <Description>Ultra fast and low latency asynchronous socket server &amp; client C# .NET Core library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket protocols and 10K connections problem solution</Description>
+    <AssemblyName>GoPlay.NetCoreServer</AssemblyName>
+    <Authors>Jennal</Authors>
+    <Copyright>Copyright © What2d Ltd. 2023</Copyright>
+    <RepositoryUrl>https://github.com/jennal/NetCoreServer</RepositoryUrl>
+    <Description>Fork from [https://github.com/chronoxor/NetCoreServer](https://github.com/chronoxor/NetCoreServer), make it support .NET Standard 2.1
+
+Ultra fast and low latency asynchronous socket server &amp; client C# .NET Core library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket protocols and 10K connections problem solution</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/chronoxor/NetCoreServer</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/jennal/NetCoreServer</PackageProjectUrl>
     <PackageTags>async;client;server;tcp;udp;ssl;tls;http;https;websocket;low latency;performance</PackageTags>
+    <TargetFrameworks>net6.0;net7.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -250,12 +250,14 @@ namespace NetCoreServer
             // Apply the option: keep alive
             if (OptionKeepAlive)
                 Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+#if NET6_0_OR_GREATER
             if (OptionTcpKeepAliveTime >= 0)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, OptionTcpKeepAliveTime);
             if (OptionTcpKeepAliveInterval >= 0)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, OptionTcpKeepAliveInterval);
             if (OptionTcpKeepAliveRetryCount >= 0)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, OptionTcpKeepAliveRetryCount);
+#endif
             // Apply the option: no delay
             if (OptionNoDelay)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
@@ -791,12 +793,14 @@ namespace NetCoreServer
                 // Apply the option: keep alive
                 if (OptionKeepAlive)
                     Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+#if NET6_0_OR_GREATER
                 if (OptionTcpKeepAliveTime >= 0)
                     Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, OptionTcpKeepAliveTime);
                 if (OptionTcpKeepAliveInterval >= 0)
                     Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, OptionTcpKeepAliveInterval);
                 if (OptionTcpKeepAliveRetryCount >= 0)
                     Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, OptionTcpKeepAliveRetryCount);
+#endif                
                 // Apply the option: no delay
                 if (OptionNoDelay)
                     Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
