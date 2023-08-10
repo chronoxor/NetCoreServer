@@ -470,7 +470,7 @@ namespace NetCoreServer
                                     int status = 1000;
 
                                     // Read WebSocket close status
-                                    if (WsReceiveFinalBuffer.Size > 2)
+                                    if (WsReceiveFinalBuffer.Size >= 2)
                                     {
                                         sindex += 2;
                                         status = ((WsReceiveFinalBuffer[0] << 8) | (WsReceiveFinalBuffer[1] << 0));
