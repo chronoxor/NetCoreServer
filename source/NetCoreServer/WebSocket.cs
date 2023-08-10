@@ -253,7 +253,7 @@ namespace NetCoreServer
         /// <param name="status">WebSocket status (default is 0)</param>
         public void PrepareSendFrame(byte opcode, bool mask, ReadOnlySpan<byte> buffer, int status = 0)
         {
-            bool storeWSCloseStatus = ((opcode & WS_CLOSE) == WS_CLOSE) && (buffer.Length > 0);
+            bool storeWSCloseStatus = (opcode & WS_CLOSE) == WS_CLOSE;
             long size = storeWSCloseStatus ? (buffer.Length + 2) : buffer.Length;
 
             // Clear the previous WebSocket send buffer
@@ -288,22 +288,25 @@ namespace NetCoreServer
             long offset = WsSendBuffer.Size;
             WsSendBuffer.Resize(WsSendBuffer.Size + size);
 
-            int index = 0;
-
-            // Append WebSocket close status
-            // RFC 6455: If there is a body, the first two bytes of the body MUST
-            // be a 2-byte unsigned integer (in network byte order) representing
-            // a status code with value code.
             if (storeWSCloseStatus)
             {
-                index += 2;
-                WsSendBuffer.Append((byte)((status >> 8) & 0xFF));
-                WsSendBuffer.Append((byte)(status & 0xFF));
-            }
+                // Append WebSocket close status
+                // RFC 6455: If there is a body, the first two bytes of the body MUST
+                // be a 2-byte unsigned integer (in network byte order) representing
+                // a status code with value code.
+                WsSendBuffer.Data[offset] = (byte)(((status >> 8) & 0xFF) ^ WsSendMask[0]);
+                WsSendBuffer.Data[offset + 1] = (byte)((status & 0xFF) ^ WsSendMask[1]);
 
-            // Mask WebSocket frame content
-            for (int i = index; i < size; i++)
-                WsSendBuffer.Data[offset + i] = (byte)(buffer[i] ^ WsSendMask[i % 4]);
+                // Mask WebSocket frame content
+                for (int i = 2; i < size; i++)
+                    WsSendBuffer.Data[offset + i] = (byte)(buffer[i - 2] ^ WsSendMask[i % 4]);
+            }
+            else
+            {
+                // Mask WebSocket frame content
+                for (int i = 0; i < size; i++)
+                    WsSendBuffer.Data[offset + i] = (byte)(buffer[i] ^ WsSendMask[i % 4]);
+            }
         }
 
         /// <summary>
