@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Version>7.0.0.0</Version>
     <Authors>Ivan Shynkarenka</Authors>
     <Copyright>Copyright (c) 2019-2022 Ivan Shynkarenka</Copyright>
@@ -11,10 +10,8 @@
     <PackageProjectUrl>https://github.com/chronoxor/NetCoreServer</PackageProjectUrl>
     <PackageTags>async;client;server;tcp;udp;ssl;tls;http;https;websocket;low latency;performance</PackageTags>
   </PropertyGroup>
-
   <PropertyGroup>
-    <IncludeSymbols>true</IncludeSymbols>	
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>	
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-
 </Project>

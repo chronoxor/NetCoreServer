@@ -1,13 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\proto\proto.csproj" />
     <ProjectReference Include="..\..\source\NetCoreServer\NetCoreServer.csproj" />
   </ItemGroup>
-
 </Project>
