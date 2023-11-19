@@ -41,11 +41,16 @@ namespace NetCoreServer
 
         #region Session management
 
-        public virtual bool CloseAll(int status)
+        public virtual bool CloseAll(int status) => CloseAll(status, Span<byte>.Empty);
+        public virtual bool CloseAll(int status, string text) => CloseAll(status, Encoding.UTF8.GetBytes(text));
+        public virtual bool CloseAll(int status, ReadOnlySpan<char> text) => CloseAll(status, Encoding.UTF8.GetBytes(text.ToArray()));
+        public virtual bool CloseAll(int status, byte[] buffer) => CloseAll(status, buffer.AsSpan());
+        public virtual bool CloseAll(int status, byte[] buffer, long offset, long size) => CloseAll(status, buffer.AsSpan((int)offset, (int)size));
+        public virtual bool CloseAll(int status, ReadOnlySpan<byte> buffer)
         {
             lock (WebSocket.WsSendLock)
             {
-                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, false, Span<byte>.Empty, status);
+                WebSocket.PrepareSendFrame(WebSocket.WS_FIN | WebSocket.WS_CLOSE, false, buffer, status);
                 if (!Multicast(WebSocket.WsSendBuffer.AsSpan()))
                     return false;
 

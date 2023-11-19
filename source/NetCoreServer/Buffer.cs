@@ -70,7 +70,9 @@ namespace NetCoreServer
             return ExtractString(0, _size);
         }
 
-        // Clear the current buffer and its offset
+        /// <summary>
+        /// Clear the current buffer and its offset
+        /// </summary>
         public void Clear()
         {
             _size = 0;
@@ -127,7 +129,9 @@ namespace NetCoreServer
             }
         }
 
-        // Resize the current buffer
+        /// <summary>
+        /// Resize the current buffer
+        /// </summary>
         public void Resize(long size)
         {
             Reserve(size);
@@ -136,9 +140,13 @@ namespace NetCoreServer
                 _offset = _size;
         }
 
-        // Shift the current buffer offset
+        /// <summary>
+        /// Shift the current buffer offset
+        /// </summary>
         public void Shift(long offset) { _offset += offset; }
-        // Unshift the current buffer offset
+        /// <summary>
+        /// Unshift the current buffer offset
+        /// </summary>
         public void Unshift(long offset) { _offset -= offset; }
 
         #endregion

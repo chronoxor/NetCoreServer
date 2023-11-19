@@ -386,7 +386,9 @@ namespace NetCoreServer
 
         #region Session management
 
-        // Server sessions
+        /// <summary>
+        /// Server sessions
+        /// </summary>
         protected readonly ConcurrentDictionary<Guid, SslSession> Sessions = new ConcurrentDictionary<Guid, SslSession>();
 
         /// <summary>

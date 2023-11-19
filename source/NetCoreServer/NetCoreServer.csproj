@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Version>8.0.0.0</Version>
+    <Version>8.0.1.0</Version>
     <Authors>Ivan Shynkarenka</Authors>
     <Copyright>Copyright (c) 2019-2023 Ivan Shynkarenka</Copyright>
     <RepositoryUrl>https://github.com/chronoxor/NetCoreServer</RepositoryUrl>
@@ -15,6 +15,8 @@
   <PropertyGroup>
     <IncludeSymbols>true</IncludeSymbols>	
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>	
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
 </Project>
