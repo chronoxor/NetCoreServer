@@ -262,7 +262,7 @@ namespace tests
     public class ProtoTests
     {
         [Fact(DisplayName = "Protocol server test")]
-        public void ProtoServerTest()
+        public async void ProtoServerTest()
         {
             string address = "127.0.0.1";
             int port = 4444;
@@ -282,7 +282,7 @@ namespace tests
             // Send a request to the protocol server
             SimpleRequest request = SimpleRequest.Default;
             request.Message = "test";
-            var response = client.Request(request).Result;
+            var response = await client.Request(request);
             Assert.Equal(request.id, response.id);
             Assert.Equal(0u, response.Hash);
             Assert.Equal(4u, response.Length);

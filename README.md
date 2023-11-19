@@ -1,12 +1,13 @@
 # NetCoreServer
 
 [![Awesome .NET](https://awesome.re/badge.svg)](https://github.com/quozd/awesome-dotnet)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Release](https://img.shields.io/github/release/chronoxor/NetCoreServer.svg?sort=semver)](https://github.com/chronoxor/NetCoreServer/releases)
+[![NuGet](https://img.shields.io/nuget/v/NetCoreServer)](https://www.nuget.org/packages/NetCoreServer)
 <br/>
 [![Linux](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-linux.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-linux.yml)
 [![MacOS](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-macos.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-macos.yml)
 [![Windows (Visual Studio)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-windows.yml/badge.svg)](https://github.com/chronoxor/NetCoreServer/actions/workflows/build-windows.yml)
-<br/>
-[![NuGet](https://img.shields.io/nuget/v/NetCoreServer)](https://www.nuget.org/packages/NetCoreServer)
 
 Ultra fast and low latency asynchronous socket server & client C# .NET Core
 library with support TCP, SSL, UDP, Unix Domain Socket, HTTP, HTTPS, WebSocket protocols and [10K connections problem](https://en.wikipedia.org/wiki/C10k_problem)

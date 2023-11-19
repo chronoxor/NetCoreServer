@@ -676,7 +676,7 @@ namespace NetCoreServer
         /// <param name="offset">Received buffer offset</param>
         /// <param name="size">Received buffer size</param>
         /// <remarks>
-        /// Notification is called when another chunk of buffer was received from the client
+        /// Notification is called when another part of buffer was received from the client
         /// </remarks>
         protected virtual void OnReceived(byte[] buffer, long offset, long size) {}
         /// <summary>
@@ -685,7 +685,7 @@ namespace NetCoreServer
         /// <param name="sent">Size of sent buffer</param>
         /// <param name="pending">Size of pending buffer</param>
         /// <remarks>
-        /// Notification is called when another chunk of buffer was sent to the client.
+        /// Notification is called when another part of buffer was sent to the client.
         /// This handler could be used to send another buffer to the client for instance when the pending size is zero.
         /// </remarks>
         protected virtual void OnSent(long sent, long pending) {}
