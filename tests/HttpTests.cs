@@ -152,7 +152,7 @@ namespace tests
     public class HttpTests
     {
         [Fact(DisplayName = "HTTP server test")]
-        public async void HttpServerTest()
+        public void HttpServerTest()
         {
             string address = "127.0.0.1";
             int port = 8080;
@@ -167,21 +167,21 @@ namespace tests
             var client = new HttpClientEx(address, port);
 
             // Test CRUD operations
-            var response = await client.SendGetRequest("/test");
+            var response = client.SendGetRequest("/test").Result;
             Assert.True(response.Status == 404);
-            response = await client.SendPostRequest("/test", "old_value");
+            response = client.SendPostRequest("/test", "old_value").Result;
             Assert.True(response.Status == 200);
-            response = await client.SendGetRequest("/test");
+            response =  client.SendGetRequest("/test").Result;
             Assert.True(response.Status == 200);
             Assert.True(response.Body == "old_value");
-            response = await client.SendPutRequest("/test", "new_value");
+            response = client.SendPutRequest("/test", "new_value").Result;
             Assert.True(response.Status == 200);
-            response = await client.SendGetRequest("/test");
+            response = client.SendGetRequest("/test").Result;
             Assert.True(response.Status == 200);
             Assert.True(response.Body == "new_value");
-            response = await client.SendDeleteRequest("/test");
+            response = client.SendDeleteRequest("/test").Result;
             Assert.True(response.Status == 200);
-            response = await client.SendGetRequest("/test");
+            response = client.SendGetRequest("/test").Result;
             Assert.True(response.Status == 404);
 
             // Stop the HTTP server
