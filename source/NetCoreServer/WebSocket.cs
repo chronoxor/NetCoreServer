@@ -257,8 +257,8 @@ namespace NetCoreServer
         /// <param name="status">WebSocket status (default is 0)</param>
         public void PrepareSendFrame(byte opcode, bool mask, ReadOnlySpan<byte> buffer, int status = 0)
         {
-            bool storeWSCloseStatus = (opcode & WS_CLOSE) == WS_CLOSE;
-            long size = storeWSCloseStatus ? (buffer.Length + 2) : buffer.Length;
+            bool storeStatus = (opcode & WS_CLOSE) == WS_CLOSE;
+            long size = storeStatus ? (buffer.Length + 2) : buffer.Length;
 
             // Clear the previous WebSocket send buffer
             WsSendBuffer.Clear();
@@ -298,7 +298,7 @@ namespace NetCoreServer
             // RFC 6455: If there is a body, the first two bytes of the body MUST
             // be a 2-byte unsigned integer (in network byte order) representing
             // a status code with value code.
-            if (storeWSCloseStatus)
+            if (storeStatus)
             {
                 index += 2;
                 WsSendBuffer.Data[offset + 0] = (byte)(((status >> 8) & 0xFF) ^ WsSendMask[0]);
