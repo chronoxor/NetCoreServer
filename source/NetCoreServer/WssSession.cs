@@ -19,6 +19,7 @@ namespace NetCoreServer
         public WssSession(WssServer server) : base(server) { WebSocket = new WebSocket(this); }
 
         // WebSocket connection methods
+        public virtual bool Close() => Close(0, Span<byte>.Empty);
         public virtual bool Close(int status) => Close(status, Span<byte>.Empty);
         public virtual bool Close(int status, string text) => Close(status, Encoding.UTF8.GetBytes(text));
         public virtual bool Close(int status, ReadOnlySpan<char> text) => Close(status, Encoding.UTF8.GetBytes(text.ToArray()));

@@ -34,7 +34,7 @@ namespace WsChatServer
 
             // If the buffer starts with '!' the disconnect the current session
             if (message == "!")
-                Close(1000);
+                Close();
         }
 
         protected override void OnError(SocketError error)

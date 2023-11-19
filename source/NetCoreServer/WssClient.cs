@@ -49,12 +49,14 @@ namespace NetCoreServer
 
         public override bool Connect() { _syncConnect = true; return base.Connect(); }
         public override bool ConnectAsync() { _syncConnect = false; return base.ConnectAsync(); }
+        public virtual bool Close() => Close(0, Span<byte>.Empty);
         public virtual bool Close(int status) => Close(status, Span<byte>.Empty);
         public virtual bool Close(int status, string text) => Close(status, Encoding.UTF8.GetBytes(text));
         public virtual bool Close(int status, ReadOnlySpan<char> text) => Close(status, Encoding.UTF8.GetBytes(text.ToArray()));
         public virtual bool Close(int status, byte[] buffer) => Close(status, buffer.AsSpan());
         public virtual bool Close(int status, byte[] buffer, long offset, long size) => Close(status, buffer.AsSpan((int)offset, (int)size));
         public virtual bool Close(int status, ReadOnlySpan<byte> buffer) { SendClose(status, buffer); base.Disconnect(); return true; }
+        public virtual bool CloseAsync() => CloseAsync(0, Span<byte>.Empty);
         public virtual bool CloseAsync(int status) => CloseAsync(status, Span<byte>.Empty);
         public virtual bool CloseAsync(int status, string text) => CloseAsync(status, Encoding.UTF8.GetBytes(text));
         public virtual bool CloseAsync(int status, ReadOnlySpan<char> text) => CloseAsync(status, Encoding.UTF8.GetBytes(text.ToArray()));

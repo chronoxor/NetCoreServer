@@ -41,6 +41,7 @@ namespace NetCoreServer
 
         #region Session management
 
+        public virtual bool CloseAll() => CloseAll(0, Span<byte>.Empty);
         public virtual bool CloseAll(int status) => CloseAll(status, Span<byte>.Empty);
         public virtual bool CloseAll(int status, string text) => CloseAll(status, Encoding.UTF8.GetBytes(text));
         public virtual bool CloseAll(int status, ReadOnlySpan<char> text) => CloseAll(status, Encoding.UTF8.GetBytes(text.ToArray()));

@@ -257,7 +257,8 @@ namespace NetCoreServer
         /// <param name="status">WebSocket status (default is 0)</param>
         public void PrepareSendFrame(byte opcode, bool mask, ReadOnlySpan<byte> buffer, int status = 0)
         {
-            bool storeStatus = (opcode & WS_CLOSE) == WS_CLOSE;
+            // Check if we need to store additional 2 bytes of close status frame
+            bool storeStatus = ((opcode & WS_CLOSE) == WS_CLOSE) && ((buffer.Length > 0) || (status != 0));
             long size = storeStatus ? (buffer.Length + 2) : buffer.Length;
 
             // Clear the previous WebSocket send buffer
