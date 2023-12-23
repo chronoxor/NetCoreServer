@@ -162,7 +162,7 @@ namespace NetCoreServer
                     if ((string.Compare(value, "Upgrade", StringComparison.OrdinalIgnoreCase) != 0) && (string.Compare(value.RemoveWhiteSpace(), "keep-alive,Upgrade", StringComparison.OrdinalIgnoreCase) != 0))
                     {
                         error = true;
-                        response.MakeErrorResponse(400, "Invalid WebSocket handshaked request: 'Connection' header value must be 'Upgrade' or 'Upgrade, keep-alive'");
+                        response.MakeErrorResponse(400, "Invalid WebSocket handshaked request: 'Connection' header value must be 'Upgrade' or 'keep-alive, Upgrade'");
                         break;
                     }
 
