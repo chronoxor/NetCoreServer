@@ -3,6 +3,7 @@ using System.Text;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Threading;
+using System.Linq;
 
 namespace NetCoreServer
 {
@@ -158,10 +159,17 @@ namespace NetCoreServer
 
                 if (string.Compare(key, "Connection", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    if ((string.Compare(value, "Upgrade", StringComparison.OrdinalIgnoreCase) != 0) && (string.Compare(value, "keep-alive, Upgrade", StringComparison.OrdinalIgnoreCase) != 0))
+                    var values = value.Split(',').Select(str => str.Trim()).ToArray();
+                    if ((values.Length == 0) ||
+                        ((values.Length == 1) && (string.Compare(values[0], "Upgrade", StringComparison.OrdinalIgnoreCase) != 0)) ||
+                        ((values.Length == 2) && !(
+                            ((string.Compare(values[0], "Upgrade", StringComparison.OrdinalIgnoreCase) == 0) && (string.Compare(values[1], "keep-alive", StringComparison.OrdinalIgnoreCase) == 0)) ||
+                            ((string.Compare(values[0], "keep-alive", StringComparison.OrdinalIgnoreCase) == 0) && (string.Compare(values[1], "Upgrade", StringComparison.OrdinalIgnoreCase) == 0))
+                        )) ||
+                        (values.Length > 2))
                     {
                         error = true;
-                        response.MakeErrorResponse(400, "Invalid WebSocket handshaked request: 'Connection' header value must be 'Upgrade' or 'keep-alive, Upgrade'");
+                        response.MakeErrorResponse(400, "Invalid WebSocket handshaked request: 'Connection' header value must be 'Upgrade' or 'Upgrade, keep-alive'");
                         break;
                     }
 

@@ -473,13 +473,4 @@ namespace NetCoreServer
             locker.EnterWriteLock();
         }
     }
-
-    /// <summary>
-    /// String extensions utility class.
-    /// </summary>
-    public static class StringExtensions
-    {
-        public static string RemoveSuffix(this string str, char toRemove) => str.EndsWith(toRemove) ? str.Substring(0, str.Length - 1) : str;
-        public static string RemoveSuffix(this string str, string toRemove) => str.EndsWith(toRemove) ? str.Substring(0, str.Length - toRemove.Length) : str;
-    }
 }
