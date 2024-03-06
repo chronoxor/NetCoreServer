@@ -64,7 +64,7 @@ namespace WsChatServer
             if (args.Length > 0)
                 port = int.Parse(args[0]);
             // WebSocket server content path
-            string www = "../../../../../www/ws";
+            string www = Environment.GetEnvironmentVariable("CACHE_PATH") ?? "../../../../../www/ws";
             if (args.Length > 1)
                 www = args[1];
 
