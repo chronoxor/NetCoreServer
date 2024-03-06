@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  tcpchatserver:
+    image: ${DOCKER_REGISTRY-}tcpchatserver
+    build:
+      context: .
+      dockerfile: examples/TcpChatServer/Dockerfile
+    ports:
+      - "1111:1111"
+
+  wschatserver:
+    image: ${DOCKER_REGISTRY-}wschatserver
+    build:
+      context: .
+      dockerfile: examples/WsChatServer/Dockerfile
+    ports:
+      - "8080:8080"
+

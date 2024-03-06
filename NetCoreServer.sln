@@ -117,6 +117,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtoClient", "performance\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtoServer", "performance\ProtoServer\ProtoServer.csproj", "{CA22BAB3-2DF7-4DFE-AAD6-11A1ADDA17A4}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{A95544D4-CF7F-412A-90E4-02DDBAC2823F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -335,6 +337,10 @@ Global
 		{CA22BAB3-2DF7-4DFE-AAD6-11A1ADDA17A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA22BAB3-2DF7-4DFE-AAD6-11A1ADDA17A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA22BAB3-2DF7-4DFE-AAD6-11A1ADDA17A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A95544D4-CF7F-412A-90E4-02DDBAC2823F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A95544D4-CF7F-412A-90E4-02DDBAC2823F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A95544D4-CF7F-412A-90E4-02DDBAC2823F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A95544D4-CF7F-412A-90E4-02DDBAC2823F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
