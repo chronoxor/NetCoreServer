@@ -147,6 +147,14 @@ namespace NetCoreServer
         /// </summary>
         public int OptionSendBufferSize { get; set; } = 8192;
 
+        /// <summary>
+        /// Option: whether to send all remaining bytes when disconnecting
+        /// </summary>
+        /// <remarks>
+        /// This only affects bytes end via SendAsync(...)
+        /// </remarks>
+        public bool OptionSendRemainingBytesOnDisconnect { get; set; } = false;
+
         #region Connect/Disconnect client
 
         private SocketAsyncEventArgs _connectEventArg;
@@ -297,6 +305,12 @@ namespace NetCoreServer
             if (IsConnecting)
                 Socket.CancelConnectAsync(_connectEventArg);
 
+            // Wait for pending asynchronous send operations if desired
+            if (OptionSendRemainingBytesOnDisconnect)
+            {
+                _sendBuffersEmpty.WaitOne();
+            }
+
             // Reset event args
             _connectEventArg.Completed -= OnAsyncCompleted;
             _receiveEventArg.Completed -= OnAsyncCompleted;
@@ -440,6 +454,7 @@ namespace NetCoreServer
         private Buffer _sendBufferFlush;
         private SocketAsyncEventArgs _sendEventArg;
         private long _sendBufferFlushOffset;
+        private readonly ManualResetEvent _sendBuffersEmpty = new ManualResetEvent(true);
 
         /// <summary>
         /// Send data to the server (synchronous)
@@ -544,6 +559,7 @@ namespace NetCoreServer
                 }
 
                 // Fill the main send buffer
+                _sendBuffersEmpty.Reset();
                 _sendBufferMain.Append(buffer);
 
                 // Update statistic
@@ -714,6 +730,8 @@ namespace NetCoreServer
                 // Call the empty send buffer handler
                 if (empty)
                 {
+                    _sendBuffersEmpty.Set();
+
                     OnEmpty();
                     return;
                 }
@@ -928,6 +946,8 @@ namespace NetCoreServer
                 return true;
             else
             {
+                _sendBuffersEmpty.Set();
+
                 SendError(e.SocketError);
                 DisconnectAsync();
                 return false;
@@ -1053,6 +1073,7 @@ namespace NetCoreServer
                 {
                     // Dispose managed resources here...
                     DisconnectAsync();
+                    _sendBuffersEmpty.Dispose();
                 }
 
                 // Dispose unmanaged resources here...
