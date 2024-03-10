@@ -666,7 +666,7 @@ namespace NetCoreServer
             {
                 // Async receive with the receive handler
                 _receiving = true;
-                _receiveEventArg.RemoteEndPoint = _receiveEndpoint;
+                SetOrCreateSocketEventArgsWithRemoteEndpoint(ref _receiveEventArg, _receiveEndpoint);
                 _receiveEventArg.SetBuffer(_receiveBuffer.Data, 0, (int)_receiveBuffer.Capacity);
                 if (!Socket.ReceiveFromAsync(_receiveEventArg))
                     ProcessReceiveFrom(_receiveEventArg);
@@ -689,12 +689,39 @@ namespace NetCoreServer
             {
                 // Async write with the write handler
                 _sending = true;
-                _sendEventArg.RemoteEndPoint = _sendEndpoint;
+                SetOrCreateSocketEventArgsWithRemoteEndpoint(ref _sendEventArg, _sendEndpoint);
                 _sendEventArg.SetBuffer(_sendBuffer.Data, 0, (int)(_sendBuffer.Size));
                 if (!Socket.SendToAsync(_sendEventArg))
                     ProcessSendTo(_sendEventArg);
             }
             catch (ObjectDisposedException) {}
+        }
+
+        private void SetOrCreateSocketEventArgsWithRemoteEndpoint(
+            ref SocketAsyncEventArgs eventArg,
+            EndPoint remoteEndpoint
+        )
+        {
+            if (eventArg.RemoteEndPoint is null)
+            {
+                eventArg.RemoteEndPoint = remoteEndpoint;
+                return;
+            }
+
+            if (eventArg.RemoteEndPoint == remoteEndpoint)
+            {
+                // Same endpoint
+                return;
+            }
+
+            // SocketAsyncEventArgs is not reuseable between clients in .NET 8, see:
+
+            eventArg.Completed -= OnAsyncCompleted;
+            eventArg.Dispose();
+
+            eventArg = new SocketAsyncEventArgs();
+            eventArg.Completed += OnAsyncCompleted;
+            eventArg.RemoteEndPoint = remoteEndpoint;
         }
 
         /// <summary>
