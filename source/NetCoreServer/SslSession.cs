@@ -78,7 +78,7 @@ public class SslSession : ISession
     #region Connect/Disconnect session
 
     private bool _disconnecting;
-    private SslStream _sslStream;
+    protected SslStream _sslStream;
     private Guid? _sslStreamId;
 
     /// <summary>
