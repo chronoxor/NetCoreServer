@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Text;
 using System.Security.Cryptography;
-using System.Collections.Generic;
 using System.Threading;
-using System.Linq;
 using System.Net.Sockets;
+using NetCoreServer.extensions;
 
 namespace NetCoreServer;
 
