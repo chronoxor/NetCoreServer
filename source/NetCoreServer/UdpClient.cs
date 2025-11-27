@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 
@@ -330,19 +331,31 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Join multicast group with a given IP address (synchronous)
+        /// Join multicast group with a given IP address and network interface index (synchronous)
         /// </summary>
         /// <param name="address">IP address</param>
-        public virtual void JoinMulticastGroup(IPAddress address)
+        /// <param name="interfaceIndex">Network interface index</param>
+        public virtual void JoinMulticastGroup(IPAddress address, int interfaceIndex)
         {
             if (Endpoint.AddressFamily == AddressFamily.InterNetworkV6)
-                Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(address));
+                Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(address, interfaceIndex));
             else
-                Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(address));
+                Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(address, interfaceIndex));
 
             // Call the client joined multicast group notification
             OnJoinedMulticastGroup(address);
         }
+        /// <summary>
+        /// Join multicast group with a given IP address and network interface index (synchronous)
+        /// </summary>
+        /// <param name="address">IP address</param>
+        /// <param name="interfaceIndex">Network interface index</param>
+        public virtual void JoinMulticastGroup(string address, int interfaceIndex) { JoinMulticastGroup(IPAddress.Parse(address), interfaceIndex); }
+        /// <summary>
+        /// Join multicast group with a given IP address (synchronous)
+        /// </summary>
+        /// <param name="address">IP address</param>
+        public virtual void JoinMulticastGroup(IPAddress address) { JoinMulticastGroup(address, 0); }
         /// <summary>
         /// Join multicast group with a given IP address (synchronous)
         /// </summary>
@@ -350,15 +363,38 @@ namespace NetCoreServer
         public virtual void JoinMulticastGroup(string address) { JoinMulticastGroup(IPAddress.Parse(address)); }
 
         /// <summary>
+        /// Join multicast group with a given IP address and network interface (synchronous)
+        /// </summary>
+        /// <param name="address">IP address</param>
+        /// <param name="networkInterface">Network interface</param>
+        public virtual void JoinMulticastGroup(IPAddress address, NetworkInterface networkInterface)
+        {
+            if (Endpoint.AddressFamily == AddressFamily.InterNetworkV6)
+                Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, new IPv6MulticastOption(address, networkInterface.GetIPProperties().GetIPv6Properties().Index));
+            else
+                Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(address, networkInterface.GetIPProperties().GetIPv4Properties().Index));
+
+            // Call the client joined multicast group notification
+            OnJoinedMulticastGroup(address);
+        }
+        /// <summary>
+        /// Join multicast group with a given IP address and network interface (synchronous)
+        /// </summary>
+        /// <param name="address">IP address</param>
+        /// <param name="networkInterface">Network interface</param>
+        public virtual void JoinMulticastGroup(string address, NetworkInterface networkInterface) { JoinMulticastGroup(IPAddress.Parse(address), networkInterface); }
+
+        /// <summary>
         /// Leave multicast group with a given IP address (synchronous)
         /// </summary>
         /// <param name="address">IP address</param>
-        public virtual void LeaveMulticastGroup(IPAddress address)
+        /// <param name="interfaceIndex">Network interface index</param>
+        public virtual void LeaveMulticastGroup(IPAddress address, int interfaceIndex)
         {
             if (Endpoint.AddressFamily == AddressFamily.InterNetworkV6)
-                Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(address));
+                Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(address, interfaceIndex));
             else
-                Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(address));
+                Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(address, interfaceIndex));
 
             // Call the client left multicast group notification
             OnLeftMulticastGroup(address);
@@ -367,7 +403,40 @@ namespace NetCoreServer
         /// Leave multicast group with a given IP address (synchronous)
         /// </summary>
         /// <param name="address">IP address</param>
+        /// <param name="interfaceIndex">Network interface index</param>
+        public virtual void LeaveMulticastGroup(string address, int interfaceIndex) { LeaveMulticastGroup(IPAddress.Parse(address), interfaceIndex); }
+        /// <summary>
+        /// Leave multicast group with a given IP address (synchronous)
+        /// </summary>
+        /// <param name="address">IP address</param>
+        public virtual void LeaveMulticastGroup(IPAddress address) { LeaveMulticastGroup(address, 0); }
+        /// <summary>
+        /// Leave multicast group with a given IP address (synchronous)
+        /// </summary>
+        /// <param name="address">IP address</param>
         public virtual void LeaveMulticastGroup(string address) { LeaveMulticastGroup(IPAddress.Parse(address)); }
+
+        /// <summary>
+        /// Leave multicast group with a given IP address and network interface (synchronous)
+        /// </summary>
+        /// <param name="address">IP address</param>
+        /// <param name="networkInterface">Network interface</param>
+        public virtual void LeaveMulticastGroup(IPAddress address, NetworkInterface networkInterface)
+        {
+            if (Endpoint.AddressFamily == AddressFamily.InterNetworkV6)
+                Socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(address, networkInterface.GetIPProperties().GetIPv6Properties().Index));
+            else
+                Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(address, networkInterface.GetIPProperties().GetIPv4Properties().Index));
+
+            // Call the client left multicast group notification
+            OnLeftMulticastGroup(address);
+        }
+        /// <summary>
+        /// Leave multicast group with a given IP address and network interface (synchronous)
+        /// </summary>
+        /// <param name="address">IP address</param>
+        /// <param name="networkInterface">Network interface</param>
+        public virtual void LeaveMulticastGroup(string address, NetworkInterface networkInterface) { LeaveMulticastGroup(IPAddress.Parse(address), networkInterface); }
 
         #endregion
 
