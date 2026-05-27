@@ -473,7 +473,11 @@ namespace NetCoreServer
             try
             {
                 // Sent datagram to the client
+#if NET6_0_OR_GREATER
                 long sent = Socket.SendTo(buffer, SocketFlags.None, endpoint);
+#else
+                long sent = Socket.SendTo(buffer.ToArray(), SocketFlags.None, endpoint);
+#endif
                 if (sent > 0)
                 {
                     // Update statistic

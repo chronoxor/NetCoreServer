@@ -51,7 +51,7 @@ namespace NetCoreServer
         /// <param name="timeout">Refresh cache timeout (default is 1 hour)</param>
         public void AddStaticContent(string path, string prefix = "/", string filter = "*.*", TimeSpan? timeout = null)
         {
-            timeout ??= TimeSpan.FromHours(1);
+            timeout = timeout ?? TimeSpan.FromHours(1);
 
             bool Handler(FileCache cache, string key, byte[] value, TimeSpan timespan)
             {

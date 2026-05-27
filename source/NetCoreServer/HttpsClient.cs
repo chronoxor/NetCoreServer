@@ -268,7 +268,7 @@ namespace NetCoreServer
         /// <returns>HTTP request Task</returns>
         public Task<HttpResponse> SendRequest(HttpRequest request, TimeSpan? timeout = null)
         {
-            timeout ??= TimeSpan.FromMinutes(1);
+            timeout = timeout ?? TimeSpan.FromMinutes(1);
 
             _tcs = new TaskCompletionSource<HttpResponse>();
             Request = request;
