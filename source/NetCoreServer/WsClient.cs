@@ -292,6 +292,9 @@ namespace NetCoreServer
             // Fill the WebSocket upgrade HTTP request
             OnWsConnecting(Request);
 
+            // Set body of the WebSocket upgrade HTTP request
+            Request.SetBody();
+
             // Send the WebSocket upgrade HTTP request
             if (_syncConnect)
                 SendRequest(Request);
