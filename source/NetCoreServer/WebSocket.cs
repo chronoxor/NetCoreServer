@@ -581,7 +581,7 @@ namespace NetCoreServer
         /// <summary>
         /// Handshaked flag
         /// </summary>
-        internal bool WsHandshaked;
+        public bool WsHandshaked;
         /// <summary>
         /// Received frame flag
         /// </summary>
@@ -623,11 +623,11 @@ namespace NetCoreServer
         /// <summary>
         /// Send buffer lock
         /// </summary>
-        internal readonly object WsSendLock = new object();
+        public readonly object WsSendLock = new object();
         /// <summary>
         /// Send buffer
         /// </summary>
-        internal readonly Buffer WsSendBuffer = new Buffer();
+        public readonly Buffer WsSendBuffer = new Buffer();
         /// <summary>
         /// Send mask
         /// </summary>
