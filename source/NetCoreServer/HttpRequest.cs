@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -87,7 +87,15 @@ namespace NetCoreServer
         /// <summary>
         /// Get the HTTP request body as byte array
         /// </summary>
-        public byte[] BodyBytes { get { return _cache.Data[_bodyIndex..(_bodyIndex + _bodySize)]; } }
+        public byte[] BodyBytes
+        {
+            get
+            {
+                var result = new byte[_bodySize];
+                Array.Copy(_cache.Data, _bodyIndex, result, 0, _bodySize);
+                return result;
+            }
+        }
         /// <summary>
         /// Get the HTTP request body as byte span
         /// </summary>
