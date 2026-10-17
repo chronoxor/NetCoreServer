@@ -150,5 +150,21 @@ namespace tests
             while (server.IsStarted)
                 Thread.Yield();
         }
+
+        [Fact(DisplayName = "HTTPS client connection failure test")]
+        public void HttpsClientFailureTest()
+        {
+            string address = "127.0.0.1";
+            int port = 9443;
+
+            // Create and prepare a new SSL client context
+            var client_context = new SslContext(SslProtocols.Tls13, X509CertificateLoader.LoadPkcs12FromFile("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+
+            // Create a new HTTPS client
+            var client = new HttpsClientEx(client_context, address, port);
+
+            // Test failing operation with timeout
+            Assert.Throws<AggregateException>(() => client.SendGetRequest("/test", TimeSpan.FromSeconds(1)).Result);
+        }
     }
 }

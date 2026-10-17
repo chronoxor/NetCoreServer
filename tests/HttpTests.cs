@@ -189,5 +189,18 @@ namespace tests
             while (server.IsStarted)
                 Thread.Yield();
         }
+
+        [Fact(DisplayName = "HTTP client connection failure test")]
+        public void HttpClientFailureTest()
+        {
+            string address = "127.0.0.1";
+            int port = 9090;
+
+            // Create a new HTTP client
+            var client = new HttpClientEx(address, port);
+
+            // Test failing operation with timeout
+            Assert.Throws<AggregateException>(() => client.SendGetRequest("/test", TimeSpan.FromSeconds(1)).Result);
+        }
     }
 }
