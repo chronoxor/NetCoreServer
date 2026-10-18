@@ -363,12 +363,12 @@ namespace NetCoreServer
                 try
                 {
                     // Shutdown the SSL stream
-                    _sslStream.ShutdownAsync().Wait();
+                    _sslStream?.ShutdownAsync().Wait();
                 }
                 catch (Exception) {}
 
                 // Dispose the SSL stream & buffer
-                _sslStream.Dispose();
+                _sslStream?.Dispose();
                 _sslStreamId = null;
 
                 try
