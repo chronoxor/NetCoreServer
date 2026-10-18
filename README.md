@@ -1905,7 +1905,7 @@ namespace ProtoClient
 
 ## Example: HTTP server
 Here comes the example of the HTTP cache server. It allows to manipulate
-cache data with HTTP methods (GET, POST, PUT and DELETE).
+cache data with HTTP methods (GET, QUERY, POST, PUT and DELETE).
 
 Use the following link to open [Swagger OpenAPI](https://swagger.io/specification/) iterative documentation: http://localhost:8080/api/index.html
 
@@ -1988,13 +1988,31 @@ namespace HttpServer
                 if (string.IsNullOrEmpty(key))
                 {
                     // Response with all cache values
-                    SendResponseAsync(Response.MakeGetResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                    SendResponseAsync(Response.MakeContentResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
                 }
                 // Get the cache value by the given key
                 else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(value));
+                    SendResponseAsync(Response.MakeContentResponse(value));
+                }
+                else
+                    SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
+            }
+            else if (request.Method == "QUERY")
+            {
+                string key = request.Body;
+
+                if (string.IsNullOrEmpty(key))
+                {
+                    // Response with all cache values
+                    SendResponseAsync(Response.MakeContentResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                }
+                // Get the cache value by the given key
+                else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
+                {
+                    // Response with the cache value
+                    SendResponseAsync(Response.MakeContentResponse(value));
                 }
                 else
                     SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
@@ -2028,7 +2046,7 @@ namespace HttpServer
                 if (CommonCache.GetInstance().DeleteCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(value));
+                    SendResponseAsync(Response.MakeContentResponse(value));
                 }
                 else
                     SendResponseAsync(Response.MakeErrorResponse(404, "Deleted cache value was not found for the key: " + key));
@@ -2121,7 +2139,7 @@ namespace HttpServer
 
 ## Example: HTTP client
 Here comes the example of the HTTP client. It allows to send HTTP requests
-(GET, POST, PUT and DELETE) and receive HTTP responses.
+(GET, QUERY, POST, PUT and DELETE) and receive HTTP responses.
 
 ```c#
 using System;
@@ -2189,6 +2207,11 @@ namespace HttpClient
                     var response = client.SendGetRequest(commands[1]).Result;
                     Console.WriteLine(response);
                 }
+                else if (commands[0].ToUpper() == "QUERY")
+                {
+                    var response = client.SendPostRequest(commands[1], (commands.Length < 3) ? "" : commands[2]).Result;
+                    Console.WriteLine(response);
+                }
                 else if (commands[0].ToUpper() == "POST")
                 {
                     if (commands.Length < 3)
@@ -2241,7 +2264,7 @@ namespace HttpClient
 
 ## Example: HTTPS server
 Here comes the example of the HTTPS cache server. It allows to manipulate
-cache data with HTTP methods (GET, POST, PUT and DELETE) with secured
+cache data with HTTP methods (GET, QUERY, POST, PUT and DELETE) with secured
 transport protocol.
 
 Use the following link to open [Swagger OpenAPI](https://swagger.io/specification/) iterative documentation: https://localhost:8443/api/index.html
@@ -2327,13 +2350,31 @@ namespace HttpsServer
                 if (string.IsNullOrEmpty(key))
                 {
                     // Response with all cache values
-                    SendResponseAsync(Response.MakeGetResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                    SendResponseAsync(Response.MakeContentResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
                 }
                 // Get the cache value by the given key
                 else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(value));
+                    SendResponseAsync(Response.MakeContentResponse(value));
+                }
+                else
+                    SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
+            }
+            else if (request.Method == "QUERY")
+            {
+                string key = request.Body;
+
+                if (string.IsNullOrEmpty(key))
+                {
+                    // Response with all cache values
+                    SendResponseAsync(Response.MakeContentResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                }
+                // Get the cache value by the given key
+                else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
+                {
+                    // Response with the cache value
+                    SendResponseAsync(Response.MakeContentResponse(value));
                 }
                 else
                     SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
@@ -2367,7 +2408,7 @@ namespace HttpsServer
                 if (CommonCache.GetInstance().DeleteCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(value));
+                    SendResponseAsync(Response.MakeContentResponse(value));
                 }
                 else
                     SendResponseAsync(Response.MakeErrorResponse(404, "Deleted cache value was not found for the key: " + key));
@@ -2463,7 +2504,7 @@ namespace HttpsServer
 
 ## Example: HTTPS client
 Here comes the example of the HTTPS client. It allows to send HTTP requests
-(GET, POST, PUT and DELETE) and receive HTTP responses with secured
+(GET, QUERY, POST, PUT and DELETE) and receive HTTP responses with secured
 transport protocol.
 
 ```c#
@@ -2535,6 +2576,11 @@ namespace HttpsClient
                 else if (commands[0].ToUpper() == "GET")
                 {
                     var response = client.SendGetRequest(commands[1]).Result;
+                    Console.WriteLine(response);
+                }
+                else if (commands[0].ToUpper() == "QUERY")
+                {
+                    var response = client.SendPostRequest(commands[1], (commands.Length < 3) ? "" : commands[2]).Result;
                     Console.WriteLine(response);
                 }
                 else if (commands[0].ToUpper() == "POST")

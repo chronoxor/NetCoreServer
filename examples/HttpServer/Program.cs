@@ -74,13 +74,31 @@ namespace HttpServer
                 if (string.IsNullOrEmpty(key))
                 {
                     // Response with all cache values
-                    SendResponseAsync(Response.MakeGetResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                    SendResponseAsync(Response.MakeContentResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
                 }
                 // Get the cache value by the given key
                 else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(value));
+                    SendResponseAsync(Response.MakeContentResponse(value));
+                }
+                else
+                    SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
+            }
+            else if (request.Method == "QUERY")
+            {
+                string key = request.Body;
+
+                if (string.IsNullOrEmpty(key))
+                {
+                    // Response with all cache values
+                    SendResponseAsync(Response.MakeContentResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                }
+                // Get the cache value by the given key
+                else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
+                {
+                    // Response with the cache value
+                    SendResponseAsync(Response.MakeContentResponse(value));
                 }
                 else
                     SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
@@ -114,7 +132,7 @@ namespace HttpServer
                 if (CommonCache.GetInstance().DeleteCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(value));
+                    SendResponseAsync(Response.MakeContentResponse(value));
                 }
                 else
                     SendResponseAsync(Response.MakeErrorResponse(404, "Deleted cache value was not found for the key: " + key));

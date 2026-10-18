@@ -30,13 +30,31 @@ namespace tests
                 if (string.IsNullOrEmpty(key))
                 {
                     // Response with all cache values
-                    SendResponseAsync(Response.MakeGetResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                    SendResponseAsync(Response.MakeContentResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
                 }
                 // Get the cache value by the given key
                 else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(value));
+                    SendResponseAsync(Response.MakeContentResponse(value));
+                }
+                else
+                    SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
+            }
+            else if (request.Method == "QUERY")
+            {
+                string key = request.Body;
+
+                if (string.IsNullOrEmpty(key))
+                {
+                    // Response with all cache values
+                    SendResponseAsync(Response.MakeContentResponse(CommonCache.GetInstance().GetAllCache(), "application/json; charset=UTF-8"));
+                }
+                // Get the cache value by the given key
+                else if (CommonCache.GetInstance().GetCacheValue(key, out var value))
+                {
+                    // Response with the cache value
+                    SendResponseAsync(Response.MakeContentResponse(value));
                 }
                 else
                     SendResponseAsync(Response.MakeErrorResponse(404, "Required cache value was not found for the key: " + key));
@@ -70,7 +88,7 @@ namespace tests
                 if (CommonCache.GetInstance().DeleteCacheValue(key, out var value))
                 {
                     // Response with the cache value
-                    SendResponseAsync(Response.MakeGetResponse(value));
+                    SendResponseAsync(Response.MakeContentResponse(value));
                 }
                 else
                     SendResponseAsync(Response.MakeErrorResponse(404, "Deleted cache value was not found for the key: " + key));
@@ -128,21 +146,27 @@ namespace tests
             var client = new HttpsClientEx(client_context, address, port);
 
             // Test CRUD operations
-            var response = client.SendGetRequest("/test").Result;
+            var response = client.SendGetRequest("/api/cache?key=test").Result;
             Assert.True(response.Status == 404);
-            response = client.SendPostRequest("/test", "old_value").Result;
+            response = client.SendPostRequest("/api/cache?key=test", "old_value").Result;
             Assert.True(response.Status == 200);
-            response = client.SendGetRequest("/test").Result;
+            response = client.SendGetRequest("/api/cache?key=test").Result;
             Assert.True(response.Status == 200);
             Assert.True(response.Body == "old_value");
-            response = client.SendPutRequest("/test", "new_value").Result;
+            response = client.SendQueryRequest("/api/cache", "test").Result;
             Assert.True(response.Status == 200);
-            response = client.SendGetRequest("/test").Result;
+            Assert.True(response.Body == "old_value");
+            response = client.SendPutRequest("/api/cache?key=test", "new_value").Result;
+            Assert.True(response.Status == 200);
+            response = client.SendGetRequest("/api/cache?key=test").Result;
             Assert.True(response.Status == 200);
             Assert.True(response.Body == "new_value");
-            response = client.SendDeleteRequest("/test").Result;
+            response = client.SendQueryRequest("/api/cache", "test").Result;
             Assert.True(response.Status == 200);
-            response = client.SendGetRequest("/test").Result;
+            Assert.True(response.Body == "new_value");
+            response = client.SendDeleteRequest("/api/cache?key=test").Result;
+            Assert.True(response.Status == 200);
+            response = client.SendGetRequest("/api/cache?key=test").Result;
             Assert.True(response.Status == 404);
 
             // Stop the HTTPS server

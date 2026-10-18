@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace NetCoreServer
 {
     /// <summary>
-    /// HTTPS client is used to communicate with secured HTTPS Web server. It allows to send GET, POST, PUT, DELETE requests and receive HTTP result using secure transport.
+    /// HTTPS client is used to communicate with secured HTTPS Web server. It allows to send GET, QUERY, POST, PUT, DELETE requests and receive HTTP result using secure transport.
     /// </summary>
     /// <remarks>Thread-safe.</remarks>
     public class HttpsClient : SslClient
@@ -333,6 +333,14 @@ namespace NetCoreServer
         /// <returns>HTTP request Task</returns>
         public Task<HttpResponse> SendGetRequest(string url, TimeSpan? timeout = null) => SendRequest(Request.MakeGetRequest(url), timeout);
         /// <summary>
+        /// Send QUERY request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Content</param>
+        /// <param name="timeout">Current HTTP request timeout (default is 1 minute)</param>
+        /// <returns>HTTP request Task</returns>
+        public Task<HttpResponse> SendQueryRequest(string url, string content, TimeSpan? timeout = null) => SendRequest(Request.MakeQueryRequest(url, content), timeout);
+        /// <summary>
         /// Send POST request
         /// </summary>
         /// <param name="url">URL to request</param>
@@ -427,6 +435,9 @@ namespace NetCoreServer
 
         private void SetResponseValue(HttpResponse response)
         {
+            // Returned response should not be reused anymore
+            Response = new HttpResponse();
+
             // Guard try/catch block against task completion source double-resolution races
             try
             {

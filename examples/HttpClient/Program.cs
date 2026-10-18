@@ -65,6 +65,11 @@ namespace HttpClient
                     var response = client.SendGetRequest(commands[1]).Result;
                     Console.WriteLine(response);
                 }
+                else if (commands[0].ToUpper() == "QUERY")
+                {
+                    var response = client.SendPostRequest(commands[1], (commands.Length < 3) ? "" : commands[2]).Result;
+                    Console.WriteLine(response);
+                }
                 else if (commands[0].ToUpper() == "POST")
                 {
                     if (commands.Length < 3)

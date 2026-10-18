@@ -5,7 +5,7 @@ using System.Net;
 namespace NetCoreServer
 {
     /// <summary>
-    /// HTTPS server is used to create secured HTTPS Web server and communicate with clients using secure HTTPS protocol. It allows to receive GET, POST, PUT, DELETE requests and send HTTP responses.
+    /// HTTPS server is used to create secured HTTPS Web server and communicate with clients using secure HTTPS protocol. It allows to receive GET, QUERY, POST, PUT, DELETE requests and send HTTP responses.
     /// </summary>
     /// <remarks>Thread-safe.</remarks>
     public class HttpsServer : SslServer

@@ -5,7 +5,7 @@ using System.IO;
 namespace NetCoreServer
 {
     /// <summary>
-    /// HTTP server is used to create HTTP Web server and communicate with clients using HTTP protocol. It allows to receive GET, POST, PUT, DELETE requests and send HTTP responses.
+    /// HTTP server is used to create HTTP Web server and communicate with clients using HTTP protocol. It allows to receive GET, QUERY, POST, PUT, DELETE requests and send HTTP responses.
     /// </summary>
     /// <remarks>Thread-safe.</remarks>
     public class HttpServer : TcpServer

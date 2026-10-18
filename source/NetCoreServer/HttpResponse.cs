@@ -553,18 +553,18 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Make GET response
+        /// Make GET/QUERY/POST/PUT/DELETE content response
         /// </summary>
         /// <param name="content">String content (default is "")</param>
         /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
-        public HttpResponse MakeGetResponse(string content = "", string contentType = "text/plain; charset=UTF-8") => MakeGetResponse(content.AsSpan(), contentType);
+        public HttpResponse MakeContentResponse(string content = "", string contentType = "text/plain; charset=UTF-8") => MakeContentResponse(content.AsSpan(), contentType);
 
         /// <summary>
-        /// Make GET response
+        /// Make GET/QUERY/POST/PUT/DELETE content response
         /// </summary>
         /// <param name="content">String content as a span of characters</param>
         /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
-        public HttpResponse MakeGetResponse(ReadOnlySpan<char> content, string contentType = "text/plain; charset=UTF-8")
+        public HttpResponse MakeContentResponse(ReadOnlySpan<char> content, string contentType = "text/plain; charset=UTF-8")
         {
             Clear();
             SetBegin(200);
@@ -575,18 +575,18 @@ namespace NetCoreServer
         }
 
         /// <summary>
-        /// Make GET response
+        /// Make GET/QUERY/POST/PUT/DELETE content response
         /// </summary>
         /// <param name="content">Binary content</param>
         /// <param name="contentType">Content type (default is "")</param>
-        public HttpResponse MakeGetResponse(byte[] content, string contentType = "") => MakeGetResponse(content.AsSpan(), contentType);
+        public HttpResponse MakeContentResponse(byte[] content, string contentType = "") => MakeContentResponse(content.AsSpan(), contentType);
 
         /// <summary>
-        /// Make GET response
+        /// Make GET/QUERY/POST/PUT/DELETE content response
         /// </summary>
         /// <param name="content">Binary content as a span of bytes</param>
         /// <param name="contentType">Content type (default is "")</param>
-        public HttpResponse MakeGetResponse(ReadOnlySpan<byte> content, string contentType = "")
+        public HttpResponse MakeContentResponse(ReadOnlySpan<byte> content, string contentType = "")
         {
             Clear();
             SetBegin(200);
@@ -599,8 +599,8 @@ namespace NetCoreServer
         /// <summary>
         /// Make OPTIONS response
         /// </summary>
-        /// <param name="allow">Allow methods (default is "HEAD,GET,POST,PUT,DELETE,OPTIONS,TRACE")</param>
-        public HttpResponse MakeOptionsResponse(string allow = "HEAD,GET,POST,PUT,DELETE,OPTIONS,TRACE")
+        /// <param name="allow">Allow methods (default is "HEAD,GET,QUERY,POST,PUT,DELETE,OPTIONS,TRACE")</param>
+        public HttpResponse MakeOptionsResponse(string allow = "HEAD,GET,QUERY,POST,PUT,DELETE,OPTIONS,TRACE")
         {
             Clear();
             SetBegin(200);

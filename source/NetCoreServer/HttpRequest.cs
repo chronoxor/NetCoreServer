@@ -345,6 +345,54 @@ namespace NetCoreServer
         }
 
         /// <summary>
+        /// Make QUERY request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">String content</param>
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpRequest MakeQueryRequest(string url, string content, string contentType = "text/plain; charset=UTF-8") => MakeQueryRequest(url, content.AsSpan(), contentType);
+
+        /// <summary>
+        /// Make QUERY request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">String content as a span of characters</param>
+        /// <param name="contentType">Content type (default is "text/plain; charset=UTF-8")</param>
+        public HttpRequest MakeQueryRequest(string url, ReadOnlySpan<char> content, string contentType = "text/plain; charset=UTF-8")
+        {
+            Clear();
+            SetBegin("QUERY", url);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
+            SetBody(content);
+            return this;
+        }
+
+        /// <summary>
+        /// Make QUERY request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Binary content</param>
+        /// <param name="contentType">Content type (default is "")</param>
+        public HttpRequest MakeQueryRequest(string url, byte[] content, string contentType = "") => MakeQueryRequest(url, content.AsSpan(), contentType);
+
+        /// <summary>
+        /// Make QUERY request
+        /// </summary>
+        /// <param name="url">URL to request</param>
+        /// <param name="content">Binary content as a span of bytes</param>
+        /// <param name="contentType">Content type (default is "")</param>
+        public HttpRequest MakeQueryRequest(string url, ReadOnlySpan<byte> content, string contentType = "")
+        {
+            Clear();
+            SetBegin("QUERY", url);
+            if (!string.IsNullOrEmpty(contentType))
+                SetHeader("Content-Type", contentType);
+            SetBody(content);
+            return this;
+        }
+
+        /// <summary>
         /// Make POST request
         /// </summary>
         /// <param name="url">URL to request</param>
@@ -803,7 +851,7 @@ namespace NetCoreServer
             else
             {
                 // HEAD/GET/DELETE/OPTIONS/TRACE request might have no body
-                if ((Method == "HEAD") || (Method == "GET") || (Method == "DELETE") || (Method == "OPTIONS") || (Method == "TRACE"))
+                if ((Method == "HEAD") || (Method == "GET") || (Method == "QUERY") || (Method == "DELETE") || (Method == "OPTIONS") || (Method == "TRACE"))
                 {
                     _bodyLength = 0;
                     _bodySize = 0;
