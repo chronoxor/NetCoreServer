@@ -596,7 +596,8 @@ namespace NetCoreServer
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    Stop();
+                    if (IsStarted)
+                        Stop();
                 }
 
                 // Dispose unmanaged resources here...
