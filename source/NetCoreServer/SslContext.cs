@@ -10,7 +10,7 @@ namespace NetCoreServer
     /// <remarks>
     /// By default <c>SslProtocols.None</c> allows the operating system to choose
     /// the best protocol to use, and to block protocols that are not secure.
-    /// <remarks>
+    /// </remarks>
     public class SslContext
     {
         /// <summary>
