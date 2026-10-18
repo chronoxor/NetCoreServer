@@ -88,7 +88,7 @@ namespace SslMulticastServer
             Console.WriteLine();
 
             // Create and prepare a new SSL server context
-            var context = new SslContext(SslProtocols.Tls13, X509CertificateLoader.LoadPkcs12FromFile("server.pfx", "qwerty"));
+            var context = new SslContext(X509CertificateLoader.LoadPkcs12FromFile("server.pfx", "qwerty"));
 
             // Create a new echo server
             var server = new MulticastServer(context, IPAddress.Any, port);

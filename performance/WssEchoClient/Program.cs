@@ -130,7 +130,7 @@ namespace WssEchoClient
             MessageToSend = new byte[size];
 
             // Create and prepare a new SSL client context
-            var context = new SslContext(SslProtocols.Tls13, X509CertificateLoader.LoadPkcs12FromFile("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+            var context = new SslContext(X509CertificateLoader.LoadPkcs12FromFile("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
 
             // Create echo clients
             var echoClients = new List<EchoClient>();

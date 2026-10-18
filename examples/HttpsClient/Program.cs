@@ -27,7 +27,7 @@ namespace HttpsClient
             Console.WriteLine();
 
             // Create and prepare a new SSL client context
-            var context = new SslContext(SslProtocols.Tls13, X509CertificateLoader.LoadPkcs12FromFile("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+            var context = new SslContext(X509CertificateLoader.LoadPkcs12FromFile("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
 
             // Create a new HTTPS client
             var client = new HttpsClientEx(context, Dns.GetHostAddresses(address).FirstOrDefault(), port);

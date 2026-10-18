@@ -7,68 +7,64 @@ namespace NetCoreServer
     /// <summary>
     /// SSL context
     /// </summary>
+    /// <remarks>
+    /// By default <c>SslProtocols.None</c> allows the operating system to choose
+    /// the best protocol to use, and to block protocols that are not secure.
+    /// <remarks>
     public class SslContext
     {
         /// <summary>
-        /// Initialize SSL context with default protocols
-        /// </summary>
-        public SslContext() : this(SslProtocols.Tls13) {}
-        /// <summary>
         /// Initialize SSL context with given protocols
         /// </summary>
-        /// <param name="protocols">SSL protocols</param>
-        public SslContext(SslProtocols protocols) { Protocols = protocols; }
+        /// <param name="protocols">SSL protocols (default is SslProtocols.None)</param>
+        public SslContext(SslProtocols protocols = SslProtocols.None) { Protocols = protocols; }
         /// <summary>
         /// Initialize SSL context with given protocols and validation callback
         /// </summary>
-        /// <param name="protocols">SSL protocols</param>
         /// <param name="certificateValidationCallback">SSL certificate</param>
-        public SslContext(SslProtocols protocols, RemoteCertificateValidationCallback certificateValidationCallback)
+        /// <param name="protocols">SSL protocols (default is SslProtocols.None)</param>
+        public SslContext(RemoteCertificateValidationCallback certificateValidationCallback, SslProtocols protocols = SslProtocols.None)
         {
-            Protocols = protocols;
             CertificateValidationCallback = certificateValidationCallback;
+            Protocols = protocols;
         }
         /// <summary>
         /// Initialize SSL context with given protocols and certificate
         /// </summary>
-        /// <param name="protocols">SSL protocols</param>
         /// <param name="certificate">SSL certificate</param>
-        public SslContext(SslProtocols protocols, X509Certificate certificate) : this(protocols, certificate, null) {}
+        /// <param name="protocols">SSL protocols (default is SslProtocols.None)</param>
+        public SslContext(X509Certificate certificate, SslProtocols protocols = SslProtocols.None) : this(certificate, null, protocols) {}
         /// <summary>
         /// Initialize SSL context with given protocols, certificate and validation callback
         /// </summary>
-        /// <param name="protocols">SSL protocols</param>
         /// <param name="certificate">SSL certificate</param>
         /// <param name="certificateValidationCallback">SSL certificate</param>
-        public SslContext(SslProtocols protocols, X509Certificate certificate, RemoteCertificateValidationCallback certificateValidationCallback)
+        /// <param name="protocols">SSL protocols (default is SslProtocols.None)</param>
+        public SslContext(X509Certificate certificate, RemoteCertificateValidationCallback certificateValidationCallback, SslProtocols protocols = SslProtocols.None)
         {
-            Protocols = protocols;
             Certificate = certificate;
             CertificateValidationCallback = certificateValidationCallback;
+            Protocols = protocols;
         }
         /// <summary>
         /// Initialize SSL context with given protocols and certificates collection
         /// </summary>
-        /// <param name="protocols">SSL protocols</param>
         /// <param name="certificates">SSL certificates collection</param>
-        public SslContext(SslProtocols protocols, X509Certificate2Collection certificates) : this(protocols, certificates, null) {}
+        /// <param name="protocols">SSL protocols (default is SslProtocols.None)</param>
+        public SslContext(X509Certificate2Collection certificates, SslProtocols protocols = SslProtocols.None) : this(certificates, null, protocols) {}
         /// <summary>
         /// Initialize SSL context with given protocols, certificates collection and validation callback
         /// </summary>
-        /// <param name="protocols">SSL protocols</param>
         /// <param name="certificates">SSL certificates collection</param>
         /// <param name="certificateValidationCallback">SSL certificate</param>
-        public SslContext(SslProtocols protocols, X509Certificate2Collection certificates, RemoteCertificateValidationCallback certificateValidationCallback)
+        /// <param name="protocols">SSL protocols (default is SslProtocols.None)</param>
+        public SslContext(X509Certificate2Collection certificates, RemoteCertificateValidationCallback certificateValidationCallback, SslProtocols protocols = SslProtocols.None)
         {
-            Protocols = protocols;
             Certificates = certificates;
             CertificateValidationCallback = certificateValidationCallback;
+            Protocols = protocols;
         }
 
-        /// <summary>
-        /// SSL protocols
-        /// </summary>
-        public SslProtocols Protocols { get; set; }
         /// <summary>
         /// SSL certificate
         /// </summary>
@@ -87,5 +83,10 @@ namespace NetCoreServer
         /// Note that this is only a request - if no certificate is provided, the server still accepts the connection request.
         /// </summary>
         public bool ClientCertificateRequired { get; set; }
+
+        /// <summary>
+        /// SSL protocols
+        /// </summary>
+        public SslProtocols Protocols { get; set; }
     }
 }

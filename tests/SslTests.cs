@@ -21,7 +21,7 @@ namespace tests
 
         public static SslContext CreateContext()
         {
-            return new SslContext(SslProtocols.Tls13, X509CertificateLoader.LoadPkcs12FromFile("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
+            return new SslContext(X509CertificateLoader.LoadPkcs12FromFile("client.pfx", "qwerty"), (sender, certificate, chain, sslPolicyErrors) => true);
         }
 
         protected override void OnConnected() { Connected = true; }
@@ -60,7 +60,7 @@ namespace tests
 
         public static SslContext CreateContext()
         {
-            return new SslContext(SslProtocols.Tls13, X509CertificateLoader.LoadPkcs12FromFile("server.pfx", "qwerty"));
+            return new SslContext(X509CertificateLoader.LoadPkcs12FromFile("server.pfx", "qwerty"));
         }
 
         protected override SslSession CreateSession() { return new EchoSslSession(this); }
