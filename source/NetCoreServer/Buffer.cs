@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Text;
 
@@ -123,8 +123,10 @@ namespace NetCoreServer
 
             if (capacity > Capacity)
             {
-                byte[] data = new byte[Math.Max(capacity, 2 * Capacity)];
-                Array.Copy(_data, 0, data, 0, _size);
+                long newCapacity = Math.Max(capacity, Math.Max(256, 2 * Capacity));
+                byte[] data = new byte[newCapacity];
+                if (_size > 0)
+                    Array.Copy(_data, 0, data, 0, _size);
                 _data = data;
             }
         }
@@ -173,6 +175,8 @@ namespace NetCoreServer
         /// <returns>Count of append bytes</returns>
         public long Append(byte[] buffer)
         {
+            if (buffer == null || buffer.Length == 0)
+                return 0;
             Reserve(_size + buffer.Length);
             Array.Copy(buffer, 0, _data, _size, buffer.Length);
             _size += buffer.Length;
@@ -188,8 +192,10 @@ namespace NetCoreServer
         /// <returns>Count of append bytes</returns>
         public long Append(byte[] buffer, long offset, long size)
         {
+            if (buffer == null || size <= 0)
+                return 0;
             Reserve(_size + size);
-            Array.Copy(buffer, offset, _data, _size, size);
+            Array.Copy(buffer, (int)offset, _data, (int)_size, (int)size);
             _size += size;
             return size;
         }
@@ -201,6 +207,8 @@ namespace NetCoreServer
         /// <returns>Count of append bytes</returns>
         public long Append(ReadOnlySpan<byte> buffer)
         {
+            if (buffer.IsEmpty)
+                return 0;
             Reserve(_size + buffer.Length);
             buffer.CopyTo(new Span<byte>(_data, (int)_size, buffer.Length));
             _size += buffer.Length;
@@ -212,7 +220,7 @@ namespace NetCoreServer
         /// </summary>
         /// <param name="buffer">Buffer to append</param>
         /// <returns>Count of append bytes</returns>
-        public long Append(Buffer buffer) => Append(buffer.AsSpan());
+        public long Append(Buffer buffer) => buffer != null ? Append(buffer.AsSpan()) : 0;
 
         /// <summary>
         /// Append the given text in UTF-8 encoding
@@ -221,6 +229,8 @@ namespace NetCoreServer
         /// <returns>Count of append bytes</returns>
         public long Append(string text)
         {
+            if (string.IsNullOrEmpty(text))
+                return 0;
             int length = Encoding.UTF8.GetMaxByteCount(text.Length);
             Reserve(_size + length);
             long result = Encoding.UTF8.GetBytes(text, 0, text.Length, _data, (int)_size);
@@ -235,6 +245,8 @@ namespace NetCoreServer
         /// <returns>Count of append bytes</returns>
         public long Append(ReadOnlySpan<char> text)
         {
+            if (text.IsEmpty)
+                return 0;
             int length = Encoding.UTF8.GetMaxByteCount(text.Length);
             Reserve(_size + length);
             long result = Encoding.UTF8.GetBytes(text, new Span<byte>(_data, (int)_size, length));

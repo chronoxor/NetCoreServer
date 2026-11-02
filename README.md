@@ -1,4 +1,10 @@
-# NetCoreServer
+# NetCoreServer (customized fork)
+
+> **Note:** This is a customized fork of the well-known
+> [NetCoreServer](https://github.com/chronoxor/NetCoreServer) library written by my colleague
+> [Ivan Shynkarenka (chronoxor)](https://github.com/chronoxor). All credit for the original design and
+> implementation goes to the original author. This fork adds a few features and performance
+> improvements on top of it — see [What's different in this fork](#whats-different-in-this-fork).
 
 [![Awesome .NET](https://awesome.re/badge.svg)](https://github.com/quozd/awesome-dotnet)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -19,6 +25,7 @@ Has integration with high-level message protocol based on [Fast Binary Encoding]
 [NetCoreServer downloads](https://github.com/chronoxor/NetCoreServer/releases)<br/>
 
 # Contents
+  * [What's different in this fork](#whats-different-in-this-fork)
   * [Features](#features)
   * [Requirements](#requirements)
   * [How to build?](#how-to-build)
@@ -71,6 +78,24 @@ Has integration with high-level message protocol based on [Fast Binary Encoding]
     * [SSL Client certificate](#ssl-client-certificate)
     * [Diffie-Hellman key exchange](#diffie-hellman-key-exchange)
 
+# What's different in this fork
+This fork tracks upstream [chronoxor/NetCoreServer](https://github.com/chronoxor/NetCoreServer) and adds:
+
+**WebSocket engine extensibility**
+* `WebSocket.WsHandshaked`, `WebSocket.WsSendLock` and `WebSocket.WsSendBuffer` are now `public`, so
+  external hosts can inspect handshake state and drive the WebSocket send pipeline directly
+
+**WebSocket performance**
+* Fast frame masking/unmasking using 32-bit chunked XOR
+* Direct memory copy for unmasked server-to-client frames
+* Batched byte appends while parsing frame headers instead of byte-by-byte loops
+* Fast base64 validation of the `Sec-WebSocket-Accept` handshake header
+
+**Buffer and HTTP robustness**
+* `Buffer.Reserve` uses a minimum allocation floor to avoid reallocation churn
+* Null/empty checks for span and array appends in `Buffer`
+* Safe `BodyBytes` copy in `HttpRequest` and `HttpResponse`
+
 # Features
 * Cross platform (Linux, MacOS, Windows)
 * Asynchronous communication
@@ -86,7 +111,7 @@ Has integration with high-level message protocol based on [Fast Binary Encoding]
 * Linux
 * MacOS
 * Windows
-* [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+* [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 * [7-Zip](https://www.7-zip.org)
 * [cmake](https://www.cmake.org)
 * [git](https://git-scm.com)
@@ -99,7 +124,7 @@ Optional:
 
 ### Setup repository
 ```shell
-git clone https://github.com/chronoxor/NetCoreServer.git
+git clone https://github.com/sergiovision/NetCoreServer.git
 cd NetCoreServer
 ```
 
