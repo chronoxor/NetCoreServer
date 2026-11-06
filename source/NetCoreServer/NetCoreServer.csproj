@@ -13,7 +13,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <IncludeSymbols>true</IncludeSymbols>	
+    <IncludeSymbols>true</IncludeSymbols>
+    <IsAotCompatible>True</IsAotCompatible>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>	
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>1591</NoWarn>
