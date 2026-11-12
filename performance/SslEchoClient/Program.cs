@@ -5,7 +5,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using NetCoreServer;
-using NDesk.Options;
+using GetOpts.NET;
 
 namespace SslEchoClient
 {

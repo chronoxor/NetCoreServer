@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
-using NDesk.Options;
+using GetOpts.NET;
 using NetCoreServer;
 
 namespace WsEchoClient

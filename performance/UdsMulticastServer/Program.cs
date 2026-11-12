@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NetCoreServer;
-using NDesk.Options;
+using GetOpts.NET;
 
 namespace UdsMulticastServer
 {

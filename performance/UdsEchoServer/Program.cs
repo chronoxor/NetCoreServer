@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net.Sockets;
 using NetCoreServer;
-using NDesk.Options;
+using GetOpts.NET;
 
 namespace UdsEchoServer
 {

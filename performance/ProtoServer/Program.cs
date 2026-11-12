@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using NetCoreServer;
-using NDesk.Options;
+using GetOpts.NET;
 
 using com.chronoxor.simple;
 using com.chronoxor.simple.FBE;

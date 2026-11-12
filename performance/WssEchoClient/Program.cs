@@ -1,4 +1,4 @@
-﻿using NDesk.Options;
+﻿using GetOpts.NET;
 using NetCoreServer;
 using System;
 using System.Collections.Generic;
